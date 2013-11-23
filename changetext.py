@@ -470,22 +470,22 @@ weapon_sr=("копьё","гнездо", "ведро",)
 
 def corr_weapon(s):
    trigger=0
-   simbol=""
+   symbol=""
    letters=""
    count_let=0
-   for let in s:    
+   for let in s:
      if let.isalpha() == False :
         if let.isspace()==True:
              letters=letters+" "
         else:
           if let=="[":
              let= " ["
-          simbol=simbol+let
+          symbol=symbol+let
      else:
         letters=letters+let
         count_let=count_let+1
         if count_let<2:
-           simbol=simbol+"%s"
+           symbol=symbol+"%s"
    s_temp=letters.strip()
    
    if s_temp.startswith("р") and s_temp.endswith("р"):
@@ -542,15 +542,15 @@ def corr_weapon(s):
 
 # самоцветы
    s_temp=big+s_temp+" "
-   if simbol.count("-")!=2:
-         simbol=simbol.replace("s-", "s")
+   if symbol.count("-")!=2:
+         symbol=symbol.replace("s-", "s")
 
 
        
    if trigger==1:
-      s=simbol%("≡"+s_temp+"≡" )
+      s=symbol%("≡"+s_temp+"≡" )
    else:
-      s=simbol%s_temp
+      s=symbol%s_temp
    
    return (s)
 
@@ -666,7 +666,7 @@ def corr_inv(s):
    
    
    
-   simbol=""
+   symbol=""
    letters=""
    count_let=0
    for let in s:        
@@ -676,12 +676,12 @@ def corr_inv(s):
         else:
           if let=="[":
              let= " ["
-          simbol=simbol+let     
+          symbol=symbol+let     
      else:
         letters=letters+let
         count_let=count_let+1
         if count_let<2:
-           simbol=simbol+"%s"
+           symbol=symbol+"%s"
    s_temp=letters.strip()
 
 
@@ -711,10 +711,10 @@ def corr_inv(s):
    s_temp=s_temp[1]+" "+sec_word+" "+it_dec
    s_temp=str(s_temp.strip())
    
-   if simbol.count("-")!=2:
-         simbol=simbol.replace("s-", "s")
+   if symbol.count("-")!=2:
+         symbol=symbol.replace("s-", "s")
    
-   s=simbol%s_temp
+   s=symbol%s_temp
    if s.startswith(".") and s.endswith(".") is True:
        s="X"+s[1:-1]+"X"
    return (s)
