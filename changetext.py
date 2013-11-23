@@ -871,31 +871,31 @@ def corr_weapon(s):
 
 #если материал из двух слов
 
-   if (s_temp_sp)[0]+" "+(s_temp_sp)[1]==w_plural[(s_temp_sp)[0]+" "+(s_temp_sp)[1]]:
-       if (s_temp_sp)[0]=="древесина":
-           s_temp=(s_temp_sp)[3]+" "+(s_temp_sp)[1]+" "+(s_temp_sp)[2]
+   if s_temp_sp[0]+" "+s_temp_sp[1]==w_plural[s_temp_sp[0]+" "+s_temp_sp[1]]:
+       if s_temp_sp[0]=="древесина":
+           s_temp=s_temp_sp[3]+" "+s_temp_sp[1]+" "+s_temp_sp[2]
        else:    
-           s_temp=(s_temp_sp)[3]+" "+(s_temp_sp)[0]+" "+(s_temp_sp)[1]+" "+(s_temp_sp)[2] 
+           s_temp=s_temp_sp[3]+" "+s_temp_sp[0]+" "+s_temp_sp[1]+" "+s_temp_sp[2] 
 
 #если материал из одного слова
    
-   if (s_temp_sp)[-1] in weapon_male:
-             material= (s_temp_sp)[0]+" "+(s_temp_sp)[1]
+   if s_temp_sp[-1] in weapon_male:
+             material= s_temp_sp[0]+" "+s_temp_sp[1]
              new_word=w_male[material]
              s_temp=s_temp.replace(material, new_word)
             
-   elif (s_temp_sp)[-1] in weapon_female:
-                material= (s_temp_sp)[0]+" "+(s_temp_sp)[1]
+   elif s_temp_sp[-1] in weapon_female:
+                material= s_temp_sp[0]+" "+s_temp_sp[1]
                 new_word=w_female[material]
                 s_temp=s_temp.replace(material, new_word)
                 
-   elif (s_temp_sp)[-1] in weapon_plural:
-                 material= (s_temp_sp)[0]+" "+(s_temp_sp)[1]
+   elif s_temp_sp[-1] in weapon_plural:
+                 material= s_temp_sp[0]+" "+s_temp_sp[1]
                  new_word=w_plural[material]
                  s_temp=s_temp.replace(material, new_word)
 
-   elif (s_temp_sp)[-1] in weapon_sr:
-                 material= (s_temp_sp)[0]+" "+(s_temp_sp)[1]
+   elif s_temp_sp[-1] in weapon_sr:
+                 material= s_temp_sp[0]+" "+s_temp_sp[1]
                  new_word=w_sr[material]
                  s_temp=s_temp.replace(material, new_word) 
 # самоцветы 
