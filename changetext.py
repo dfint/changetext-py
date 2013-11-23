@@ -633,7 +633,7 @@ def rod_pad(word):
  for word_temp in word.split():
    if word_temp in iskl:
       word_temp=iskl[word_temp]
-   if word_temp[:4]=="были":
+   if word_temp.startswith("были"):
         word_temp="вер"+word_temp[4:]
 
    if word_temp[-1] in glas:
