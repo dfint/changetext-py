@@ -717,31 +717,31 @@ def elem_fort(s):
         return s
     
     
-    if (' '.join(words[-2:])) in elem_forts:
+    if ' '.join(words[-2:]) in elem_forts:
         k=-2
-    elif (' '.join(words[-1:])) in elem_forts:
+    elif ' '.join(words[-1:]) in elem_forts:
         k=-1
     else:
-         k=0   
+        k=0
     
     if k:
-            s=' '.join(words[k:])+" "+' '.join(words[:k])
+        s=' '.join(words[k:])+" "+' '.join(words[:k])
     if s[-2:] in okonch_met:
-                 s=s.replace("Неотесанный","Неотёсанная")
+        s=s.replace("Неотесанный","Неотёсанная")
     elif s[-2:] in okonch_trav:
-                 s=s.replace("Густой","Густая")
-                 s=s.replace("из морошки","морошка")
-                 s=s.replace("из пузырьковой луковицы","пузырьковая луковица")
-                 s=s.replace("из фенестрарии","фенестрария")
+        s=s.replace("Густой","Густая")
+        s=s.replace("из морошки","морошка")
+        s=s.replace("из пузырьковой луковицы","пузырьковая луковица")
+        s=s.replace("из фенестрарии","фенестрария")
     else:
-                 s=s.replace("из открытых глазок","открытый глазик")
-                 s=s.replace("из напольного грибка","напольный грибок")
-                 s=s.replace("из литопса","литопс")
-                 s=s.replace("из бодяка болотного","бодяк болотный")
-                 s=s.replace("из тростника обыкновенного","тростник обыкновенный")
-                 s=s.replace("из рогозы","рогоз")
-                 s=s.replace("из камыша","камыш")
-                 s=s.replace("из червеусиков","червеусик")
+        s=s.replace("из открытых глазок","открытый глазик")
+        s=s.replace("из напольного грибка","напольный грибок")
+        s=s.replace("из литопса","литопс")
+        s=s.replace("из бодяка болотного","бодяк болотный")
+        s=s.replace("из тростника обыкновенного","тростник обыкновенный")
+        s=s.replace("из рогозы","рогоз")
+        s=s.replace("из камыша","камыш")
+        s=s.replace("из червеусиков","червеусик")
     if k:
        s=' '.join((s.split(" "))[:-k])+" "+"("+' '.join((s.split(" "))[-k:])+")"
     return s
