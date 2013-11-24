@@ -513,9 +513,10 @@ def corr_weapon(s):
         trigger=1
 
     s_temp_sp=s_temp.split(" ")
-    if word in phrases:
-        new_word=phrases[word]
-        s_temp=s_temp.replace(word, new_word) 
+    for word in s_temp_sp:
+        if word in phrases:
+            new_word=phrases[word]
+            s_temp=s_temp.replace(word, new_word) 
    
     if "большой" in s_temp:
         s_temp=(s_temp.replace("большой","")).strip()
