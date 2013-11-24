@@ -712,8 +712,8 @@ okonch_trav=("ия","ца","ая","ва","яя","ка","ки","ии",)
 def elem_fort(s):
     words=s.split(" ")
     
-    if ' '.join(words[:1]) ==("Лужа" or "Брызги" ):
-        s=' '.join(words[:1])+" "+"крови"+" "+rod_pad(' '.join(words[1:2]))
+    if words[0]=="Лужа" or words[0]=="Брызги":
+        s=words[0]+" "+"крови"+" "+rod_pad(' '.join(words[1:2]))
         return s
     
     
