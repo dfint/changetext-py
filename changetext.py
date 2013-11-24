@@ -453,6 +453,38 @@ adjectives = {
    'из мрамора':('мраморный',"мраморная","мраморное","мраморные")
 }
 
+masculine = 0 # м. род
+feminine = 1 # ж. род
+neuter = 2 # ср. род
+plural = 3 # мн. ч.
+
+weapon = {
+# masculine
+    "топор":masculine, "щит":masculine, "баклер":masculine, "шлюз":masculine,
+    "стол":masculine, "трон":masculine, "горшок":masculine, "шкаф":masculine,
+    "ларец":masculine, "гроб":masculine, "игрушечный кораблик":masculine,
+    "игрушечный молоток":masculine, "игрушечный топорик":masculine,
+# feminine
+    "кирка":feminine, "наковальня":feminine, "булава":feminine,
+    "кружка":feminine, "кровать":feminine, "головоломка":feminine,
+    "статуя":feminine, "бочка":feminine, "дверь":feminine,
+    "миникузница":feminine, "Дверь":feminine, # duplicate дверь
+# neuter
+    "копьё":neuter, "гнездо":neuter, "ведро":neuter,
+# plural
+    "кирки":plural, "топоры":plural, "наковальни":plural, "булавы":plural,
+    "копья":plural, "короткие":plural, "кружки":plural,
+    "боевые топоры":plural, "болты":plural, "боевые молоты":plural,
+    "арбалеты":plural, "щиты":plural, "рукавицы":plural, "поножи":plural,
+    "нагрудники":plural, "брёвна":plural, "тренировочные":plural,
+    "цереуса":plural, "ведра":plural, "столы":plural, "гробы":plural,
+    "статуи":plural, "ларцы":plural, "механизмы":plural, "головоломки":plural,
+    "игрушечные кораблики":plural, "столs":plural, "гробs":plural,
+    "ларецs":plural, "статуяs":plural, "кружкаs":plural,
+    "игрушечные молотоки":plural, "игрушечные топорики":plural,
+    "миникузницы":plural, "стрелы":plural, "дротики":plural
+}
+
 weapon_male=("топор", "короткий","щит","баклер","шлюз","стол","трон","стул","горшок",
                       "боевой","шкаф","ларец","игрушечный","гроб","игрушечный кораблик","игрушечный молоток",
                       "игрушечный топорик",) 
@@ -470,90 +502,92 @@ weapon_sr=("копьё","гнездо", "ведро",)
 
 
 def corr_weapon(s):
-   trigger=0
-   symbol=""
-   letters=""
-   count_let=0
-   for let in s:
-     if let.isalpha() == False :
-        if let.isspace()==True:
-             letters=letters+" "
+    trigger=0
+    symbol=""
+    letters=""
+    count_let=0
+    for let in s:
+        if not let.isalpha() :
+            if let.isspace():
+                letters=letters+" "
+            else:
+                if let=="[":
+                    let= " ["
+                symbol=symbol+let
         else:
-          if let=="[":
-             let= " ["
-          symbol=symbol+let
-     else:
-        letters=letters+let
-        count_let=count_let+1
-        if count_let<2:
-           symbol=symbol+"%s"
-   s_temp=letters.strip()
-   
-   if s_temp.startswith("р") and s_temp.endswith("р"):
-       s_temp=s_temp[1:-1]
-       trigger=1
- 
+            letters=letters+let
+            count_let=count_let+1
+            if count_let<2:
+                symbol=symbol+"%s"
+    s_temp=letters.strip()
 
-   s_temp_sp=s_temp.split(" ")
-   for word in s_temp_sp:
-       
-        if word in phrases:
-                new_word=phrases[word]
-                s_temp=s_temp.replace(word, new_word) 
+    if s_temp.startswith("р") and s_temp.endswith("р"):
+        s_temp=s_temp[1:-1]
+        trigger=1
+
+    s_temp_sp=s_temp.split(" ")
+    if word in phrases:
+        new_word=phrases[word]
+        s_temp=s_temp.replace(word, new_word) 
    
-   if "большой" in s_temp:
-       s_temp=(s_temp.replace("большой","")).strip()
-       big="большой "
-   else:
-        big=""   
+    if "большой" in s_temp:
+        s_temp=(s_temp.replace("большой","")).strip()
+        big="большой "
+    else:
+        big=""
 
 #если материал из двух слов
 
-   if s_temp_sp[0]+" "+s_temp_sp[1]==w_plural[s_temp_sp[0]+" "+s_temp_sp[1]]:
-       if s_temp_sp[0]=="древесина":
-           s_temp=s_temp_sp[3]+" "+s_temp_sp[1]+" "+s_temp_sp[2]
-       else:
-           s_temp=s_temp_sp[3]+" "+s_temp_sp[0]+" "+s_temp_sp[1]+" "+s_temp_sp[2] 
+    if s_temp_sp[0]+" "+s_temp_sp[1]==adjectives[s_temp_sp[0]+" "+s_temp_sp[1]][3]:
+        if s_temp_sp[0]=="древесина":
+            s_temp=s_temp_sp[3]+" "+s_temp_sp[1]+" "+s_temp_sp[2]
+        else:
+            s_temp=s_temp_sp[3]+" "+s_temp_sp[0]+" "+s_temp_sp[1]+" "+s_temp_sp[2] 
 
 #если материал из одного слова
    
-   if s_temp_sp[-1] in weapon_male:
+    if s_temp_sp[-1] in weapon_male:
              material= s_temp_sp[0]+" "+s_temp_sp[1]
              # new_word=w_male[material]
              new_word=adjectives[material][0]
              s_temp=s_temp.replace(material, new_word)
             
-   elif s_temp_sp[-1] in weapon_female:
+    elif s_temp_sp[-1] in weapon_female:
                 material= s_temp_sp[0]+" "+s_temp_sp[1]
                 # new_word=w_female[material]
                 new_word=adjectives[material][1]
                 s_temp=s_temp.replace(material, new_word)
                 
-   elif s_temp_sp[-1] in weapon_sr:
+    elif s_temp_sp[-1] in weapon_sr:
                  material= s_temp_sp[0]+" "+s_temp_sp[1]
                  # new_word=w_sr[material]
                  new_word=adjectives[material][2]
                  s_temp=s_temp.replace(material, new_word) 
                 
-   elif s_temp_sp[-1] in weapon_plural:
+    elif s_temp_sp[-1] in weapon_plural:
                  material= s_temp_sp[0]+" "+s_temp_sp[1]
                  # new_word=w_plural[material]
                  new_word=adjectives[material][3]
                  s_temp=s_temp.replace(material, new_word)
-
+                 
+    # if s_temp_sp[-1] in weapon:
+        # material= s_temp_sp[0]+" "+s_temp_sp[1]
+        # # new_word=w_male[material]
+        # gender=weapon[s_temp_sp[-1]]
+        # new_word=adjectives[material][gender]
+        # s_temp=s_temp.replace(material, new_word)
+    
 # самоцветы
-   s_temp=big+s_temp+" "
-   if symbol.count("-")!=2:
-         symbol=symbol.replace("s-", "s")
-
-
+    s_temp=big+s_temp+" "
+    if symbol.count("-")!=2:
+        symbol=symbol.replace("s-", "s")
        
-   if trigger==1:
-      s=symbol%("≡"+s_temp+"≡" )
-   else:
-      s=symbol%s_temp
+    if trigger==1:
+        s=symbol%("≡"+s_temp+"≡" )
+    else:
+        s=symbol%s_temp
    
-   return (s)
+    return (s)
 
 
 #inventory
