@@ -458,7 +458,7 @@ feminine = 1 # ж. род
 neuter = 2 # ср. род
 plural = 3 # мн. ч.
 
-weapon = {
+weapon_gender = {
 # masculine
     "топор":masculine, "щит":masculine, "баклер":masculine, "шлюз":masculine,
     "стол":masculine, "трон":masculine, "горшок":masculine, "шкаф":masculine,
@@ -485,19 +485,6 @@ weapon = {
     "миникузницы":plural, "стрелы":plural, "дротики":plural
 }
 
-weapon_male=("топор", "короткий","щит","баклер","шлюз","стол","трон","стул","горшок",
-                      "боевой","шкаф","ларец","игрушечный","гроб","игрушечный кораблик","игрушечный молоток",
-                      "игрушечный топорик",) 
-
-weapon_female=("кирка","наковальня","булава","кружка","кровать","головоломка",
-                        "статуя","бочка","дверь","миникузница","Дверь",)
-weapon_plural=("кирки","топоры", "наковальни","булавы","копья", "короткие","кружки", 
-                      "боевые топоры","болты","боевые молоты","арбалеты","щиты","рукавицы",
-                      "поножи","нагрудники","брёвна","тренировочные","цереуса", "ведра",
-                      "столы","гробы","статуи","ларцы","механизмы","головоломки","игрушечные кораблики",
-                      "столs","гробs","ларецs","статуяs","кружкаs",
-                      "игрушечные молотоки","игрушечные топорики","миникузницы","стрелы","дротики",)
-weapon_sr=("копьё","гнездо", "ведро",) 
 ############################################################################
 
 
@@ -545,37 +532,12 @@ def corr_weapon(s):
             s_temp=s_temp_sp[3]+" "+s_temp_sp[0]+" "+s_temp_sp[1]+" "+s_temp_sp[2] 
 
 #если материал из одного слова
-   
-    if s_temp_sp[-1] in weapon_male:
-             material= s_temp_sp[0]+" "+s_temp_sp[1]
-             # new_word=w_male[material]
-             new_word=adjectives[material][0]
-             s_temp=s_temp.replace(material, new_word)
-            
-    elif s_temp_sp[-1] in weapon_female:
-                material= s_temp_sp[0]+" "+s_temp_sp[1]
-                # new_word=w_female[material]
-                new_word=adjectives[material][1]
-                s_temp=s_temp.replace(material, new_word)
-                
-    elif s_temp_sp[-1] in weapon_sr:
-                 material= s_temp_sp[0]+" "+s_temp_sp[1]
-                 # new_word=w_sr[material]
-                 new_word=adjectives[material][2]
-                 s_temp=s_temp.replace(material, new_word) 
-                
-    elif s_temp_sp[-1] in weapon_plural:
-                 material= s_temp_sp[0]+" "+s_temp_sp[1]
-                 # new_word=w_plural[material]
-                 new_word=adjectives[material][3]
-                 s_temp=s_temp.replace(material, new_word)
-                 
-    # if s_temp_sp[-1] in weapon:
-        # material= s_temp_sp[0]+" "+s_temp_sp[1]
-        # # new_word=w_male[material]
-        # gender=weapon[s_temp_sp[-1]]
-        # new_word=adjectives[material][gender]
-        # s_temp=s_temp.replace(material, new_word)
+
+    if s_temp_sp[-1] in weapon_gender:
+        material= s_temp_sp[0]+" "+s_temp_sp[1]
+        gender=weapon_gender[s_temp_sp[-1]]
+        new_word=adjectives[material][gender]
+        s_temp=s_temp.replace(material, new_word)
     
 # самоцветы
     s_temp=big+s_temp+" "
@@ -596,26 +558,15 @@ def corr_weapon(s):
 def rod_pad(word):
 ###################### существительные+ прилаг  ######################
 #заканчивается гласной
- glas_let={
-                'ца':'цы',
-                'ма':'мы',
-                'ка':'ки',
-                'фа':'фы',
-                'ба':'бы',
-                'са':'сы',
-                'ья':'ьи',
-                'на':'ны',
-                'да':'ды',
-                'ха':'хи',
-                'ва':'вы',
-                'за':'зы',
-                'га':'ги',
-                'ра':'ры',
+    glas_let={
+        'ца':'цы', 'ма':'мы', 'ка':'ки', 'фа':'фы', 'ба':'бы', 'са':'сы',
+        'ья':'ьи', 'на':'ны', 'да':'ды', 'ха':'хи', 'ва':'вы', 'за':'зы',
+        'га':'ги', 'ра':'ры',
 #                прилагат
-                'ая':'ой',
-                }
+        'ая':'ой',
+    }
 
- soglas_let_2={
+    soglas_let_2={
                 'ай':'ая',
                 'ёл':'ла',
                 'ок':'ка',
@@ -636,7 +587,7 @@ def rod_pad(word):
                 'ви':'ви',
                 }
 
- soglas_let_3={
+    soglas_let_3={
                 'адь':'ади',
                 'едь':'едя',
                 'ось':'ося',
@@ -650,9 +601,9 @@ def rod_pad(word):
                 'ней':'ней',
                 }         
                 
- glas={"а", "о", "э", "у", "ы", "е", "ё", "ю", "я"}
- soglas={"б", "в", "г", "д", "ж", "з", "й", "к", "л", "м", "н", "п", "р", "с", "т", "ф", "х", "ц", "ч", "ш", "щ", "ь", "и",}
- iskl={
+    glas={"а", "о", "э", "у", "ы", "е", "ё", "ю", "я"}
+    soglas={"б", "в", "г", "д", "ж", "з", "й", "к", "л", "м", "н", "п", "р", "с", "т", "ф", "х", "ц", "ч", "ш", "щ", "ь", "и",}
+    iskl={
                 'барсук-медоед':'барсука-медоед',
                 'птица-носорог':'птицы-носорог',
                 'угорь-конгер':'угря-конгер',
@@ -663,139 +614,127 @@ def rod_pad(word):
                 }
  
  
- word_temp1=""
+    word_temp1=""
  
- for word_temp in word.split():
-   if word_temp in iskl:
-      word_temp=iskl[word_temp]
-   if word_temp.startswith("были"):
-        word_temp="вер"+word_temp[4:]
+    for word_temp in word.split():
+        if word_temp in iskl:
+            word_temp=iskl[word_temp]
+        if word_temp.startswith("были"):
+            word_temp="вер"+word_temp[4:]
 
-   if word_temp[-1] in glas:
-      if word_temp[-2:] in glas_let:
-          word_temp=word_temp[:-2]+glas_let[word_temp[-2:]]
+    if word_temp[-1] in glas:
+        if word_temp[-2:] in glas_let:
+            word_temp=word_temp[:-2]+glas_let[word_temp[-2:]]
     
-   elif word_temp[-1] in soglas:
-      if word_temp[-3:] in soglas_let_3:
+    elif word_temp[-1] in soglas:
+        if word_temp[-3:] in soglas_let_3:
           
-          word_temp=word_temp[:-3]+soglas_let_3[word_temp[-3:]]
+            word_temp=word_temp[:-3]+soglas_let_3[word_temp[-3:]]
           
-      elif word_temp[-2:] in soglas_let_2:
-          word_temp=word_temp[:-2]+soglas_let_2[word_temp[-2:]]
-      else:
-          word_temp=word_temp+"а"
-   word_temp1=(word_temp1+" "+word_temp).strip()
+        elif word_temp[-2:] in soglas_let_2:
+            word_temp=word_temp[:-2]+soglas_let_2[word_temp[-2:]]
+        else:
+            word_temp=word_temp+"а"
+    word_temp1=(word_temp1+" "+word_temp).strip()
    
- return word_temp1
-
-
+    return word_temp1
 
 
 item_mat_skin=("из кожи", "из шерсти", "из волокон", "из шёлка", "из панциря","мясо", "из кости")
 
 def corr_inv(s):
-   if s.startswith("X") and s.endswith("X") :
-       s=s[1:-1]
-       s="."+s+"."
-       
-   
-   
-   
-   symbol=""
-   letters=""
-   count_let=0
-   for let in s:
-     if not let.isalpha():
-        if let.isspace():
-             letters=letters+" "
+    if s.startswith("X") and s.endswith("X") :
+        s=s[1:-1]
+        s="."+s+"."
+
+    symbol=""
+    letters=""
+    count_let=0
+    for let in s:
+        if not let.isalpha():
+            if let.isspace():
+                 letters=letters+" "
+            else:
+              if let=="[":
+                 let= " ["
+              symbol=symbol+let     
         else:
-          if let=="[":
-             let= " ["
-          symbol=symbol+let     
-     else:
-        letters=letters+let
-        count_let=count_let+1
-        if count_let<2:
-           symbol=symbol+"%s"
-   s_temp=letters.strip()
+            letters=letters+let
+            count_let=count_let+1
+            if count_let<2:
+                symbol=symbol+"%s"
+    s_temp=letters.strip()
 
+    for word in s_temp.split(" "):
+        if word in phrases:
+            new_word=phrases[word]
+            s_temp=s_temp.replace(word, new_word)         
 
-
-   for word in s_temp.split(" "):
-            if word in phrases:
-                   new_word=phrases[word]
-                   s_temp=s_temp.replace(word, new_word)         
-
-   if s_temp.find("левый")>-1:
-                s_temp=s_temp.replace("левый", "левая")
-   elif s_temp.find("правый")>-1:
-                s_temp=s_temp.replace("правый", "правая")
+    if s_temp.find("левый")>-1:
+        s_temp=s_temp.replace("левый", "левая")
+    elif s_temp.find("правый")>-1:
+        s_temp=s_temp.replace("правый", "правая")
                        
-   s_word=s_temp.split()
-   count=0
+    s_word=s_temp.split()
+    count=0
    
-   for iz in s_word:
-                if iz=='из':
-                    sec_word=s_word[count]+" "+s_word[count+1]
-                count=count+1
+    for iz in s_word:
+        if iz=='из':
+            sec_word=s_word[count]+" "+s_word[count+1]
+        count=count+1
                 
-   s_temp=s_temp.split(sec_word)
+    s_temp=s_temp.split(sec_word)
 
-   it_dec=  rod_pad(s_temp[0])
+    it_dec= rod_pad(s_temp[0])
                 
-   s_temp=s_temp[1]+" "+sec_word+" "+it_dec
-   s_temp=str(s_temp.strip())
+    s_temp=s_temp[1]+" "+sec_word+" "+it_dec
+    s_temp=str(s_temp.strip())
    
-   if symbol.count("-")!=2:
-         symbol=symbol.replace("s-", "s")
+    if symbol.count("-")!=2:
+        symbol=symbol.replace("s-", "s")
    
-   s=symbol%s_temp
-   if s.startswith(".") and s.endswith(".") is True:
-       s="X"+s[1:-1]+"X"
-   return (s)
+    s=symbol%s_temp
+    if s.startswith(".") and s.endswith(".") is True:
+        s="X"+s[1:-1]+"X"
+    return (s)
  
 #gems и трава
 ##############################################################################
 item_other=("панцирь", "скелет", "хвост", "искалеченный труп","останки","кость","кожа","шёлк","волокна","шерсть","мех",)
 def corr_other(s):
-         for item in item_other:
-             if s.find(item)!=-1: 
-                 item_temp=item
-                 s_temp=(s.replace(item, "")).strip()
-                 s_temp=rod_pads_temp
-         s= item_temp +" "+s_temp  
-
-         return (s)
+    for item in item_other:
+        if s.find(item)!=-1: 
+            item_temp=item
+            s_temp=(s.replace(item, "")).strip()
+            s_temp=rod_pads_temp
+    s= item_temp +" "+s_temp
+    return s
 
 ############################################################################
 
 words=("трупs", "часть телаs",)
 def word(s):
-       for item in words:
-             if s.find(item)!=-1: 
-               s=phrases[item]+" "+s[-3:]
-
-       return (s)
+    for item in words:
+        if s.find(item)!=-1: 
+            s=phrases[item]+" "+s[-3:]
+    return s
 
 ############################################################################
 
 def corr_sklad(s):
-      s_temp_1_1= (((s.split("(", 2) ) [1] ).split())[1]
-      s_temp_1_2= rod_pad((((s.split("(", 2) ) [1] ).split())[0])
-      s_temp_2= (s.split("(", 2) ) [2] 
-      s="("+s_temp_1_1+" "+(s_temp_1_2).lower()+" ("+s_temp_2
-
-      return (s)
+    s_temp_1_1= (((s.split("(", 2) ) [1] ).split())[1]
+    s_temp_1_2= rod_pad((((s.split("(", 2) ) [1] ).split())[0])
+    s_temp_2= (s.split("(", 2) ) [2] 
+    s="("+s_temp_1_1+" "+(s_temp_1_2).lower()+" ("+s_temp_2
+    return (s)
 
 ############################################################################
 #элементы крепости.Для упрощения материал указал в скобках после названия элемента
  #самоцветы+травы
 elem_forts=("Пол Пещеры", "Стена","Кластер","Пол","Лестница вверх",
-                 "Лестница вниз","Подъем","Валун","Склон","Галька","Деревце","грубый","Густой","Лужа" ,"Брызги")
+    "Лестница вниз","Подъем","Валун","Склон","Галька","Деревце","грубый","Густой","Лужа" ,"Брызги")
 okonch_met=("ль","ма","ля")
 okonch_trav=("ия","ца","ая","ва","яя","ка","ки","ии",)
-
-
 
 def elem_fort(s):
     s_temp=s.split(" ")
@@ -839,38 +778,36 @@ def elem_fort(s):
 
 forg_word= {"Ковать ", "Изготовить ", "Чеканить ","Делать "}
 
-
-
 forg_ch={
-                'булава':'булаву',
-                'кирка':'кирку',
-                'шапка':'шапку',
-                'руковица':'рукавицу',
-                'кольчуга':'кольчугу',
-                'бочка':'бочку',
-                'Клетка':'клетку',
-                'доспешная стойка':'доспешную стойку',
-                'Решетка':'решетку',
-                'статуя':'статую',
-                'оружейная стойка':'оружейную стойку',
-                'Секция трубы':'секцию трубы',
-                'Шина':'шину',
-                'Наковальня':'наковальню',
-                'Игрушка':'игрушку',
-                'вагонетка':'вагонетку',
-                'Фляга':'флягу',
-                'роба':'робу',
-                'рубаха':'рубаху',
-                'одежда':'одежду',
-                'перчатка':'перчатку',
-                'варежка':'варежку',
-                }
+    'булава':'булаву',
+    'кирка':'кирку',
+    'шапка':'шапку',
+    'руковица':'рукавицу',
+    'кольчуга':'кольчугу',
+    'бочка':'бочку',
+    'Клетка':'клетку',
+    'доспешная стойка':'доспешную стойку',
+    'Решетка':'решетку',
+    'статуя':'статую',
+    'оружейная стойка':'оружейную стойку',
+    'Секция трубы':'секцию трубы',
+    'Шина':'шину',
+    'Наковальня':'наковальню',
+    'Игрушка':'игрушку',
+    'вагонетка':'вагонетку',
+    'Фляга':'флягу',
+    'роба':'робу',
+    'рубаха':'рубаху',
+    'одежда':'одежду',
+    'перчатка':'перчатку',
+    'варежка':'варежку',
+}
                 
 glass_mat={
-                'зеленое стекло':'из зеленого стекла',
-                'бесцветное стекло':'из бесцветного стекла',
-                'хрусталь':'из хрусталя',
-              }
+    'зеленое стекло':'из зеленого стекла',
+    'бесцветное стекло':'из бесцветного стекла',
+    'хрусталь':'из хрусталя',
+}
 
 def forg(s):
     s=s.replace("зеленое стекло","из зеленого стекла")
@@ -909,7 +846,7 @@ def ChangeText(s):
             return corr_sklad(s)
     elif any(s.find(item)!=-1 for item in item_mat_skin):
             return corr_inv(s)
-    elif any(s.find(item)!=-1 for item in w_plural):
+    elif any(s.find(item)!=-1 for item in adjectives):
             return corr_weapon(s)
     elif any(s.find(item)!=-1 for item in item_other):
             return corr_other(s)
@@ -917,9 +854,6 @@ def ChangeText(s):
             return word(s)
     elif any(s.find(item)!=-1 for item in elem_forts):
             return elem_fort(s)
-
-            
-    
     else :
         if debug and s not in not_translated:
             log_file.write('"%s"\n' % s)
