@@ -550,8 +550,7 @@ def corr_weapon(s):
     else:
         s=symbol%s_temp
    
-    return (s)
-
+    return s
 
 #inventory
 ############################################################################
@@ -697,7 +696,7 @@ def corr_inv(s):
     s=symbol%s_temp
     if s.startswith(".") and s.endswith(".") is True:
         s="X"+s[1:-1]+"X"
-    return (s)
+    return s
  
 #gems и трава
 ##############################################################################
@@ -727,7 +726,7 @@ def corr_sklad(s):
     s_temp_1_2= rod_pad((((s.split("(", 2) ) [1] ).split())[0])
     s_temp_2= (s.split("(", 2) ) [2] 
     s="("+s_temp_1_1+" "+(s_temp_1_2).lower()+" ("+s_temp_2
-    return (s)
+    return s
 
 ############################################################################
 #элементы крепости.Для упрощения материал указал в скобках после названия элемента
@@ -742,7 +741,7 @@ def elem_fort(s):
     
     if ' '.join(s_temp[:1]) ==("Лужа" or "Брызги" ):
         s=' '.join(s_temp[:1])+" "+"крови"+" "+rod_pad(' '.join(s_temp[1:2]))
-        return (s)
+        return s
     
     
     if (' '.join(s_temp[-2:])) in elem_forts:
