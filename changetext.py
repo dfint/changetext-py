@@ -627,18 +627,18 @@ def corr_inv(s):
     letters=""
     count_let=0
     for let in s:
-        if not let.isalpha():
-            if let.isspace():
-                 letters=letters+" "
-            else:
-              if let=="[":
-                 let= " ["
-              symbol=symbol+let     
-        else:
+        if let.isalpha():
             letters=letters+let
             count_let=count_let+1
             if count_let<2:
                 symbol=symbol+"%s"
+        elif let.isspace():
+            letters=letters+" "
+        else:
+            if let=="[":
+                let= " ["
+            symbol=symbol+let
+
     s_temp=letters.strip()
 
     for word in s_temp.split(" "):
