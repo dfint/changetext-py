@@ -640,8 +640,9 @@ def corr_inv(s):
             symbol=symbol+let
 
     s_temp=letters.strip()
-
-    for word in s_temp.split(" "):
+    
+    words = s_temp.split()
+    for word in words:
         if word in phrases:
             new_word=phrases[word]
             s_temp=s_temp.replace(word, new_word)
@@ -650,13 +651,21 @@ def corr_inv(s):
         s_temp=s_temp.replace("левый", "левая")
     elif s_temp.find("правый")>-1:
         s_temp=s_temp.replace("правый", "правая")
-                       
-    s_word=s_temp.split()
+        
+    words=s_temp.split()
+    
+    # if "левый" in words:
+        # i = words.index("левый")
+        # words[i] = "левая"
+    # elif "правый" in words:
+        # i = words.index("правый")
+        # words[i] = "правая"
+    
     count=0
    
-    for iz in s_word:
+    for iz in words:
         if iz=='из':
-            sec_word=s_word[count]+" "+s_word[count+1]
+            sec_word=words[count]+" "+words[count+1]
         count=count+1
                 
     s_temp=s_temp.split(sec_word)
