@@ -616,7 +616,7 @@ def rod_pad(word):
     return word_temp1
 
 
-item_mat_skin=("из кожи", "из шерсти", "из волокон", "из шёлка", "из панциря","мясо", "из кости")
+item_mat_skin={"из кожи", "из шерсти", "из волокон", "из шёлка", "из панциря","мясо", "из кости"}
 
 def corr_inv(s):
     if s.startswith("X") and s.endswith("X") :
@@ -644,7 +644,7 @@ def corr_inv(s):
     for word in s_temp.split(" "):
         if word in phrases:
             new_word=phrases[word]
-            s_temp=s_temp.replace(word, new_word)         
+            s_temp=s_temp.replace(word, new_word)
 
     if s_temp.find("левый")>-1:
         s_temp=s_temp.replace("левый", "левая")
@@ -676,7 +676,7 @@ def corr_inv(s):
  
 #gems и трава
 ##############################################################################
-item_other=("панцирь", "скелет", "хвост", "искалеченный труп","останки","кость","кожа","шёлк","волокна","шерсть","мех",)
+item_other={"панцирь", "скелет", "хвост", "искалеченный труп","останки","кость","кожа","шёлк","волокна","шерсть","мех",}
 def corr_other(s):
     for item in item_other:
         if s.find(item)!=-1: 
@@ -688,7 +688,7 @@ def corr_other(s):
 
 ############################################################################
 
-words=("трупs", "часть телаs",)
+words={"трупs", "часть телаs",}
 def word(s):
     for item in words:
         if s.find(item)!=-1: 
@@ -808,8 +808,8 @@ Init()
 
 debug = True
 if debug:
-    log_file = open('changetext.log', 'a', 1)
-#    log_file = open('changetext.log', 'a', 1, encoding='cp65001')
+    log_file = open('changetext.log', 'a', 1, encoding='cp65001')
+
 not_translated = set()
 
 def ChangeText(s):
