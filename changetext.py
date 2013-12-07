@@ -469,7 +469,7 @@ weapon_gender = {
     "стол":masculine, "трон":masculine, "горшок":masculine, "шкаф":masculine,
     "ларец":masculine, "гроб":masculine, "игрушечный кораблик":masculine,
     "игрушечный молоток":masculine, "игрушечный топорик":masculine,
-    "кубок":masculine,"костыль":feminine,
+    "кубок":masculine,"костыль":masculine,
 # feminine
     "кирка":feminine, "наковальня":feminine, "булава":feminine,
     "кружка":feminine, "кровать":feminine, "головоломка":feminine,
