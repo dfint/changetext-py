@@ -472,6 +472,11 @@ adjectives = {
     'из чёрной':("из чёрной","из чёрной","из чёрной","из чёрной"),
     'из розового':("из розового","из розового","из розового","из розового"),
     'древесина':("древесина","древесина","древесина","древесина"),
+    'большой':("большой","большая","большое","большие"),
+    'бриолетовый':("бриолетовый","бриолетовая","бриолетовое","бриолетовые"),
+    'огранённый подушечкой':("огранённый подушечкой","огранённая подушечкой","огранённое подушечкой","огранённые подушечкой"),
+    'плоскогранный':("плоскогранный","плоскогранная","плоскогранное","плоскогранные"),
+    'огранённый розой':("огранённый розой","огранённая розой","огранённое розой","огранённые розой"),
 }
 
 masculine = 0 # м. род
@@ -514,6 +519,22 @@ weapon_gender = {
     
 }
 
+gem_gender = {
+# masculine
+    "хрусталь":masculine,"морганит":masculine,"глаз":masculine,
+# feminine
+    "яшма":feminine,"шпинель":feminine,
+# neuter
+
+# plural
+    "шерлы":plural,"прозапалы":plural,"кровавики":plural,"агаты":plural,"хризопразы":plural,"сердолики":plural,"опалы":plural,
+    "кварцы":plural,"цитрины":plural,"пириты":plural,"турмалины":plural,"халцедоны":plural,"камни":plural,"пиропы":plural,
+    "гранаты":plural,"цирконы":plural,"демантоиды":plural,"биксбиты":plural,"топазы":plural,"кунциты":plural,"спессартины":plural,
+    "гелиодоры":plural,"гошениты":plural,"аметисты":plural,"аквамарины":plural,"хризобериллы":plural,"арлекины":plural,
+    "изумруды":plural,"александриты":plural,    
+}
+
+
 ############################################################################
 
 
@@ -547,12 +568,11 @@ def corr_weapon(s):
         if word in phrases:
             new_word=phrases[word]
             s_temp=s_temp.replace(word, new_word) 
-    if "большой" in s_temp:
-        s_temp=(s_temp.replace("большой","")).strip()
-        big="большой "
-    else:
-        big=""
-
+#    if "большой" in s_temp:
+#        s_temp=(s_temp.replace("большой","")).strip()
+#        big="большой "
+#    else:
+#        big=""
 
 
 #если материал из двух слов
@@ -562,7 +582,12 @@ def corr_weapon(s):
     elif s_temp_sp[0:1]==["древесина"]:
         s_temp_sp[0]="из"
         s_temp=s_temp.replace("древесина", "из")
-       
+    elif ' '.join(s_temp_sp[-1:2]) in gem_gender :
+        material= s_temp_sp[0]
+        gender=gem_gender[s_temp_sp[-1]]
+        new_word=adjectives[material][gender]
+        s_temp=s_temp.replace(material, new_word)
+        
     elif s_temp_sp[0]+" "+s_temp_sp[1]==adjectives[s_temp_sp[0]+" "+s_temp_sp[1]][3]:
         if s_temp_sp[0]=="древесина":
             s_temp=s_temp_sp[3]+" "+s_temp_sp[1]+" "+s_temp_sp[2]
@@ -578,7 +603,7 @@ def corr_weapon(s):
         s_temp=s_temp.replace(material, new_word)
  
 # самоцветы
-    s_temp=big+s_temp
+#    s_temp=big+s_temp
     if symbol.count("-")!=2:
         symbol=symbol.replace("s-", "s")
        
@@ -921,8 +946,8 @@ def ChangeText(s):
 
 if __name__ == '__main__':
 
-    print(ChangeText("древесина дуба брёвна"))
-    print(ChangeText("древесина ясеня брёвна"))
+    print(ChangeText("бриолетовый прозапалы"))
+ 
     input()
 
 
