@@ -543,7 +543,7 @@ adjectives = {
     'из чёрной бронзы':'',
     'из розового золота':'',
     'древесина':("древесина","древесина","древесина","древесина"),
-#размеры
+#размеры и др
     'большой':("большой","большая","большое","большие"),
     'большой,':("большой,","большая,","большое,","большие,"),
     'гигантский':("гигантский","гигантская","гигантское","гигантские"),
@@ -552,6 +552,7 @@ adjectives = {
     'шипованный':("шипованный","шипованная","шипованное","шипованные"),
     'гигантский':("гигантский","гигантская","гигантское","гигантские"),
     'зазубренный':("зазубренный","зазубренная","зазубренное","зазубренные"),
+    'кольчужный':("кольчужный","кольчужная","кольчужное","кольчужные"),    
 #минералы    
     'бриолетовый':("бриолетовый","бриолетовая","бриолетовое","бриолетовые"),
     'огранённый':("огранённый","огранённая","огранённое","огранённые"),
@@ -575,12 +576,14 @@ weapon_gender = {
     "стол":masculine, "трон":masculine, "горшок":masculine, "шкаф":masculine,
     "ларец":masculine, "гроб":masculine, "игрушечный кораблик":masculine,
     "игрушечный молоток":masculine, "игрушечный топорик":masculine,
-    "кубок":masculine,"костыль":masculine,"песка":masculine,
+    "кубок":masculine,"костыль":masculine,"песка":masculine,"шлем":masculine,
+    "капюшон":masculine,"сапог":masculine,"ботинок":masculine,"башмак":masculine,
 # feminine
     "кирка":feminine, "наковальня":feminine, "булава":feminine,
     "кружка":feminine, "кровать":feminine, "головоломка":feminine,
     "статуя":feminine, "бочка":feminine, "дверь":feminine,
-    "миникузница":feminine, "Дверь":feminine,"шина":feminine,"статуэтка":feminine, # duplicate дверь
+    "миникузница":feminine, "Дверь":feminine,"шина":feminine,"статуэтка":feminine,
+    "кольчуга":feminine,"шапка":feminine, # duplicate дверь
 # neuter
     "копьё":neuter, "гнездо":neuter, "ведро":neuter, 
 # plural
@@ -600,7 +603,9 @@ weapon_gender = {
     "фляги":plural,"бурдюкs":plural,"амулетs":plural,"блоки":plural,"наковальняs":plural,
     "браслетs":plural,"скипетрs":plural,"коронаs":plural,"статуэткаs":plural,"кольцоs":plural,
     "серьгаs":plural,"флягаs":plural,"колчанs":plural,"рюкзакs":plural,"мешокs":plural,
-    "верёвкаs":plural,"шинаs":plural,"костыльы":plural,
+    "верёвкаs":plural,"шинаs":plural,"костыльы":plural,"кольчуги":plural,"шлемы":plural,
+    "шапки":plural,"капюшоны":plural,"сапоги":plural,"ботинки":plural,"башмаки":plural,
+    "рейтузы":plural,"штаны":plural,
 }
 
 
@@ -684,13 +689,13 @@ def corr_weapon(s):
     if s_temp_sp[0]=="древесина":
         s_temp_sp[0]="из"
         s_temp=s_temp.replace("древесина", "из")
-    elif ' '.join(s_temp_sp[-1:]) in gem_gender :
+    elif s_temp_sp[-1] in gem_gender:
         material=s_temp_sp[0]
         gender=gem_gender[s_temp_sp[-1]]
         new_word=adjectives[material][gender]
         s_temp=s_temp.replace(material, new_word)
 
-    elif ' '.join(s_temp_sp[-1:]) in trap :
+    elif s_temp_sp[-1] in trap :
         if s_temp_sp[1]=="зазубренный":
             material=s_temp_sp[2]+" "+s_temp_sp[3]
             gender=trap[s_temp_sp[-1]]
@@ -718,6 +723,10 @@ def corr_weapon(s):
     if ' '.join(s_temp_sp[0:3]) in adjectives:
         s_temp=' '.join(s_temp_sp[3:])+" "+' '.join(s_temp_sp[:3])
     elif s_temp_sp[-1] in weapon_gender:
+        if s_temp_sp[2] in adjectives:
+            material=s_temp_sp[2]
+            gender=weapon_gender[s_temp_sp[-1]]
+            s_temp=s_temp.replace(s_temp_sp[2], adjectives[material][gender])
         material= s_temp_sp[0]+" "+s_temp_sp[1]
         gender=weapon_gender[s_temp_sp[-1]]
         new_word=adjectives[material][gender]
@@ -1070,9 +1079,8 @@ if __name__ == '__main__':
 #    print(ChangeText("огромный из железа винты"))
 #    print(ChangeText("гигантский из висмутовой бронзы лезвие топора"))
 #    print(ChangeText("заточенный из железа кол"))
-    print(ChangeText("большой, зазубренный из бронзы диски"))
-    print(ChangeText("(большой, зазубренный из бронзы диск)"))
-    print(ChangeText("(большой, зазубренный из бронзы диск [3])"))
+    print(ChangeText("из меди кольчужный рейтузы"))
+
     input()
 
 
