@@ -373,8 +373,6 @@ phrases = {
 #животные
     'як бык, ♂':'як, ♂',
     'як корова, ♀':'як, ♀',
-    'боевой собака, ♀':'боевая собака, ♀',
-    'охотничий собака, ♀':'охотничья собака, ♀',
 #корректировка выбора предметов
     'Верёвки (шёлк)':'Верёвки (шёлк)',
     'Нить (шёлк)':'Нить (шёлк)',
@@ -1125,6 +1123,16 @@ def forg(s):
     return s.capitalize()
 
 
+def corr_animals(s):
+    s=s.replace("(Ручной)","(Ручная)")
+    s=s.replace("боевой","боевая")
+    s=s.replace("Ничей","Ничья")
+    s=s.replace("охотничий","охотничья")
+    return s
+
+
+
+
 
 ############################################################################
 def Init():
@@ -1158,6 +1166,8 @@ def ChangeText(s):
             return elem_fort(s)
     elif any(s.find(item)!=-1 for item in items_choice):
             return item_choice(s)
+    elif s.find("♀")!=-1 :
+            return corr_animals(s)
     else :
         if debug and s not in not_translated:
             log_file.write('"%s"\n' % s)
@@ -1166,7 +1176,8 @@ def ChangeText(s):
         return None
 
 if __name__ == '__main__':
-    print(ChangeText("из клёна стул"))
+    print(ChangeText("Ничей боевой собака, ♀ (Ручной)"))
+    print(ChangeText("Ничей гусыня, ♀ (Ручной)"))
 
     input()
 
