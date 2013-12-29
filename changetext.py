@@ -1122,13 +1122,17 @@ def forg(s):
 
     return s.capitalize()
 
-
+animals_kind={"щенок","телёнок","ослёнок","утёнок","крольчонок","гусёнок","котёнок","жеребёнок","ягнёнок","поросёнок","козлёнок",
+                    "цыплёнок","детёныш","цесарёнок","птенец","индюшонок","оленёнок",}
 def corr_animals(s):
-    s=s.replace("(Ручной)","(Ручная)")
-    s=s.replace("боевой","боевая")
-    s=s.replace("Ничей","Ничья")
-    s=s.replace("охотничий","охотничья")
-    return s
+    if any(s.find(item)!=-1 for item in animals_kind):
+        return s
+    else:
+        s=s.replace("(Ручной)","(Ручная)")
+        s=s.replace("боевой","боевая")
+        s=s.replace("Ничей","Ничья")
+        s=s.replace("охотничий","охотничья")
+        return s
 
 
 
@@ -1176,7 +1180,7 @@ def ChangeText(s):
         return None
 
 if __name__ == '__main__':
-    print(ChangeText("Ничей боевой собака, ♀ (Ручной)"))
+    print(ChangeText("Ничей щенок, ♀ (Ручной)"))
     print(ChangeText("Ничей гусыня, ♀ (Ручной)"))
 
     input()
