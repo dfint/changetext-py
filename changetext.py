@@ -963,7 +963,7 @@ item_other={"панцирь", "скелет", "искалеченный труп
 #кость попадает в жидкость
 def corr_other(s):
        words=s.split(" ")
-       words=' '.join(words[-1:])+" "+rod_pad(' '.join(words[:-1]))
+       words=words[-1]+" "+rod_pad(' '.join(words[:-1]))
        return words.capitalize()
     
 #выбор преметов
