@@ -1027,10 +1027,10 @@ def word(s):
 ############################################################################
 
 def corr_sklad(s):
-    s_temp_1_1= (((s.split("(", 2) ) [1] ).split())[1]
-    s_temp_1_2= rod_pad((((s.split("(", 2) ) [1] ).split())[0])
+    s_temp_1_1= s.split("(", 2)[1].split()[1]
+    s_temp_1_2= rod_pad(s.split("(", 2)[1].split()[0])
     s_temp_2= (s.split("(", 2) ) [2] 
-    s="("+s_temp_1_1+" "+(s_temp_1_2).lower()+" ("+s_temp_2
+    s="("+s_temp_1_1+" "+s_temp_1_2.lower()+" ("+s_temp_2
     return s
 
 ############################################################################
@@ -1075,7 +1075,7 @@ def elem_fort(s):
         s=s.replace("из камыша","камыш")
         s=s.replace("из червеусиков","червеусик")
     if k:
-       s=' '.join((s.split(" "))[:-k])+" "+"("+' '.join((s.split(" "))[-k:])+")"
+       s=' '.join(s.split(" ")[:-k])+" "+"("+' '.join(s.split(" ")[-k:])+")"
     return s.capitalize()
 ############################################################################
 #ковать-корректировка "ковать из"
@@ -1118,8 +1118,8 @@ def forg(s):
     s=s.replace("зеленое стекло","из зеленого стекла")
     s=s.replace("бесцветное стекло","из бесцветного стекла")
     s=s.replace("хрусталь","из хрусталя")
-    s_temp_1=' '.join((s.split(" "))[:-2])
-    s_temp=(s.replace(s_temp_1, "")).strip()
+    s_temp_1=' '.join(s.split(" ")[:-2])
+    s_temp=s.replace(s_temp_1, "").strip()
 
     if s_temp in forg_ch:
         s=s.replace(s_temp,forg_ch[s_temp])
