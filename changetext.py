@@ -985,12 +985,12 @@ def item_choice(s):
                 if num.startswith("("):
                     num=num[1:]
                 k=(k+" "+rod_pad(num)).strip()
-            s="("+noun+" "+k+" "+' '.join(words[-1:])
+            s="("+noun+" "+k+" "+words[-1]
         else:
             k=""
             for num in words[1:-2]:
                 k=(k+" "+rod_pad(num)).strip()
-            s=' '.join(words[0:1])+" "+' '.join(words[-2:-1])+" "+k+" "+' '.join(words[-1:])
+            s=words[0]+" "+words[-2]+" "+k+" "+words[-1]
         return s
     else:
         if s.startswith("("):
@@ -1011,7 +1011,7 @@ def item_choice(s):
             k=""
             for num in words[1:-1]:
                 k=(k+" "+rod_pad(num)).strip()
-            s=st+' '.join(words[0:1])+" "+' '.join(words[-1:])+" "+k+kon
+            s=st+words[0]+" "+words[-1]+" "+k+kon
 
     return s
 
@@ -1029,7 +1029,7 @@ def word(s):
 def corr_sklad(s):
     s_temp_1_1= s.split("(", 2)[1].split()[1]
     s_temp_1_2= rod_pad(s.split("(", 2)[1].split()[0])
-    s_temp_2= (s.split("(", 2) ) [2] 
+    s_temp_2= s.split("(", 2)[2] 
     s="("+s_temp_1_1+" "+s_temp_1_2.lower()+" ("+s_temp_2
     return s
 
@@ -1045,7 +1045,7 @@ def elem_fort(s):
     words=s.split(" ")
     
     if words[0]=="Лужа" or words[0]=="Брызги"or words[0]=="Пятно":
-        s=words[0]+" "+rod_pad(words[2])+" "+rod_pad(' '.join(words[1:2]))
+        s=words[0]+" "+rod_pad(words[2])+" "+rod_pad(words[1])
         return s
     
     if ' '.join(words[-2:]) in elem_forts:
