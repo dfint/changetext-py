@@ -750,7 +750,7 @@ def corr_weapon(s):
                 symbol=symbol+"%s"
                 
     s_temp=letters.strip()
-    if s_temp.startswith("р") and s_temp.endswith("р"):
+    if s_temp[0]=="р" and s_temp[-1]=="р":
         s_temp=s_temp[1:-1]
         trigger=1
 
@@ -894,7 +894,7 @@ item_mat_skin={"из кожи", "из шерсти", "из волокон", "и�
 def corr_inv(s):
     
     
-    if s.startswith("X") and s.endswith("X") :
+    if s[0]=="X" and s[-1]=="X":
         s=s[1:-1]
         s="."+s+"."
 
