@@ -952,7 +952,7 @@ def corr_inv(s):
         symbol=symbol.replace("s-", "s")
    
     s=symbol%s_temp
-    if s.startswith(".") and s.endswith(".") is True:
+    if s[0]=="." and s[-1]==".":
         s="X"+s[1:-1]+"X"
     return s
  
@@ -982,7 +982,7 @@ def item_choice(s):
         if noun!=1:
             k=""
             for num in words[:-2]:
-                if num.startswith("("):
+                if num[0]=="(":
                     num=num[1:]
                 k=(k+" "+rod_pad(num)).strip()
             s="("+noun+" "+k+" "+words[-1]
@@ -993,7 +993,7 @@ def item_choice(s):
             s=words[0]+" "+words[-2]+" "+k+" "+words[-1]
         return s
     else:
-        if s.startswith("("):
+        if s[0]=="(":
             s_temp=s[1:-1]
             st="("
             kon=")"
