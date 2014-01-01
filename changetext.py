@@ -1126,12 +1126,9 @@ def forg(s):
 
     return s.capitalize()
 
-animals_kind={"щенок","телёнок","ослёнок","утёнок","крольчонок","гусёнок","котёнок","жеребёнок","ягнёнок","поросёнок","козлёнок",
-                    "цыплёнок","детёныш","цесарёнок","птенец","индюшонок","оленёнок",}
+animals_female={"собака","самка","крольчиха","гусыня","утка","кошка","ослица","кобыла","корова","овца","свинья",
+                    "коза","курица","свинка","буйволица","важенка","лама","альпака","цесарка","пава","индейка",}
 def corr_animals(s):
-    if any(s.find(item)!=-1 for item in animals_kind):
-        return s
-    else:
         s=s.replace("(Ручной)","(Ручная)")
         s=s.replace("боевой","боевая")
         s=s.replace("Ничей","Ничья")
@@ -1174,7 +1171,7 @@ def ChangeText(s):
             return word(s)
     elif any(s.find(item)!=-1 for item in items_choice):
             return item_choice(s)
-    elif s.find("♀")!=-1 :
+    elif any(s.find(item)!=-1 for item in animals_female):
             return corr_animals(s)
     else :
         if debug and s not in not_translated:
