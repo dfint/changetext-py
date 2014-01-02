@@ -390,6 +390,7 @@ phrases = {
     'Нет из меди болты доступный':'Медные болты недоступны',
     'Нет рыба доступный':'Рыба недоступна',
     'Нет пещерный омар доступный':'Пещерный омар недоступен',
+    'Нет приготовленные большая крыса сердца доступный':'Приготовленные сердца большой крысы недоступны',
 #песок
     'песка':'песок',    
 }
@@ -634,8 +635,8 @@ adjectives = {
     'круглый':("круглый","круглая","круглое","круглые"),
     'сглаженный':("сглаженный","сглаженная","сглаженное","сглаженные"),
     
-    'золото':("золотой","золотая","золотое","золотые"),
-    
+    'из кожи':("кожанный","кожанная","коженное","кожанные"),
+    'из шёлка':("шёлковый","шёлковая","шёлковое","шёлковые"),
 }
 
 masculine = 0 # м. род
@@ -652,6 +653,7 @@ weapon_gender = {
     "кубок":masculine,"костыль":masculine,"песка":masculine,"шлем":masculine,
     "капюшон":masculine,"сапог":masculine,"ботинок":masculine,"башмак":masculine,
     "песок":masculine,"кувшин":masculine,"барабан":masculine,"стул":masculine,
+    "мешок":masculine,
 # feminine
     "кирка":feminine, "наковальня":feminine, "булава":feminine,
     "кружка":feminine, "кровать":feminine, "головоломка":feminine,
@@ -753,17 +755,34 @@ def corr_weapon(s):
         s_temp=s_temp[1:-1]
         trigger=1
 
-        
      
     for word in s_temp.split(" "):
         if word in phrases:
             new_word=phrases[word]
             s_temp=s_temp.replace(word, new_word)
     s_temp_sp=s_temp.split(" ")
-   
+
     if s_temp_sp[0]=="древесина":
-        s_temp_sp[0]="из"
-        s_temp=s_temp.replace("древесина", "из")
+        if len(s_temp_sp)==3:
+            s_temp_sp[0]="из"
+            s_temp=s_temp.replace("древесина", "из")
+    
+#    elif any(s_temp.find(item)!=-1 for item in weapon_gender):
+    elif symbol[3:5]=="()":
+            symbol=symbol[:3]+symbol[-1:]
+            if s_temp_sp[2] in weapon_gender:
+                if ' '.join(s_temp_sp[3:]) in adjectives:
+                    s_temp=s_temp_sp[2]+" "+rod_pad(s_temp_sp[0])+" "+rod_pad(s_temp_sp[1])+" "+"("+' '.join(s_temp_sp[3:])+")"
+                else:
+                    s_temp=s_temp_sp[2]+" "+rod_pad(s_temp_sp[0])+" "+s_temp_sp[1]+" "+"("+' '.join(s_temp_sp[-2:])+" "+rod_pad(' '.join(s_temp_sp[3:-2]))+")"
+            elif s_temp_sp[3] in weapon_gender:
+                if ' '.join(s_temp_sp[4:]) in adjectives:
+                    s_temp=s_temp_sp[3]+" "+rod_pad(s_temp_sp[0])+" "+s_temp_sp[1]+" "+s_temp_sp[2]+" "+"("+' '.join(s_temp_sp[4:])+")"
+                else:
+                    s_temp=s_temp_sp[3]+" "+rod_pad(s_temp_sp[0])+" "+s_temp_sp[1]+" "+s_temp_sp[2]+" " +"("+' '.join(s_temp_sp[-2:])+" "+rod_pad(' '.join(s_temp_sp[4:-2]))+")"
+            elif s_temp_sp[1] in weapon_gender:
+                    s_temp=s_temp_sp[1]+" "+rod_pad(s_temp_sp[0])+" "+"("+' '.join(s_temp_sp[2:])+")"
+                    
     elif s_temp_sp[-1] in gem_gender:
         material=s_temp_sp[0]
         gender=gem_gender[s_temp_sp[-1]]
@@ -813,9 +832,7 @@ def corr_weapon(s):
             new_word=adjectives[material][gender]
             s_temp=s_temp.replace(material, new_word)
  
-# самоцветы
-#    s_temp=big+s_temp
-
+    s_temp=s_temp.capitalize()
     if symbol.count("-")!=2:
         symbol=symbol.replace("s-", "s")
     if trigger==1:
@@ -839,7 +856,8 @@ def rod_pad(word):
         'вь':'вя', 'нь':'ня', 'ёс':'са', 'дь':'дя', 'ль':'ля', 'рь':'ри',
         'сь':'си', 'ус':'ус', 'ий':'ого', 'ый':'ого', 'ой':'ого', 'ви':'ви',
         'шь':'ши','ая':'ой','ли':'ли','ей':'ья','ея':'еи','дя':'дя','еа':'еа',
-        'ру':'ру','го':'го','по':'по','ёж':'ежа',
+        'ру':'ру','го':'го','по':'по','ёж':'ежа','ое':'ого','но':'на','ры':'р',
+        'во':'ва','со':'са','ст':'ст.',
         
     }
 
@@ -847,7 +865,7 @@ def rod_pad(word):
         'адь':'ади', 'едь':'едя', 'ось':'ося', 'ысь':'ыси', 'лёк':'лька',
         'орь':'ря', 'бей':'бья', 'тей':'тея', 'очь':'очь', 'ами':'и', 
         'ней':'ней','овь':'ови','чая':'чей','усь':'уся','ана':'ана',
-        'ошь':'ши',
+        'ошь':'ши','рна':'рен',
     }
 
     iskl={
@@ -891,8 +909,6 @@ item_mat_skin={"из кожи", "из шерсти", "из волокон", "и�
 "из кости","из копыт","из рогов","из бивней","из зубов",}
 
 def corr_inv(s):
-    
-    
     if s[0]=="X" and s[-1]=="X":
         s=s[1:-1]
         s="."+s+"."
@@ -1158,14 +1174,14 @@ def ChangeText(s):
             return forg(s)
     elif s.find(") <#")!=-1 :
             return corr_sklad(s)
-    elif any(s.find(item)!=-1 for item in item_mat_skin):
-            return corr_inv(s)
     elif any(s.find(item)!=-1 for item in elem_forts):
             return elem_fort(s)       
-    elif any(s.find(item)!=-1 for item in item_other):
-            return corr_other(s)   
     elif any(s.find(item)!=-1 for item in adjectives):
             return corr_weapon(s)
+    elif any(s.find(item)!=-1 for item in item_other):
+            return corr_other(s)   
+    elif any(s.find(item)!=-1 for item in item_mat_skin):
+            return corr_inv(s)
     elif any(s.find(item)!=-1 for item in words):
             return word(s)
     elif any(s.find(item)!=-1 for item in items_choice):
@@ -1181,9 +1197,12 @@ def ChangeText(s):
 
 if __name__ == '__main__':
 
-    print(ChangeText("большой таракан останки"))
-    print(ChangeText("бурый железняк пол пещеры"))
-    print(ChangeText("из жёлтого песка пол пещеры"))    
+    print(ChangeText("(Мясо бочка (из ясеня))"))
+#    print(ChangeText("(из меди боевой топор)"))
+#    print(ChangeText("(споры толстошлемника мешок (гигантский пещерный паук из шёлка))"))
+    print(ChangeText("(Раст бочка (из ясеня))"))
+
+
     input()
 
 
