@@ -605,8 +605,6 @@ adjectives = {
     'из жёлтого':("жёлтый","жёлтая","жёлтое","жёлтые"), 
     'из чёрного':("чёрный","чёрная","чёрная","чёрные"), 
     'из красного':("красный","красная","красное","красные"), 
-#    исключение
-    'древесина':("древесина","древесина","древесина","древесина"),
 #размеры и др
     'большой':("большой","большая","большое","большие"),
     'большой,':("большой,","большая,","большое,","большие,"),
@@ -871,6 +869,13 @@ def corr_item_6(s):
     hst=re_6.search(s)
     s=s.replace(hst.group(0),hst.group(1)+hst.group(4)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
     return(s)  
+    
+#выражения типа "древесина дуба брёвнаь"
+def corr_item_7(s):
+    hst=re_7.search(s)
+    new_word=adjectives["из "+hst.group(2)][3]
+    s=s.replace(hst.group(0),hst.group(1)+new_word+" "+hst.group(3))
+    return(s)  
 ############################################################################
 #компилированные регулярные выражения
 re_1 = re.compile(r"^\W?(из\s\w+)\s(\w+)")
@@ -879,6 +884,7 @@ re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо\
 re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
 re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)')
 re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти)\s(\w+)')
+re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -892,7 +898,7 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-#    print(re_6.search(s).group(0, 1, 2,3, 4))
+#    print(re_7.search(s).group(0, 1, 2, 3))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
@@ -907,7 +913,9 @@ def ChangeText(s):
     elif re_5.search(s):
         return corr_item_5(s)
     elif re_6.search(s):
-        return corr_item_6(s)   
+        return corr_item_6(s)
+    elif re_7.search(s):
+        return corr_item_7(s)    
    
     else :
         if debug and s not in not_translated:
@@ -918,17 +926,17 @@ def ChangeText(s):
 
 if __name__ == '__main__':
 
-    print(ChangeText("(из меди кирки [3])"))
-    print(ChangeText("(из меди боевые топоры [3])"))
-    print(ChangeText("(из висмутовой бронзы короткие мечи [3])"))
-    print(ChangeText("(белый аист яйцо)"))
-    print(ChangeText("(приготовленные гигантский земляной червь кишки)"))
-    print(ChangeText("як требуха"))
-    print(ChangeText("горный козёл из кожи"))
-    print(ChangeText("гигантский земляной червь из кожи"))
-    print(ChangeText("як из кожи"))
-    print(ChangeText("свинохвост из волокон ткань"))
-    
+#    print(ChangeText("(из меди кирки [3])"))
+#    print(ChangeText("(из меди боевые топоры [3])"))
+#    print(ChangeText("(из висмутовой бронзы короткие мечи [3])"))
+#    print(ChangeText("(белый аист яйцо)"))
+#    print(ChangeText("(приготовленные гигантский земляной червь кишки)"))
+#    print(ChangeText("як требуха"))
+#    print(ChangeText("горный козёл из кожи"))
+#    print(ChangeText("гигантский земляной червь из кожи"))
+#    print(ChangeText("як из кожи"))
+#    print(ChangeText("свинохвост из волокон ткань"))
+#    print(ChangeText("древесина дуба брёвна"))
     input()
 
 
