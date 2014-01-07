@@ -851,21 +851,21 @@ def corr_item_2(s):
  #выражения типа рогатый филин яйцо
 def corr_item_3(s):
     hst=re_3.search(s)
-    s=s.replace(hst.group(0),hst.group(2)+" "+rod_pad(hst.group(1)))
+    s=s.replace(hst.group(0),hst.group(1)+hst.group(3)+" "+rod_pad(hst.group(2)))
     return(s) 
     
 #выражения типа приготовленные(рубленная) гигантский крот лёгкие
 def corr_item_4(s):
     hst=re_4.search(s)
-    s=s.replace(hst.group(0),hst.group(2)+" "+rod_pad(hst.group(1)))
+    s=s.replace(hst.group(0),(hst.group(1)+" "+hst.group(3))+" "+rod_pad(hst.group(2)))
     return(s)   
   
 ############################################################################
 #компилированные регулярные выражения
 re_1 = re.compile("\(?(из\s\w+)\s(\w+)")
 re_2 = re.compile("\(?((из\s\w+\s\w+)\s(\w+\s?\w+))")
-re_3 = re.compile(r'(\w+\s?\w+?\s?\w+?)\s(\bяйцо|требуха|железы|мясо\b)')
-re_4 = re.compile(r'(\bприготовленные|рубленная\b)(\s?\w+?\s?\w+?\s?\w+\s)(\w+)$')
+re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо\b)')
+re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -879,7 +879,7 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-    print(re_4.search(s).group(1, 2, 3))
+#    print(re_3.search(s).group(0, 1, 2, 3))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
@@ -889,7 +889,8 @@ def ChangeText(s):
             return corr_item_2(s)
     elif re_3.search(s):
         return corr_item_3(s)
-
+    elif re_4.search(s):
+        return corr_item_4(s)
    
     else :
         if debug and s not in not_translated:
@@ -905,11 +906,13 @@ if __name__ == '__main__':
 #    print(ChangeText("(из меди боевые топоры [3])"))
 #    print(ChangeText("(из висмутовой бронзы короткие мечи [3])"))
 #    print(ChangeText("(белый аист яйцо)"))
-    print(ChangeText("приготовленные гигантский крот лёгкие"))
-    print(ChangeText("рубленная гигантский крот печень"))
-    print(ChangeText("приготовленные гигантский земляной червь кишки"))
-    print(ChangeText("приготовленные мул мозги"))
-    print(ChangeText("рубленная крот печень"))
+#    print(ChangeText("приготовленные гигантский земляной червь кишки"))
+#    print(ChangeText("(приготовленные як кишки)"))
+#    print(ChangeText("як требуха"))
+#    print(ChangeText("собака требуха"))
+    print(ChangeText("(ёж требуха [3])"))
+    print(ChangeText("приготовленные гигантский пещерный паук сердца"))
+
     input()
 
 
