@@ -842,22 +842,28 @@ def corr_item_1(s):
     s=s.replace(hst.group(1),new_word )
     return(s)
     
- #выражения типа (из висмутовой бронзы кирка [3])
+ #выражения типа "(из висмутовой бронзы кирка [3])"
 def corr_item_2(s):
     hst=re_2.search(s)
     s=s.replace(hst.group(1),hst.group(3)+" "+hst.group(2))
     return(s) 
  
- #выражения типа рогатый филин яйцо
+ #выражения типа "рогатый филин яйцо"
 def corr_item_3(s):
     hst=re_3.search(s)
     s=s.replace(hst.group(0),hst.group(1)+hst.group(3)+" "+rod_pad(hst.group(2)))
     return(s) 
     
-#выражения типа приготовленные(рубленная) гигантский крот лёгкие
+#выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
 def corr_item_4(s):
     hst=re_4.search(s)
-    s=s.replace(hst.group(0),(hst.group(1)+" "+hst.group(3))+" "+rod_pad(hst.group(2)))
+    s=s.replace(hst.group(0),hst.group(1)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
+    return(s)
+ 
+#выражения типа "горный козёл из кожи"
+def corr_item_5(s):
+    hst=re_5.search(s)
+    s=s.replace(hst.group(0),hst.group(1)+"кожа"+" "+rod_pad(hst.group(2)))
     return(s)   
   
 ############################################################################
@@ -866,6 +872,7 @@ re_1 = re.compile("\(?(из\s\w+)\s(\w+)")
 re_2 = re.compile("\(?((из\s\w+\s\w+)\s(\w+\s?\w+))")
 re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо\b)')
 re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
+re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)')
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -891,6 +898,8 @@ def ChangeText(s):
         return corr_item_3(s)
     elif re_4.search(s):
         return corr_item_4(s)
+    elif re_5.search(s):
+        return corr_item_5(s)   
    
     else :
         if debug and s not in not_translated:
@@ -907,11 +916,13 @@ if __name__ == '__main__':
 #    print(ChangeText("(из висмутовой бронзы короткие мечи [3])"))
 #    print(ChangeText("(белый аист яйцо)"))
 #    print(ChangeText("приготовленные гигантский земляной червь кишки"))
-#    print(ChangeText("(приготовленные як кишки)"))
 #    print(ChangeText("як требуха"))
-#    print(ChangeText("собака требуха"))
-    print(ChangeText("(ёж требуха [3])"))
-    print(ChangeText("приготовленные гигантский пещерный паук сердца"))
+#    print(ChangeText("горный козёл из кожи"))
+#    print(ChangeText("гигантский земляной червь из кожи"))
+#    print(ChangeText("як из кожи"))
+#    print(ChangeText("(гусь из кожи [3])"))
+    
+    
 
     input()
 
