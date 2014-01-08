@@ -607,7 +607,6 @@ adjectives = {
     'из красного':("красный","красная","красное","красные"), 
 #размеры и др
     'большой':("большой","большая","большое","большие"),
-    'большой,':("большой,","большая,","большое,","большие,"),
     'гигантский':("гигантский","гигантская","гигантское","гигантские"),
     'заточенный':("заточенный","заточенная","заточенное","заточенные"),
     'огромный':("огромный","огромная","огромное","огромные"),
@@ -693,18 +692,25 @@ weapon_gender = {
 
 gem_gender = {
 # masculine
-    "хрусталь":masculine,"морганит":masculine,"глаз":masculine,"опал":masculine,
+    "горный хрусталь":masculine,"морганит":masculine,"кошачий глаз":masculine,"опал":masculine,
 # feminine
-    "яшма":feminine,"шпинель":feminine,
+    "яшма":feminine,"красная шпинель":feminine,
 # neuter
 # plural
-    "шерлы":plural,"прозапалы":plural,"кровавики":plural,"агаты":plural,"хризопразы":plural,"сердолики":plural,"опалы":plural,
-    "кварцы":plural,"цитрины":plural,"пириты":plural,"турмалины":plural,"халцедоны":plural,"камни":plural,"пиропы":plural,
-    "гранаты":plural,"цирконы":plural,"демантоиды":plural,"биксбиты":plural,"топазы":plural,"кунциты":plural,"спессартины":plural,
+    "шерлы":plural,"прозапалы":plural,"кровавики":plural,"моховые агаты":plural,"хризопразы":plural,"сердолики":plural,
+    "изысканные огненные опалы":plural,"костяные опалы":plural,"моховые опалы":plural,
+    "молочные кварцы":plural,"цитрины":plural,"пириты":plural,"зелёные турмалины":plural,"белые халцедоны":plural,"лунные камни":plural,"красные пиропы":plural,
+    "синие гранаты":plural,"чёрные цирконы":plural,"демантоиды":plural,"биксбиты":plural,"топазы":plural,"кунциты":plural,"фиолетовые спессартины":plural,
     "гелиодоры":plural,"гошениты":plural,"аметисты":plural,"аквамарины":plural,"хризобериллы":plural,"арлекины":plural,
-    "изумруды":plural,"александриты":plural, "морионы":plural,"лазуриты":plural,"празеолиты":plural,"нефриты":plural,
-    "авантюрины":plural, "альмандины":plural, "родолиты":plural,"танзаниты":plural,"бериллы":plural,"топазолиты":plural,
-    "алмазы":plural,"рубицеллы":plural,"сардониксы":plural,    
+    "изумруды":plural,"александриты":plural, "морионы":plural,"лазуриты":plural,"празеолиты":plural,"лавандовые нефриты":plural,
+    "розовые нефриты":plural,"восковые опалы":plural,"янтарные опалы":plural,"золотистые опалы":plural,"ракушечные опалы":plural,
+    "авантюрины":plural, "альмандины":plural, "родолиты":plural,"танзаниты":plural,"золотистые бериллы":plural,"топазолиты":plural,
+    "светло-жёлтые алмазы":plural,"рубицеллы":plural,"сардониксы":plural,"белые нефриты":plural,"ананасовые опалы":plural,
+    "трубчатые опалы":plural, "розовые кварцы":plural,"зелёные цирконы":plural,"зелёные нефриты":plural,"красные цирконы":plural,
+    "яшмовые опалы":plural,"розовые турмалины":plural,"огненные опалы":plural,"желейные опалы":plural,
+    "коричневые цирконы":plural,"жёлтые цирконы":plural,"жёлтые спессартины":plural,"чистые гранаты":plural,
+    "чистые цирконы":plural,"чёрные опалы":plural,"кристаллические опалы":plural,"слоистые огненные опалы":plural,
+    "дымчатые кварцы":plural,"смолистые опалы":plural,
 }
 
 trap = {
@@ -870,12 +876,20 @@ def corr_item_6(s):
     s=s.replace(hst.group(0),hst.group(1)+hst.group(4)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
     return(s)  
     
-#выражения типа "древесина дуба брёвнаь"
+#выражения типа "древесина дуба брёвна"
 def corr_item_7(s):
     hst=re_7.search(s)
     new_word=adjectives["из "+hst.group(2)][3]
     s=s.replace(hst.group(0),hst.group(1)+new_word+" "+hst.group(3))
     return(s)  
+    
+#выражения типа "большой костяные опалы"
+def corr_item_8(s):
+    hst=re_8.search(s)
+    gender=gem_gender[hst.group(2)]
+    new_word=adjectives[hst.group(1)][gender]
+    s=s.replace(hst.group(0),new_word+" "+hst.group(2))
+    return(s)     
 ############################################################################
 #компилированные регулярные выражения
 re_1 = re.compile(r"^\W?(из\s\w+)\s(\w+)")
@@ -885,6 +899,7 @@ re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+
 re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)')
 re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти)\s(\w+)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
+re_8 = re.compile(r'^(большой)\s(.+)')
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -898,7 +913,7 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-#    print(re_7.search(s).group(0, 1, 2, 3))
+#    print(re_8.search(s).group(0, 1, 2))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
@@ -915,7 +930,9 @@ def ChangeText(s):
     elif re_6.search(s):
         return corr_item_6(s)
     elif re_7.search(s):
-        return corr_item_7(s)    
+        return corr_item_7(s)
+    elif re_8.search(s):
+        return corr_item_8(s)     
    
     else :
         if debug and s not in not_translated:
@@ -937,6 +954,7 @@ if __name__ == '__main__':
 #    print(ChangeText("як из кожи"))
 #    print(ChangeText("свинохвост из волокон ткань"))
 #    print(ChangeText("древесина дуба брёвна"))
+    print(ChangeText("большой шерлы"))
     input()
 
 
