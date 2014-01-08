@@ -614,7 +614,8 @@ adjectives = {
     'гигантский':("гигантский","гигантская","гигантское","гигантские"),
     'зазубренный':("зазубренный","зазубренная","зазубренное","зазубренные"),
     'кольчужный':("кольчужный","кольчужная","кольчужное","кольчужные"), 
-    'изысканный':("изысканный","изысканная","изысканное","изысканные"),   
+    'изысканный':("изысканный","изысканная","изысканное","изысканные"),
+    'большой, зазубренный':("большой, зазубренный","большая, зазубренная","большое, зазубренное","большие, зазубренные"),   
 #минералы    
     'бриолетовый':("бриолетовый","бриолетовая","бриолетовое","бриолетовые"),
     'огранённый розой':("огранённый розой","огранённая розой","огранённое розой","огранённые розой"),
@@ -717,9 +718,9 @@ trap = {
 # masculine
     "кол":masculine,"винт":masculine,"шар":masculine,"диск":masculine,
 # neuter
-    "топора":neuter,
+    "лезвие топора":neuter,
 # plural
-    "колья":plural,"шары":plural,"винты":plural,"диски":plural,"топоров":plural,      
+    "колья":plural,"шары":plural,"винты":plural,"диски":plural,"лезвия топоров":plural,      
 }
 
 
@@ -893,6 +894,21 @@ def corr_item_8(s):
     else:
         s=s.replace("большой","большой,")
     return(s) 
+    
+    #выражения типа "гигантский из ясеня лезвия топоров"
+def corr_item_9(s):
+    hst=re_9.search(s)
+    if hst.group(2)!="из висмутовой":
+        gender=trap[hst.group(3)]
+        new_word=adjectives[hst.group(1)][gender]
+        new_word_2=adjectives[hst.group(2)][gender]
+        s=s.replace(hst.group(0),new_word+" "+new_word_2+" "+hst.group(3))
+    else:
+        hst=re_10.search(s)
+        gender=trap[hst.group(3)]
+        new_word=adjectives[hst.group(1)][gender]
+        s=s.replace(hst.group(0),new_word+" "+hst.group(3)+" "+hst.group(2))
+    return(s)
 
 ############################################################################
 #компилированные регулярные выражения
@@ -904,7 +920,8 @@ re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)')
 re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти)\s(\w+)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 re_8 = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой)\s(\w+\s?\w+?\b)')
-
+re_9 = re.compile(r'(шипованный|огромный|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
+re_10 = re.compile(r'(шипованный|огромный|заточенный|гигантский|большой, зазубренный)\s(из висмутовой бронзы)\s(\w+\s?\w+?\b)')
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -918,7 +935,7 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-    print(re_8.search(s).group(0, 1, 2))
+#    print(re_10.search(s).group(0, 1, 2, 3))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
@@ -937,7 +954,9 @@ def ChangeText(s):
     elif re_7.search(s):
         return corr_item_7(s)
     elif re_8.search(s):
-        return corr_item_8(s)  
+        return corr_item_8(s) 
+    elif re_9.search(s):
+        return corr_item_9(s) 
    
     else :
         if debug and s not in not_translated:
@@ -959,10 +978,14 @@ if __name__ == '__main__':
 #    print(ChangeText("як из кожи"))
 #    print(ChangeText("свинохвост из волокон ткань"))
 #    print(ChangeText("древесина дуба брёвна"))
-    print(ChangeText("большой шерлы"))
-    print(ChangeText("большой желейные опалы "))
+#    print(ChangeText("большой шерлы"))
+#    print(ChangeText("большой желейные опалы "))
 #    print(ChangeText("(бриолетовый восковые опалы)"))
-    print(ChangeText("(большой восьмиугольной огранки горный хрусталь)"))
+#    print(ChangeText("(большой восьмиугольной огранки горный хрусталь)"))
+#    print(ChangeText("гигантский из ясеня лезвия топоров"))
+#    print(ChangeText("большой, зазубренный из берёзы диски"))
+    print(ChangeText("гигантский из висмутовой бронзы лезвие топора"))
+    print(ChangeText("гигантский из висмутовой бронзы колья"))
     input()
 
 
