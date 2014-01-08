@@ -909,19 +909,20 @@ def corr_item_9(s):
         new_word=adjectives[hst.group(1)][gender]
         s=s.replace(hst.group(0),new_word+" "+hst.group(3)+" "+hst.group(2))
     return(s)
-
+    
 ############################################################################
 #компилированные регулярные выражения
 re_1 = re.compile(r"^\W?(из\s\w+)\s(\w+)")
 re_2 = re.compile("\(?((из\s\w+\s\w+)\s(\w+\s?\w+))")
 re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо\b)')
 re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
-re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)')
-re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти)\s(\w+)')
+re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)$')
+re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти|из кожи)\s(\w+)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 re_8 = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой)\s(\w+\s?\w+?\b)')
 re_9 = re.compile(r'(шипованный|огромный|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
 re_10 = re.compile(r'(шипованный|огромный|заточенный|гигантский|большой, зазубренный)\s(из висмутовой бронзы)\s(\w+\s?\w+?\b)')
+
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -935,7 +936,7 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-#    print(re_10.search(s).group(0, 1, 2, 3))
+#    print(re_11.search(s).group(0, 1, 2, 3, 4))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
@@ -956,7 +957,7 @@ def ChangeText(s):
     elif re_8.search(s):
         return corr_item_8(s) 
     elif re_9.search(s):
-        return corr_item_9(s) 
+        return corr_item_9(s)
    
     else :
         if debug and s not in not_translated:
@@ -982,10 +983,12 @@ if __name__ == '__main__':
 #    print(ChangeText("большой желейные опалы "))
 #    print(ChangeText("(бриолетовый восковые опалы)"))
 #    print(ChangeText("(большой восьмиугольной огранки горный хрусталь)"))
-#    print(ChangeText("гигантский из ясеня лезвия топоров"))
 #    print(ChangeText("большой, зазубренный из берёзы диски"))
-    print(ChangeText("гигантский из висмутовой бронзы лезвие топора"))
-    print(ChangeText("гигантский из висмутовой бронзы колья"))
+#    print(ChangeText("из висмутовой бронзы кольчуги"))
+#    print(ChangeText("гигантский из висмутовой бронзы колья"))
+    print(ChangeText("горный козёл из кожи доспехи"))
+    print(ChangeText("(омутник из кожи плащи [3])"))
+    print(ChangeText("(альпака из шерсти плащи [3])"))
     input()
 
 
