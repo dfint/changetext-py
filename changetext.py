@@ -617,7 +617,8 @@ adjectives = {
     'изысканный':("изысканный","изысканная","изысканное","изысканные"),   
 #минералы    
     'бриолетовый':("бриолетовый","бриолетовая","бриолетовое","бриолетовые"),
-    'огранённый':("огранённый","огранённая","огранённое","огранённые"),
+    'огранённый розой':("огранённый розой","огранённая розой","огранённое розой","огранённые розой"),
+    'огранённый подушечкой':("огранённый подушечкой","огранённая подушечкой","огранённое подушечкой","огранённые подушечкой"),
     'плоскогранный':("плоскогранный","плоскогранная","плоскогранное","плоскогранные"),
     'прямоугольный':("прямоугольный","прямоугольная","прямоугольное","прямоугольные"),
     'гладкий':("гладкий","гладкая","гладкое","гладкие"),
@@ -666,7 +667,7 @@ weapon_gender = {
     "копьё":neuter, "гнездо":neuter, "ведро":neuter, 
 # plural
     "кирки":plural, "топоры":plural, "наковальни":plural, "булавы":plural,
-    "копья":plural, "кружки":plural,
+    "копья":plural, "кружки":plural,"стулья":plural,
     "боевые":plural, "болты":plural, "молоты":plural,"топоры":plural,
     "арбалеты":plural, "щиты":plural, "рукавицы":plural, "поножи":plural,
     "нагрудники":plural, "брёвна":plural, "тренировочные":plural,
@@ -686,7 +687,6 @@ weapon_gender = {
     "рейтузы":plural,"штаны":plural,"амулеты":plural,"кувшины":plural,"горшки":plural,
     "вагонетки":plural,"тачки":plural,"флейты":plural,"трубы":plural,"арфы":plural,
     "барабаны":plural,"флейты-пикколо":plural,"молотки":plural,"мини-кузницы":plural,
-    "стулья":plural,
 }
 
 
@@ -883,13 +883,17 @@ def corr_item_7(s):
     s=s.replace(hst.group(0),hst.group(1)+new_word+" "+hst.group(3))
     return(s)  
     
-#выражения типа "большой костяные опалы"
+#выражения типа "(бриолетовый восковые опалы)"
 def corr_item_8(s):
     hst=re_8.search(s)
-    gender=gem_gender[hst.group(2)]
-    new_word=adjectives[hst.group(1)][gender]
-    s=s.replace(hst.group(0),new_word+" "+hst.group(2))
-    return(s)     
+    if hst.group(2)  in gem_gender:
+        gender=gem_gender[hst.group(2)]
+        new_word=adjectives[hst.group(1)][gender]
+        s=s.replace(hst.group(0),new_word+" "+hst.group(2))
+    else:
+        s=s.replace("большой","большой,")
+    return(s) 
+
 ############################################################################
 #компилированные регулярные выражения
 re_1 = re.compile(r"^\W?(из\s\w+)\s(\w+)")
@@ -899,7 +903,8 @@ re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+
 re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)')
 re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти)\s(\w+)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
-re_8 = re.compile(r'^(большой)\s(.+)')
+re_8 = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой)\s(\w+\s?\w+?\b)')
+
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -913,7 +918,7 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-#    print(re_8.search(s).group(0, 1, 2))
+    print(re_8.search(s).group(0, 1, 2))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
@@ -932,7 +937,7 @@ def ChangeText(s):
     elif re_7.search(s):
         return corr_item_7(s)
     elif re_8.search(s):
-        return corr_item_8(s)     
+        return corr_item_8(s)  
    
     else :
         if debug and s not in not_translated:
@@ -955,6 +960,9 @@ if __name__ == '__main__':
 #    print(ChangeText("свинохвост из волокон ткань"))
 #    print(ChangeText("древесина дуба брёвна"))
     print(ChangeText("большой шерлы"))
+    print(ChangeText("большой желейные опалы "))
+#    print(ChangeText("(бриолетовый восковые опалы)"))
+    print(ChangeText("(большой восьмиугольной огранки горный хрусталь)"))
     input()
 
 
