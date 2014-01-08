@@ -688,6 +688,7 @@ weapon_gender = {
     "рейтузы":plural,"штаны":plural,"амулеты":plural,"кувшины":plural,"горшки":plural,
     "вагонетки":plural,"тачки":plural,"флейты":plural,"трубы":plural,"арфы":plural,
     "барабаны":plural,"флейты-пикколо":plural,"молотки":plural,"мини-кузницы":plural,
+    "кольчужный":plural,
 }
 
 
@@ -845,12 +846,14 @@ def corr_item_1(s):
     gender=weapon_gender[new_word]
     new_word=adjectives[hst.group(1)][gender]
     s=s.replace(hst.group(1),new_word )
+    s=s.replace("кольчужный","кольчужные")
     return(s)
     
  #выражения типа "(из висмутовой бронзы кирка [3])"
 def corr_item_2(s):
     hst=re_2.search(s)
     s=s.replace(hst.group(1),hst.group(3)+" "+hst.group(2))
+    s=s.replace("кольчужный","кольчужные")
     return(s) 
  
  #выражения типа "рогатый филин яйцо"
@@ -874,7 +877,11 @@ def corr_item_5(s):
  #выражения типа "свинохвост из волокон ткань"+шёлк+шерсть
 def corr_item_6(s):
     hst=re_6.search(s)
+    new_word=hst.group(4)
     s=s.replace(hst.group(0),hst.group(1)+hst.group(4)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
+    if new_word in phrases:
+        new_word=phrases[new_word]
+        s=s.replace(hst.group(4), new_word)
     return(s)  
     
 #выражения типа "древесина дуба брёвна"
@@ -936,7 +943,7 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-#    print(re_11.search(s).group(0, 1, 2, 3, 4))
+#    print(re_6.search(s).group(0, 1, 2, 3, 4))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
@@ -986,9 +993,13 @@ if __name__ == '__main__':
 #    print(ChangeText("большой, зазубренный из берёзы диски"))
 #    print(ChangeText("из висмутовой бронзы кольчуги"))
 #    print(ChangeText("гигантский из висмутовой бронзы колья"))
-    print(ChangeText("горный козёл из кожи доспехи"))
-    print(ChangeText("(омутник из кожи плащи [3])"))
-    print(ChangeText("(альпака из шерсти плащи [3])"))
+#    print(ChangeText("горный козёл из кожи доспехи"))
+#    print(ChangeText("(омутник из кожи плащи [3])"))
+#    print(ChangeText("(альпака из шерсти плащи [3])"))
+#    print(ChangeText("(из железа кольчужный рейтузы)"))
+#    print(ChangeText("(из висмутовой бронзы кольчужный рейтузы)"))
+    print(ChangeText("(овца из шерсти верёвкаs [3])"))
+    print(ChangeText("(овца из шерсти пряжа)"))
     input()
 
 
