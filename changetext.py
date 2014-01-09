@@ -852,7 +852,11 @@ def corr_item_1(s):
  #выражения типа "(из висмутовой бронзы кирка [3])"
 def corr_item_2(s):
     hst=re_2.search(s)
-    s=s.replace(hst.group(1),hst.group(3)+" "+hst.group(2))
+    if hst.group(3) in phrases:
+        new_word=phrases[hst.group(3)]
+    else:
+        new_word=hst.group(3)
+    s=s.replace(hst.group(1),new_word+" "+hst.group(2))
     s=s.replace("кольчужный","кольчужные")
     return(s) 
  
@@ -921,7 +925,7 @@ def corr_item_9(s):
 #компилированные регулярные выражения
 re_1 = re.compile(r"^\W?(из\s\w+)\s(\w+)")
 re_2 = re.compile("\(?((из\s\w+\s\w+)\s(\w+\s?\w+))")
-re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо\b)')
+re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо|кровь|сукровица\b)')
 re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
 re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)$')
 re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти|из кожи)\s(\w+)')
@@ -929,7 +933,6 @@ re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 re_8 = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой)\s(\w+\s?\w+?\b)')
 re_9 = re.compile(r'(шипованный|огромный|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
 re_10 = re.compile(r'(шипованный|огромный|заточенный|гигантский|большой, зазубренный)\s(из висмутовой бронзы)\s(\w+\s?\w+?\b)')
-
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -943,7 +946,7 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-#    print(re_6.search(s).group(0, 1, 2, 3, 4))
+#    print(re_2.search(s).group(0, 1, 2, 3))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
@@ -975,31 +978,33 @@ def ChangeText(s):
 
 if __name__ == '__main__':
 
-#    print(ChangeText("(из меди кирки [3])"))
-#    print(ChangeText("(из меди боевые топоры [3])"))
-#    print(ChangeText("(из висмутовой бронзы короткие мечи [3])"))
-#    print(ChangeText("(белый аист яйцо)"))
-#    print(ChangeText("(приготовленные гигантский земляной червь кишки)"))
-#    print(ChangeText("як требуха"))
-#    print(ChangeText("горный козёл из кожи"))
-#    print(ChangeText("гигантский земляной червь из кожи"))
-#    print(ChangeText("як из кожи"))
-#    print(ChangeText("свинохвост из волокон ткань"))
-#    print(ChangeText("древесина дуба брёвна"))
-#    print(ChangeText("большой шерлы"))
-#    print(ChangeText("большой желейные опалы "))
-#    print(ChangeText("(бриолетовый восковые опалы)"))
-#    print(ChangeText("(большой восьмиугольной огранки горный хрусталь)"))
-#    print(ChangeText("большой, зазубренный из берёзы диски"))
-#    print(ChangeText("из висмутовой бронзы кольчуги"))
-#    print(ChangeText("гигантский из висмутовой бронзы колья"))
-#    print(ChangeText("горный козёл из кожи доспехи"))
-#    print(ChangeText("(омутник из кожи плащи [3])"))
-#    print(ChangeText("(альпака из шерсти плащи [3])"))
-#    print(ChangeText("(из железа кольчужный рейтузы)"))
-#    print(ChangeText("(из висмутовой бронзы кольчужный рейтузы)"))
+    print(ChangeText("(из меди кирки [3])"))
+    print(ChangeText("(из меди боевые топоры [3])"))
+    print(ChangeText("(из висмутовой бронзы короткие мечи [3])"))
+    print(ChangeText("(белый аист яйцо)"))
+    print(ChangeText("(приготовленные гигантский земляной червь кишки)"))
+    print(ChangeText("як требуха"))
+    print(ChangeText("горный козёл из кожи"))
+    print(ChangeText("гигантский земляной червь из кожи"))
+    print(ChangeText("як из кожи"))
+    print(ChangeText("свинохвост из волокон ткань"))
+    print(ChangeText("древесина дуба брёвна"))
+    print(ChangeText("большой шерлы"))
+    print(ChangeText("большой желейные опалы "))
+    print(ChangeText("(бриолетовый восковые опалы)"))
+    print(ChangeText("(большой восьмиугольной огранки горный хрусталь)"))
+    print(ChangeText("большой, зазубренный из берёзы диски"))
+    print(ChangeText("из висмутовой бронзы кольчуги"))
+    print(ChangeText("гигантский из висмутовой бронзы колья"))
+    print(ChangeText("горный козёл из кожи доспехи"))
+    print(ChangeText("(омутник из кожи плащи [3])"))
+    print(ChangeText("(альпака из шерсти плащи [3])"))
+    print(ChangeText("(из железа кольчужный рейтузы)"))
+    print(ChangeText("(из висмутовой бронзы кольчужный рейтузы)"))
     print(ChangeText("(овца из шерсти верёвкаs [3])"))
     print(ChangeText("(овца из шерсти пряжа)"))
+    print(ChangeText("(большой таракан сукровица)"))
+    print(ChangeText("синий павлин кровь"))
     input()
 
 
