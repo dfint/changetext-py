@@ -667,9 +667,10 @@ feminine = 1 # ж. род
 neuter = 2 # ср. род
 plural = 3 # мн. ч.
 
-weapon_gender = {
+gender_item = {
+#предметы
 # masculine
-    "топор":masculine, "щит":masculine, "баклер":masculine, "шлюз":masculine,
+    "тренировочный топор":masculine, "щит":masculine, "баклер":masculine, "шлюз":masculine,
     "стол":masculine, "трон":masculine, "горшок":masculine, "шкаф":masculine,
     "ларец":masculine, "гроб":masculine, "игрушечный кораблик":masculine,
     "игрушечный молоток":masculine, "игрушечный топорик":masculine,
@@ -677,22 +678,24 @@ weapon_gender = {
     "капюшон":masculine,"сапог":masculine,"ботинок":masculine,"башмак":masculine,
     "песок":masculine,"кувшин":masculine,"барабан":masculine,"стул":masculine,
     "мешок":masculine,"боевой топор":masculine,"короткий меч":masculine,
+    "тренировочный меч":masculine,"арбалет":masculine,"боевой молот":masculine,
+    
 # feminine
     "кирка":feminine, "наковальня":feminine, "булава":feminine,
     "кружка":feminine, "кровать":feminine, "головоломка":feminine,
     "статуя":feminine, "бочка":feminine, "дверь":feminine,
     "мини-кузница":feminine, "Дверь":feminine,"шина":feminine,"статуэтка":feminine,
     "кольчуга":feminine,"шапка":feminine,"вагонетка":feminine,"тачка":feminine,
-    "флейта":feminine,"труба":feminine,"арфа":feminine,"флейта-пикколо":feminine,
-    # duplicate дверь
+    "флейта":feminine,"труба":feminine,"арфа":feminine,"флейта-пикколо":feminine, # duplicate дверь
+   
 # neuter
-    "копьё":neuter, "гнездо":neuter, "ведро":neuter, 
+    "тренировочное копьё":neuter, "гнездо":neuter, "ведро":neuter, "копьё":neuter,
 # plural
-    "кирки":plural, "топоры":plural, "наковальни":plural, "булавы":plural,
+    "кирки":plural, "тренировочные топоры":plural, "наковальни":plural, "булавы":plural,
     "копья":plural, "кружки":plural,"стулья":plural,
-    "боевые топоры":plural, "болты":plural, "молоты":plural,"топоры":plural,
+    "боевые топоры":plural, "болты":plural, "боевые молоты":plural,"топоры":plural,
     "арбалеты":plural, "щиты":plural, "рукавицы":plural, "поножи":plural,
-    "нагрудники":plural, "брёвна":plural, "тренировочные":plural,
+    "нагрудники":plural, "брёвна":plural, "тренировочные мечи":plural,
     "цереуса":plural, "ведра":plural, "гробы":plural,
     "статуи":plural, "ларцы":plural, "механизмы":plural, "головоломки":plural,
     "игрушечные кораблики":plural, "столы":plural, "гробы":plural,
@@ -709,15 +712,15 @@ weapon_gender = {
     "рейтузы":plural,"штаны":plural,"амулеты":plural,"кувшины":plural,"горшки":plural,
     "вагонетки":plural,"тачки":plural,"флейты":plural,"трубы":plural,"арфы":plural,
     "барабаны":plural,"флейты-пикколо":plural,"молотки":plural,"кольчужный":plural,
-}
-
-
-gem_gender = {
+    "тренировочные мечи":plural,"тренировочные копья":plural,
+    
+# самоцветы
 # masculine
     "горный хрусталь":masculine,"морганит":masculine,"кошачий глаз":masculine,"опал":masculine,
 # feminine
     "яшма":feminine,"красная шпинель":feminine,
 # neuter
+
 # plural
     "шерлы":plural,"прозапалы":plural,"кровавики":plural,"моховые агаты":plural,"хризопразы":plural,"сердолики":plural,
     "изысканные огненные опалы":plural,"костяные опалы":plural,"моховые опалы":plural,
@@ -733,9 +736,6 @@ gem_gender = {
     "коричневые цирконы":plural,"жёлтые цирконы":plural,"жёлтые спессартины":plural,"чистые гранаты":plural,
     "чистые цирконы":plural,"чёрные опалы":plural,"кристаллические опалы":plural,"слоистые огненные опалы":plural,
     "дымчатые кварцы":plural,"смолистые опалы":plural,"светло":plural,
-}
-
-trap = {
 # masculine
     "кол":masculine,"винт":masculine,"шар":masculine,"диск":masculine,
 # neuter
@@ -863,7 +863,10 @@ def corr_item_1(s):
     if new_word in phrases:
         new_word=phrases[new_word]
         s=s.replace(hst.group(2), new_word)
-    gender=weapon_gender[new_word]
+    if  new_word in gender_item:
+        gender=gender_item [new_word]
+    else:
+        gender=gender_item [''.join(new_word.split(" ")[1])]
     new_word=adjectives[hst.group(1)][gender]
     s=s.replace(hst.group(1),new_word )
     s=s.replace("кольчужный","кольчужные")
@@ -913,6 +916,8 @@ def corr_item_6(s):
     if new_word in phrases:
         new_word=phrases[new_word]
         s=s.replace(hst.group(4), new_word)
+    s=s.replace("левый","левая")
+    s=s.replace("правый","правая")
     return(s)  
     
 #выражения типа "древесина дуба брёвна"
@@ -925,8 +930,8 @@ def corr_item_7(s):
 #выражения типа "(бриолетовый восковые опалы)"
 def corr_item_8(s):
     hst=re_8.search(s)
-    if hst.group(2)  in gem_gender:
-        gender=gem_gender[hst.group(2)]
+    if hst.group(2)  in gender_item :
+        gender=gender_item [hst.group(2)]
         new_word=adjectives[hst.group(1)][gender]
         s=s.replace(hst.group(0),new_word+" "+hst.group(2))
     elif hst.group(2)[-2:]=="ые":
@@ -936,14 +941,14 @@ def corr_item_8(s):
     #выражения типа "гигантский из ясеня лезвия топоров"
 def corr_item_9(s):
     hst=re_9.search(s)
-    if hst.group(2)!="из висмутовой":
-        gender=trap[hst.group(3)]
+    if hst.group(2) in adjectives:
+        gender=gender_item [hst.group(3)]
         new_word=adjectives[hst.group(1)][gender]
         new_word_2=adjectives[hst.group(2)][gender]
         s=s.replace(hst.group(0),new_word+" "+new_word_2+" "+hst.group(3))
     else:
         hst=re_10.search(s)
-        gender=trap[hst.group(3)]
+        gender=gender_item [hst.group(3)]
         new_word=adjectives[hst.group(1)][gender]
         s=s.replace(hst.group(0),new_word+" "+hst.group(3)+" "+hst.group(2))
     return(s)
@@ -955,11 +960,11 @@ re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+\s?\-?\w+?\b))")
 re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо|кровь|сукровица|кольцоs|серьгаs|амулетs|браслетs|скипетрs|коронаs|статуэткаs\b)')
 re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
 re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)$')
-re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней)\s(\w+)')
+re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней)\s(\w+\s?\w+?\b)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 re_8 = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой)\s(\w+\s?\w+?\b)')
-re_9 = re.compile(r'(шипованный|огромный|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
-re_10 = re.compile(r'(шипованный|огромный|заточенный|гигантский|большой, зазубренный)\s(из висмутовой бронзы)\s(\w+\s?\w+?\b)')
+re_9 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
+re_10 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)')
 
 ############################################################################
 def Init():
@@ -974,14 +979,14 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-#    print(re_2.search(s).group(0, 1, 2, 3))
+#    print(re_1.search(s).group(0, 1, 2))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
         if  re_1.search(s).group(1) in adjectives:
             return corr_item_1(s)
         elif  re_2.search(s).group(2) in adjectives:
-            return corr_item_2(s)
+            return corr_item_2(s)    
     elif re_6.search(s):
         return corr_item_6(s)
     elif re_4.search(s):
@@ -992,10 +997,10 @@ def ChangeText(s):
         return corr_item_3(s)
     elif re_7.search(s):
         return corr_item_7(s)
-    elif re_8.search(s):
-        return corr_item_8(s) 
     elif re_9.search(s):
-        return corr_item_9(s)
+        return corr_item_9(s) 
+    elif re_8.search(s):
+        return corr_item_8(s)
    
     else :
         if debug and s not in not_translated:
@@ -1008,48 +1013,49 @@ if __name__ == '__main__':
 
     print(ChangeText("(из меди кирки [3])"))
     print(ChangeText("(из меди боевые топоры [3])"))
-#    print(ChangeText("(из висмутовой бронзы короткие мечи [3])"))
-#    print(ChangeText("(белый аист яйцо)"))
-#    print(ChangeText("(приготовленные гигантский земляной червь кишки)"))
-#    print(ChangeText("як требуха"))
-#    print(ChangeText("горный козёл из кожи"))
-#    print(ChangeText("гигантский земляной червь из кожи"))
-#    print(ChangeText("як из кожи"))
-#    print(ChangeText("свинохвост из волокон ткань"))
-#    print(ChangeText("древесина дуба брёвна"))
-#    print(ChangeText("большой шерлы"))
-#    print(ChangeText("большой желейные опалы "))
-#    print(ChangeText("(бриолетовый восковые опалы)"))
-#    print(ChangeText("(большой восьмиугольной огранки горный хрусталь)"))
-#    print(ChangeText("большой, зазубренный из берёзы диски"))
-#    print(ChangeText("из висмутовой бронзы кольчуги"))
-#    print(ChangeText("гигантский из висмутовой бронзы колья"))
-#    print(ChangeText("горный козёл из кожи доспехи"))
-#    print(ChangeText("(омутник из кожи плащи [3])"))
-#    print(ChangeText("(альпака из шерсти плащи [3])"))
-#    print(ChangeText("(из железа кольчужный рейтузы)"))
-#    print(ChangeText("(из висмутовой бронзы кольчужный рейтузы)"))
-#    print(ChangeText("(овца из шерсти верёвкаs [3])"))
-#    print(ChangeText("(овца из шерсти пряжа)"))
-#    print(ChangeText("(большой таракан сукровица)"))
-#    print(ChangeText("синий павлин кровь"))
-#    print(ChangeText("коза из копыт кольцоs"))
-#    print(ChangeText("горный козёл из рогов кольцоs"))
-#    print(ChangeText("красная шпинель кольцоs"))
-#    print(ChangeText("прозапал кольцоs"))
-#    print(ChangeText("хризоберилл кольцоs"))
-#    print(ChangeText("моховой опал кольцоs"))
-#    print(ChangeText("кровавик кольцоs"))
-#    print(ChangeText("празеолит кольцоs"))  
-#    print(ChangeText("лазурит кольцоs"))
-#    print(ChangeText("большой изысканные огненные опалы"))
-#    print(ChangeText("(большой плоскогранный изысканный огненный опал)"))
-#    print(ChangeText("большой яшмовые опалы"))
-#    print(ChangeText("большой светло-жёлтые алмазы"))
-#    print(ChangeText("из висмутовой бронзы кирки"))
-#    print(ChangeText("из самородного серебра флейты-пикколо"))
-#    print(ChangeText("из висмутовой бронзы флейты-пикколо"))
+    print(ChangeText("(из висмутовой бронзы короткие мечи [3])"))
+    print(ChangeText("(белый аист яйцо)"))
+    print(ChangeText("(приготовленные гигантский земляной червь кишки)"))
+    print(ChangeText("як требуха"))
+    print(ChangeText("горный козёл из кожи"))
+    print(ChangeText("гигантский земляной червь из кожи"))
+    print(ChangeText("як из кожи"))
+    print(ChangeText("свинохвост из волокон ткань"))
+    print(ChangeText("древесина дуба брёвна"))
+    print(ChangeText("большой шерлы"))
+    print(ChangeText("большой желейные опалы "))
+    print(ChangeText("(бриолетовый восковые опалы)"))
+    print(ChangeText("(большой восьмиугольной огранки горный хрусталь)"))
+    print(ChangeText("большой, зазубренный из берёзы диски"))
+    print(ChangeText("из висмутовой бронзы кольчуги"))
+    print(ChangeText("гигантский из висмутовой бронзы колья"))
+    print(ChangeText("горный козёл из кожи доспехи"))
+    print(ChangeText("(омутник из кожи плащи [3])"))
+    print(ChangeText("(альпака из шерсти плащи [3])"))
+    print(ChangeText("(овца из шерсти верёвкаs [3])"))
+    print(ChangeText("(овца из шерсти пряжа)"))
+    print(ChangeText("(большой таракан сукровица)"))
+    print(ChangeText("синий павлин кровь"))
+    print(ChangeText("коза из копыт кольцоs"))
+    print(ChangeText("горный козёл из рогов кольцоs"))
+    print(ChangeText("красная шпинель кольцоs"))
+    print(ChangeText("большой изысканные огненные опалы"))
+    print(ChangeText("(большой плоскогранный изысканный огненный опал)"))
+    print(ChangeText("большой яшмовые опалы"))
+    print(ChangeText("большой светло-жёлтые алмазы"))
+    print(ChangeText("из висмутовой бронзы кирки"))
+    print(ChangeText("из самородного серебра флейты-пикколо"))
+    print(ChangeText("гигантский из висмутовой бронзы лезвия топоров"))
+    print(ChangeText("гигантский из меди лезвия топоров"))
+    print(ChangeText("большой из золота горшки"))
+    print(ChangeText("большой из роговой обманки горшки"))
+    print(ChangeText("(большой из роговой обманки горшок)"))
+    print(ChangeText("из ясеня тренировочные топоры"))
+    print(ChangeText("(свинохвост из волокон левый перчатка)"))
+    print(ChangeText("(из висмутовой бронзы кольчужный рейтузы)"))      
+    print(ChangeText("(из железа кольчужный рейтузы)"))
 
+    
     input()
 
 
