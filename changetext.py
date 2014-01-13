@@ -412,7 +412,7 @@ phrases = {
     'GIPSUM камни':'гипсовые камни',
     'FLUX камни':'флюс камни',
     'GLAZE_MAT-образующий предмет':'глазуреобразующий материал',
-    'GLAZE_MAT-покрытие для глазурь':'глазирующее покрытие',
+    'GLAZE_MAT покрытие для глазурь':'глазирующее покрытие',
     'пустой необработанный CAN_GLAZE предмет':'пустой, необработанный предмет для газировки',
     'пустой необработанный CAN_GLAZE большой горшок':'пустой, необработанный большой горшок',
     'пустой необработанный CAN_GLAZE статуя':'необработанная статуя',
@@ -714,6 +714,7 @@ gender_item = {
     "песок":masculine,"кувшин":masculine,"барабан":masculine,"стул":masculine,
     "мешок":masculine,"боевой топор":masculine,"короткий меч":masculine,
     "тренировочный меч":masculine,"арбалет":masculine,"боевой молот":masculine,
+    "амулет":masculine,
     
 # feminine
     "кирка":feminine, "наковальня":feminine, "булава":feminine,
@@ -721,20 +722,22 @@ gender_item = {
     "статуя":feminine, "бочка":feminine, "дверь":feminine,
     "мини-кузница":feminine, "Дверь":feminine,"шина":feminine,"статуэтка":feminine,
     "кольчуга":feminine,"шапка":feminine,"вагонетка":feminine,"тачка":feminine,
-    "флейта":feminine,"труба":feminine,"арфа":feminine,"флейта-пикколо":feminine, # duplicate дверь
+    "труба":feminine,"арфа":feminine,"флейта-пикколо":feminine,
+    "корона":feminine,                         # duplicate дверь
    
 # neuter
     "тренировочное копьё":neuter, "гнездо":neuter, "ведро":neuter, "копьё":neuter,
+    "кольцо":neuter,
 # plural
     "кирки":plural, "тренировочные топоры":plural, "наковальни":plural, "булавы":plural,
     "копья":plural, "кружки":plural,"стулья":plural,
     "боевые топоры":plural, "болты":plural, "боевые молоты":plural,"топоры":plural,
     "арбалеты":plural, "щиты":plural, "рукавицы":plural, "поножи":plural,
     "нагрудники":plural, "брёвна":plural, "тренировочные мечи":plural,
-    "цереуса":plural, "ведра":plural, "гробы":plural,
+    "цереуса":plural, "ведра":plural, "гробы":plural,"молотки":plural,
     "статуи":plural, "ларцы":plural, "механизмы":plural, "головоломки":plural,
-    "игрушечные кораблики":plural, "столы":plural, "гробы":plural,
-    "ларецы":plural, "статуи":plural, "кружки":plural,
+    "игрушечные кораблики":plural, "столы":plural,"кольчужный":plural,
+    "ларецы":plural, "кружки":plural,"тренировочные копья":plural,
     "игрушечные молотки":plural, "игрушечные топорики":plural,
     "мини-кузницы":plural, "стрелы":plural, "дротики":plural, "баклеры":plural,
     "короткие мечи":plural,"слитки":plural,"шины":plural,"костыли":plural,"бочки":plural,
@@ -746,8 +749,7 @@ gender_item = {
     "шапки":plural,"капюшоны":plural,"сапоги":plural,"ботинки":plural,"башмаки":plural,
     "рейтузы":plural,"штаны":plural,"амулеты":plural,"кувшины":plural,"горшки":plural,
     "вагонетки":plural,"тачки":plural,"флейты":plural,"трубы":plural,"арфы":plural,
-    "барабаны":plural,"флейты-пикколо":plural,"молотки":plural,"кольчужный":plural,
-    "тренировочные мечи":plural,"тренировочные копья":plural,
+    "барабаны":plural,"флейты-пикколо":plural,"тренировочные мечи":plural,
     
 # самоцветы
 # masculine
@@ -894,16 +896,24 @@ animals_female={"собака","самка","крольчиха","гусыня",
 #выражения типа (из меди кирки [3])
 def corr_item_1(s):
     hst=re_1.search(s)
-    new_word=hst.group(2)
+    new_word=hst.group(3)
     if new_word in phrases:
         new_word=phrases[new_word]
         s=s.replace(hst.group(2), new_word)
+    if s[0]=="р" and s[-1]=="р":
+        s=s[1:-1]
+        s="≡"+s+"≡"
+        hst=re_1.search(s)
+        new_word=hst.group(3)
     if  new_word in gender_item:
         gender=gender_item [new_word]
     else:
-        gender=gender_item [''.join(new_word.split(" ")[1])]
-    new_word=adjectives[hst.group(1)][gender]
-    s=s.replace(hst.group(1),new_word )
+        if ''.join(new_word.split(" ")[1]) in gender_item:
+            gender=gender_item [''.join(new_word.split(" ")[1])]
+        elif ''.join(new_word.split(" ")[0]) in gender_item:
+            gender=gender_item [''.join(new_word.split(" ")[0])]
+    new_word=adjectives[hst.group(2)][gender]
+    s=s.replace(hst.group(2),new_word )
     s=s.replace("кольчужный","кольчужные")
     return(s)
     
@@ -988,19 +998,28 @@ def corr_item_9(s):
         s=s.replace(hst.group(0),new_word+" "+hst.group(3)+" "+hst.group(2))
     return(s)
     
+#"животные"
+def corr_item_10(s):
+    if any(s.find(item)!=-1 for item in animals_female):
+        s=s.replace("(Ручной)","(Ручная)")
+        s=s.replace("боевой","боевая")
+        s=s.replace("Ничей","Ничья")
+        s=s.replace("охотничий","охотничья")
+    return(s)  
+    
 ############################################################################
 #компилированные регулярные выражения
-re_1 = re.compile(r"^\W?(из\s\w+)\s(\w+\s?\-?\w+?\b)")
+re_1 = re.compile(r"(^\W?|^\р)(из\s\w+)\s(\w+\s?\-?\w+?\b)")
 re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+\s?\-?\w+?\b))")
 re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо|кровь|сукровица|кольцоs|серьгаs|амулетs|браслетs|скипетрs|коронаs|статуэткаs\b)')
 re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
 re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)$')
-re_6 = re.compile(r'(\(?)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней)\s(\w+\s?\w+?\b)')
+re_6 = re.compile(r'(\-|\(?)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря)\s(\w+\s?\w+?\b)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 re_8 = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой)\s(\w+\s?\w+?\b)')
 re_9 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
 re_10 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)')
-
+re_11 = re.compile(r'(^Ничей)?(\w+)\s?\w+?([,♀]?)')
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -1014,11 +1033,11 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-#    print(re_1.search(s).group(0, 1, 2))
+#    print(re_11.search(s).group(0, 1, 2, 3))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
-        if  re_1.search(s).group(1) in adjectives:
+        if  re_1.search(s).group(2) in adjectives:
             return corr_item_1(s)
         elif  re_2.search(s).group(2) in adjectives:
             return corr_item_2(s)    
@@ -1036,6 +1055,8 @@ def ChangeText(s):
         return corr_item_9(s) 
     elif re_8.search(s):
         return corr_item_8(s)
+    elif re_11.search(s):
+        return corr_item_10(s) 
    
     else :
         if debug and s not in not_translated:
@@ -1089,8 +1110,16 @@ if __name__ == '__main__':
 #    print(ChangeText("(свинохвост из волокон левый перчатка)"))
 #    print(ChangeText("(из висмутовой бронзы кольчужный рейтузы)"))      
 #    print(ChangeText("(из железа кольчужный рейтузы)"))
-    print(ChangeText("Руда из серебра"))
-    print(ChangeText("Руда из серебра (20%)"))
+#    print(ChangeText("(из берёзы стол)"))
+#    print(ChangeText("риз берёзы гробр"))
+#    print(ChangeText("(из берёзы стол)"))
+#    print(ChangeText("*из берёзы гроб*"))
+#    print(ChangeText("*из кремня статуя Vadane Tundraslips*"))  
+#    print(ChangeText("горный козёл из рогов кольцоs"))
+#    print(ChangeText("(прудовая черепаха из панциря амулет)"))
+#    print(ChangeText("-прудовая черепаха из панциря кольцо-"))
+#    print(ChangeText("прудовая черепаха из панциря кольцоs [2]"))
+#    print(ChangeText("охотничий собака, ♀"))    
+#    print(ChangeText("Ничей боевой собака (Ручной)"))
+#    print(ChangeText("Ничей боевой собака, ♀(Ручной)"))
     input()
-
-
