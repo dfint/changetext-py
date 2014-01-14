@@ -895,16 +895,17 @@ animals_female={"собака","самка","крольчиха","гусыня",
 
 #выражения типа (из меди кирки [3])
 def corr_item_1(s):
+    print(1)
+    symbol=""
     hst=re_1.search(s)
-    new_word=hst.group(3)
+    s_temp=hst.group(2)+hst.group(3)+" "+hst.group(4)
+    if s_temp[0]=="р" and s_temp[-1]=="р":
+        s_temp=s_temp[1:-1]
+        symbol="≡"
+    new_word=''.join(s_temp.split(" ")[-1])
     if new_word in phrases:
         new_word=phrases[new_word]
-        s=s.replace(hst.group(2), new_word)
-    if s[0]=="р" and s[-1]=="р":
-        s=s[1:-1]
-        s="≡"+s+"≡"
-        hst=re_1.search(s)
-        new_word=hst.group(3)
+        s_temp=s_temp.replace(''.join(s_temp.split(" ")[-1]), new_word)
     if  new_word in gender_item:
         gender=gender_item [new_word]
     else:
@@ -912,13 +913,18 @@ def corr_item_1(s):
             gender=gender_item [''.join(new_word.split(" ")[1])]
         elif ''.join(new_word.split(" ")[0]) in gender_item:
             gender=gender_item [''.join(new_word.split(" ")[0])]
-    new_word=adjectives[hst.group(2)][gender]
-    s=s.replace(hst.group(2),new_word )
+    material=adjectives[hst.group(3)][gender]
+    s_temp=material+" "+new_word
+    if symbol:
+        s_temp=symbol+s_temp+symbol
+    s=s.replace(hst.group(2)+hst.group(3)+" "+hst.group(4),s_temp )
     s=s.replace("кольчужный","кольчужные")
+
     return(s)
     
  #выражения типа "(из висмутовой бронзы кирка [3])"
 def corr_item_2(s):
+    print(2)
     hst=re_2.search(s)
     if hst.group(3) in phrases:
         new_word=phrases[hst.group(3)]
@@ -930,6 +936,7 @@ def corr_item_2(s):
  
  #выражения типа "рогатый филин яйцо"
 def corr_item_3(s):
+    print(3)
     hst=re_3.search(s)
     if hst.group(3) in phrases:
         new_word=phrases[hst.group(3)]
@@ -943,18 +950,25 @@ def corr_item_3(s):
     
 #выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
 def corr_item_4(s):
+    print(4)
     hst=re_4.search(s)
     s=s.replace(hst.group(0),hst.group(1)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
     return(s)
  
 #выражения типа "горный козёл из кожи"
 def corr_item_5(s):
+    print(5)
     hst=re_5.search(s)
     s=s.replace(hst.group(0),hst.group(1)+"кожа"+" "+rod_pad(hst.group(2)))
     return(s) 
     
  #выражения типа "свинохвост из волокон ткань"+шёлк+шерсть
 def corr_item_6(s):
+    print(6)
+    symbol=""
+    if s[0]=="X" and s[-1]=="X":
+        s=s[1:-1]
+        symbol="X"
     hst=re_6.search(s)
     new_word=hst.group(4)
     s=s.replace(hst.group(0),hst.group(1)+hst.group(4)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
@@ -963,10 +977,13 @@ def corr_item_6(s):
         s=s.replace(hst.group(4), new_word)
     s=s.replace("левый","левая")
     s=s.replace("правый","правая")
+    if symbol:
+        s=symbol+s+symbol
     return(s)  
     
 #выражения типа "древесина дуба брёвна"
 def corr_item_7(s):
+    print(7)
     hst=re_7.search(s)
     new_word=adjectives["из "+hst.group(2)][3]
     s=s.replace(hst.group(0),hst.group(1)+new_word+" "+hst.group(3))
@@ -974,6 +991,7 @@ def corr_item_7(s):
     
 #выражения типа "(бриолетовый восковые опалы)"
 def corr_item_8(s):
+    print(8)
     hst=re_8.search(s)
     if hst.group(2)  in gender_item :
         gender=gender_item [hst.group(2)]
@@ -985,6 +1003,7 @@ def corr_item_8(s):
     
     #выражения типа "гигантский из ясеня лезвия топоров"
 def corr_item_9(s):
+    print(9)
     hst=re_9.search(s)
     if hst.group(2) in adjectives:
         gender=gender_item [hst.group(3)]
@@ -1000,6 +1019,7 @@ def corr_item_9(s):
     
 #"животные"
 def corr_item_10(s):
+    print(10)
     if any(s.find(item)!=-1 for item in animals_female):
         s=s.replace("(Ручной)","(Ручная)")
         s=s.replace("боевой","боевая")
@@ -1009,7 +1029,7 @@ def corr_item_10(s):
     
 ############################################################################
 #компилированные регулярные выражения
-re_1 = re.compile(r"(^\W?|^\р)(из\s\w+)\s(\w+\s?\-?\w+?\b)")
+re_1 = re.compile(r"(^\W+?)(р?)(из\s\w+)\s(\w+\s?\-?\w+?\b)")
 re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+\s?\-?\w+?\b))")
 re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо|кровь|сукровица|кольцоs|серьгаs|амулетs|браслетs|скипетрs|коронаs|статуэткаs\b)')
 re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
@@ -1019,7 +1039,7 @@ re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 re_8 = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой)\s(\w+\s?\w+?\b)')
 re_9 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
 re_10 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)')
-re_11 = re.compile(r'(^Ничей)?(\w+)\s?\w+?([,♀]?)')
+re_11 = re.compile(r'(Ничей|охотничий)(.+)((Ручной)|\♀)')
 ############################################################################
 def Init():
     # phrases['Test'] = 'Тест'
@@ -1033,11 +1053,11 @@ if debug:
 not_translated = set()
 
 def ChangeText(s):
-#    print(re_11.search(s).group(0, 1, 2, 3))
+#    print(re_2.search(s).group(0, 1, 2, 3))
     if s in phrases:
         return phrases[s]
     elif re_1.search(s):
-        if  re_1.search(s).group(2) in adjectives:
+        if  re_1.search(s).group(3) in adjectives:
             return corr_item_1(s)
         elif  re_2.search(s).group(2) in adjectives:
             return corr_item_2(s)    
@@ -1122,4 +1142,25 @@ if __name__ == '__main__':
 #    print(ChangeText("охотничий собака, ♀"))    
 #    print(ChangeText("Ничей боевой собака (Ручной)"))
 #    print(ChangeText("Ничей боевой собака, ♀(Ручной)"))
+#    print(ChangeText("Xпрудовая черепаха из панциря шлемX"))
+#    print(ChangeText("прудовая черепаха из панциря шлем"))
+#    print(ChangeText("☼из кремня дверь☼"))
+#    print(ChangeText("+из кремня механизмы+"))
+#    print(ChangeText("-«+из кремня дверь+»-"))
+#    print(ChangeText("+«риз кремня дверьр»+"))
+#    print(ChangeText("(из башнегриба бочка <#3>)")) 
+
+    print(ChangeText("дварфийское пиво бочка"))
+    print(ChangeText("(дварфийское пиво бочка (из ольхи))"))
+#    print(ChangeText("(из коричневого песка мешок (гигантский земляной червь из кожи))"))
+#    print(ChangeText("(лошадиное молоко бочка (из клёна))"))
+#    print(ChangeText("(Мясо бочка (из ивы))"))
+#    print(ChangeText("(споры толстошлемника мешок (вапитица из кожи))"))
+#    print(ChangeText("(семена сладкого стручка мешок (пещерный паук из шёлка))"))
+#    print(ChangeText("(из чёрного песка мешок(свинохвост из волокон))"))
+#    print(ChangeText("(Рыба бочка (из каштана) <#3>)"))
+#    print(ChangeText("(Рыба бочка (из ребра цереуса) <#3>)"))
+  
+
+    
     input()
