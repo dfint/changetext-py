@@ -1,5 +1,5 @@
-import re
 import sys
+import re
 sys.stderr = open('changetext.err', 'w', 1)
 
 phrases = {
