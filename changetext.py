@@ -1033,13 +1033,14 @@ def corr_item_1(s):
     symbol=""
     hst=re_1.search(s)
     s_temp=hst.group(2)+hst.group(3)+" "+hst.group(4)
+    words=s_temp.split(" ")
     if s_temp[0]=="р" and s_temp[-1]=="р":
         s_temp=s_temp[1:-1]
-        symbol="≡"
-    new_word=' '.join(s_temp.split(" ")[2:])
+        symbol="≡"                
+    new_word=' '.join(words[2:])
     if new_word in phrases:
         new_word=phrases[new_word]
-        s_temp=s_temp.replace(s_temp.split(" ")[-1], new_word)
+        s_temp=s_temp.replace(words[-1], new_word)
     if  new_word in gender_item:
         gender=gender_item [new_word]
     else:
