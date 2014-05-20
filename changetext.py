@@ -1133,7 +1133,7 @@ def corr_item_7(s):
 #выражения типа "(бриолетовый восковые опалы)"
 def corr_item_8(s):
     print(8)
-    hst=re_8.search(s)
+    hst=re_gem_cutting.search(s)
     if hst.group(2).split(" ")[-1] in item_other:
         return corr_item_14(s)
     if hst.group(2) in gender_item:
@@ -1348,7 +1348,7 @@ re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+
 re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)$')
 re_6 = re.compile(r'(^[(+*-«☼]*?)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+?\b)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
-re_8 = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой|грубый)\s(\w+\s?\w+?\b)')
+re_gem_cutting = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой|грубый)\s(\w+\s?\w+?\b)')
 re_9 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
 re_10 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)')
 re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|\♀)')
@@ -1401,7 +1401,7 @@ def ChangeText(s):
           return corr_item_7(s)
       elif re_9.search(s):
           return corr_item_9(s) 
-      elif re_8.search(s):
+      elif re_gem_cutting.search(s):
           return corr_item_8(s)
       elif re_11.search(s):
           return corr_item_10(s)
