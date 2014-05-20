@@ -1039,14 +1039,14 @@ def corr_item_1(s):
     new_word=' '.join(s_temp.split(" ")[2:])
     if new_word in phrases:
         new_word=phrases[new_word]
-        s_temp=s_temp.replace(''.join(s_temp.split(" ")[-1]), new_word)
+        s_temp=s_temp.replace(s_temp.split(" ")[-1], new_word)
     if  new_word in gender_item:
         gender=gender_item [new_word]
     else:
-        if ''.join(new_word.split(" ")[1]) in gender_item:
-            gender=gender_item [''.join(new_word.split(" ")[1])]
-        elif ''.join(new_word.split(" ")[0]) in gender_item:
-            gender=gender_item [''.join(new_word.split(" ")[0])]
+        if new_word.split(" ")[1] in gender_item:
+            gender=gender_item [new_word.split(" ")[1]]
+        elif new_word.split(" ")[0] in gender_item:
+            gender=gender_item [new_word.split(" ")[0]]
         elif  new_word=="индив выбор":
             gender=2
     material=adjectives[hst.group(3)][gender]
@@ -1133,7 +1133,7 @@ def corr_item_7(s):
 def corr_item_8(s):
     print(8)
     hst=re_8.search(s)
-    if ''.join(hst.group(2).split(" ")[-1]) in item_other:
+    if hst.group(2).split(" ")[-1] in item_other:
         return(corr_item_14(s))
     if hst.group(2) in gender_item:
         gender=gender_item [hst.group(2)]
@@ -1191,14 +1191,14 @@ def corr_item_12(s):
     print(12)
     hst=re_13.search(s)
     if hst.group(2)=="деревце":
-        if ''.join(hst.group(1).split(" ")[0])=="Мёртвый":
+        if hst.group(1).split(" ")[0]=="Мёртвый":
             s="Мёртое деревце"+"("+''.join(hst.group(0).split(" ")[1:-1])+")"
         else:
             s="Деревце"+"("+hst.group(1)+")"
         return(s.capitalize())
-    first_word=''.join(hst.group(1).split(" ")[0])
+    first_word=hst.group(1).split(" ")[0]
     if len((hst.group(1)).split(" "))==2:
-        second_word=''.join(hst.group(1).split(" ")[1])
+        second_word=hst.group(1).split(" ")[1]
     new_word=""
     new_word_2=""
     second_word=""
@@ -1223,9 +1223,9 @@ def corr_item_13(s):
     if gender_items(hst.group(1), hst.group(2),2):
         new_word=gender_items(hst.group(1),hst.group(2),2)
         s=s.replace(hst.group(1),new_word)
-    if ''.join(hst.group(2).split(" ")[0]) in adjectives_item:
-        new_word=gender_items(''.join(hst.group(2).split(" ")[0]),''.join(hst.group(2).split(" ")[1]),2)
-        s=s.replace(''.join(hst.group(2).split(" ")[0]),new_word)
+    if hst.group(2).split(" ")[0] in adjectives_item:
+        new_word=gender_items(hst.group(2).split(" ")[0],hst.group(2).split(" ")[1],2)
+        s=s.replace(hst.group(2).split(" ")[0],new_word)
         
     return(s.capitalize())
 
@@ -1234,7 +1234,7 @@ def corr_item_14(s):
     print(14)
     hst=re_13_2.search(s)
     if "частичный" in hst.group(1):
-        s="частичный"+" "+hst.group(2)+" "+rod_pad(''.join(hst.group(1).split(" ")[1]))
+        s="частичный"+" "+hst.group(2)+" "+rod_pad(hst.group(1).split(" ")[1])
     else:
         s=s.replace(hst.group(1)+" "+hst.group(2), hst.group(2)+" "+rod_pad(hst.group(1)))
     return(s.capitalize())
