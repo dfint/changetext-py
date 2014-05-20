@@ -1297,7 +1297,7 @@ def corr_item_17(s):
 #трупs
 def corr_item_18(s):
     print(18)
-    hst=re_17.search(s)
+    hst=re_corpses.search(s)
     s_temp=phrases[hst.group(1)]
     s=s.replace(hst.group(1), s_temp)
     return s.capitalize()   
@@ -1361,7 +1361,7 @@ re_14=re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(�
 re_15 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+)\s(\w+\s?\w+?\b)")
 re_15_1 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)")
 re_16 = re.compile(r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
-re_17 = re.compile(r'(трупs)\s(.+)')
+re_corpses = re.compile(r'(трупs)\s(.+)')
 re_18 = re.compile(r'(.+)\s(убежище|крепость)\s(.+)')
 re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
 re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
@@ -1419,7 +1419,7 @@ def ChangeText(s):
           return corr_item_16(s)
       elif re_16.search(s):
           return corr_item_17(s)
-      elif re_17.search(s):
+      elif re_corpses.search(s):
           return corr_item_18(s)
       elif re_18.search(s):
           return corr_item_19(s)
