@@ -913,18 +913,17 @@ gem_okonch_vn={
     }
 
 def gender_items(word_first,word_second,sign):
-
-    gender=4
+    gender=None
     if word_first in adjectives_item:
         if word_second[-2:] in ending_masc:
-            gender=0
+            gender=masculine
         elif word_second[-2:] in ending_fem:
-            gender=1
+            gender=feminine
         elif word_second[-2:] in ending_neut:
-            gender=2
+            gender=neuter
         elif word_second[-2:] in ending_plur:
-            gender=3
-        if gender!=4:
+            gender=plural
+        if gender!=None:
             if sign==1:
                 word=adjectives_item[word_first][gender]
             elif sign==2:
@@ -1049,7 +1048,7 @@ def corr_item_1(s):
         elif new_word.split(" ")[0] in gender_item:
             gender=gender_item[new_word.split(" ")[0]]
         elif new_word=="индив выбор":
-            gender=2
+            gender=neuter
     material=adjectives[hst.group(3)][gender]
     s_temp=material+" "+new_word
     if symbol:
