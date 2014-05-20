@@ -1056,7 +1056,7 @@ def corr_item_1(s):
     s=s.replace(hst.group(2)+hst.group(3)+" "+hst.group(4),s_temp )
     s=s.replace("кольчужный","кольчужные")
 
-    return(s)
+    return s
     
 #выражения типа "(из висмутовой бронзы кирка [3])"
 def corr_item_2(s):
@@ -1068,7 +1068,7 @@ def corr_item_2(s):
         new_word=hst.group(3)
     s=s.replace(hst.group(1),new_word+" "+hst.group(2))
     s=s.replace("кольчужный","кольчужные")
-    return(s) 
+    return s 
  
 #выражения типа "рогатый филин яйцо"
 def corr_item_3(s):
@@ -1077,7 +1077,7 @@ def corr_item_3(s):
     if re_3_1.search(s):
         hst=re_3_1.search(s)
         s=hst.group(1)+" "+rod_pad(hst.group(3)+" "+hst.group(2))
-        return(s.capitalize())
+        return s.capitalize()
     if hst.group(3) in phrases:
         new_word=phrases[hst.group(3)]
     else:
@@ -1086,21 +1086,21 @@ def corr_item_3(s):
         s=s.replace(hst.group(0),hst.group(1)+new_word+" "+adjectives[hst.group(2)])
     else:
         s=s.replace(hst.group(0),hst.group(1)+new_word+" "+rod_pad(hst.group(2)))
-    return(s) 
+    return s 
     
 #выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
 def corr_item_4(s):
     print(4)
     hst=re_4.search(s)
     s=s.replace(hst.group(0),hst.group(1)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
-    return(s)
+    return s
  
 #выражения типа "горный козёл из кожи"
 def corr_item_5(s):
     print(5)
     hst=re_5.search(s)
     s=s.replace(hst.group(0),hst.group(1)+"кожа"+" "+rod_pad(hst.group(2)))
-    return(s) 
+    return s 
     
 #выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
 def corr_item_6(s):
@@ -1119,7 +1119,7 @@ def corr_item_6(s):
     s=s.replace("правый","правая")
     if symbol:
         s=symbol+s+symbol
-    return(s)  
+    return s  
     
 #выражения типа "древесина дуба брёвна"
 def corr_item_7(s):
@@ -1127,14 +1127,14 @@ def corr_item_7(s):
     hst=re_7.search(s)
     new_word=adjectives["из "+hst.group(2)][3]
     s=s.replace(hst.group(0),hst.group(1)+new_word+" "+hst.group(3))
-    return(s)  
+    return s  
     
 #выражения типа "(бриолетовый восковые опалы)"
 def corr_item_8(s):
     print(8)
     hst=re_8.search(s)
     if hst.group(2).split(" ")[-1] in item_other:
-        return(corr_item_14(s))
+        return corr_item_14(s)
     if hst.group(2) in gender_item:
         gender=gender_item [hst.group(2)]
         new_word=adjectives[hst.group(1)][gender]
@@ -1143,7 +1143,7 @@ def corr_item_8(s):
     elif hst.group(2)[-2:]in ending_plur:
         s=s.replace("большой","большие,")
         s=s.replace("грубый","грубые")
-    return(s) 
+    return s 
     
 #выражения типа "гигантский из ясеня лезвия топоров"
 def corr_item_9(s):
@@ -1159,7 +1159,7 @@ def corr_item_9(s):
         gender=gender_item[hst.group(3)]
         new_word=adjectives[hst.group(1)][gender]
         s=s.replace(hst.group(0),new_word+" "+hst.group(3)+" "+hst.group(2))
-    return(s)
+    return s
     
 #"животные"
 def corr_item_10(s):
@@ -1171,7 +1171,7 @@ def corr_item_10(s):
         s=s.replace("Ничей","Ничья")
         s=s.replace("охотничий","охотничья")
         
-    return(s)
+    return s
 
 #выражения типа "(дварфийское пиво бочка (из ольхи))"
 def corr_item_11(s):
@@ -1184,7 +1184,7 @@ def corr_item_11(s):
         new_word=hst_1.group(2)+" "+rod_pad(hst_1.group(1))
         s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+rod_pad(hst.group(1)))
         s=s.replace(hst.group(3),new_word)
-    return(s.capitalize())
+    return s.capitalize()
 
 #"элементы рельефа, крепости и тп"
 def corr_item_12(s):
@@ -1195,7 +1195,7 @@ def corr_item_12(s):
             s="Мёртое деревце"+"("+''.join(hst.group(0).split(" ")[1:-1])+")"
         else:
             s="Деревце"+"("+hst.group(1)+")"
-        return(s.capitalize())
+        return s.capitalize()
     first_word=hst.group(1).split(" ")[0]
     if len((hst.group(1)).split(" "))==2:
         second_word=hst.group(1).split(" ")[1]
@@ -1214,7 +1214,7 @@ def corr_item_12(s):
         s=s.replace(rod_pad(second_word),new_word_2)
     if "иза" in s:
         s=s.replace(" иза", "")
-    return(s.capitalize())
+    return s.capitalize()
 
 #"Густой и тп"
 def corr_item_13(s):
@@ -1227,7 +1227,7 @@ def corr_item_13(s):
         new_word=gender_items(hst.group(2).split(" ")[0],hst.group(2).split(" ")[1],2)
         s=s.replace(hst.group(2).split(" ")[0],new_word)
         
-    return(s.capitalize())
+    return s.capitalize()
 
 #"Скелет, останки и тп"
 def corr_item_14(s):
@@ -1237,14 +1237,14 @@ def corr_item_14(s):
         s="частичный"+" "+hst.group(2)+" "+rod_pad(hst.group(1).split(" ")[1])
     else:
         s=s.replace(hst.group(1)+" "+hst.group(2), hst.group(2)+" "+rod_pad(hst.group(1)))
-    return(s.capitalize())
+    return s.capitalize()
     
 #"Изделия из стекла"
 def corr_item_15(s):
     print(15)
     hst=re_14.search(s)
     s=hst.group(1)+" "+hst.group(3)+" "+adjectives[hst.group(2)]
-    return(s.capitalize())
+    return s.capitalize()
     
 #кузница
 def corr_item_16(s):
@@ -1258,7 +1258,7 @@ def corr_item_16(s):
         s=hst.group(1)+" "+material+" "+item
         s=s.replace("Кузница","Ковать")
         s=s.replace("Наконечники стрел","наконечники стрел баллисты")
-        return(s.capitalize())
+        return s.capitalize()
     if  hst.group(2) in adjectives :
         gender=gender_item[hst.group(3)]
         material=adjectives[hst.group(2)][gender]
@@ -1270,7 +1270,7 @@ def corr_item_16(s):
         s=hst_1.group(1)+" "+item+" "+hst_1.group(2)
     s=s.replace("Кузница","Ковать")
     s=s.replace("Наконечники стрел","наконечники стрел баллисты")
-    return(s.capitalize())
+    return s.capitalize()
     
 #Ювелирная мастерская
 def corr_item_17(s):
@@ -1283,7 +1283,7 @@ def corr_item_17(s):
                 word=word[0:-2]+gem_okonch_vn[word[-2:]]
             gem=(gem+" "+word).strip()
         s=hst.group(1)+" "+gem
-        return(s.capitalize())
+        return s.capitalize()
     for word in  hst.group(2).split(" "):
         if word[-2:] in gem_okonch_tv:
             word=word[0:-2]+gem_okonch_tv[word[-2:]]
@@ -1291,7 +1291,7 @@ def corr_item_17(s):
             word=word+"ом"
         gem=(gem+" "+word).strip()
     s=incrustation_item[hst.group(1)]+gem
-    return(s.capitalize())
+    return s.capitalize()
     
 #трупs
 def corr_item_18(s):
@@ -1299,7 +1299,7 @@ def corr_item_18(s):
     hst=re_17.search(s)
     s_temp=phrases[hst.group(1)]
     s=s.replace(hst.group(1), s_temp)
-    return(s.capitalize())   
+    return s.capitalize()   
     
 #убежище, крепость
 def corr_item_19(s):
@@ -1309,7 +1309,7 @@ def corr_item_19(s):
         s=s.replace("эльфийский", "эльфийское")
     elif hst.group(2)=="крепость":
         s=s.replace("людской", "людская")
-    return(s.capitalize())
+    return s.capitalize()
    
 #выбор материала
 def corr_item_20(s):
@@ -1322,18 +1322,18 @@ def corr_item_20(s):
     if hst.group(1)=='пряжа'or hst.group(1)=='растительное волокно':
         material=adjectives[hst.group(1)]
         s=new_word+" "+material
-        return(s.capitalize())
+        return s.capitalize()
     gender=gender_item[new_word]
     material=adjectives[hst.group(1)][gender]
     s=material+" "+new_word
-    return(s.capitalize()) 
+    return s.capitalize() 
 
 #кожа, шерсть-длинные названия
 def corr_item_21(s):
     print(21)
     hst=re_20.search(s)
     s=hst.group(2)+" "+rod_pad(hst.group(1))
-    return(s.capitalize()) 
+    return s.capitalize() 
    
 
     
