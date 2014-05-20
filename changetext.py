@@ -1041,14 +1041,14 @@ def corr_item_1(s):
     if new_word in phrases:
         new_word=phrases[new_word]
         s_temp=s_temp.replace(words[-1], new_word)
-    if  new_word in gender_item:
-        gender=gender_item [new_word]
+    if new_word in gender_item:
+        gender=gender_item[new_word]
     else:
         if new_word.split(" ")[1] in gender_item:
-            gender=gender_item [new_word.split(" ")[1]]
+            gender=gender_item[new_word.split(" ")[1]]
         elif new_word.split(" ")[0] in gender_item:
-            gender=gender_item [new_word.split(" ")[0]]
-        elif  new_word=="индив выбор":
+            gender=gender_item[new_word.split(" ")[0]]
+        elif new_word=="индив выбор":
             gender=2
     material=adjectives[hst.group(3)][gender]
     s_temp=material+" "+new_word
@@ -1137,7 +1137,7 @@ def corr_item_8(s):
     if hst.group(2).split(" ")[-1] in item_other:
         return corr_item_14(s)
     if hst.group(2) in gender_item:
-        gender=gender_item [hst.group(2)]
+        gender=gender_item[hst.group(2)]
         new_word=adjectives[hst.group(1)][gender]
         s=s.replace(hst.group(0),new_word+" "+hst.group(2))
     
@@ -1151,7 +1151,7 @@ def corr_item_9(s):
     print(9)
     hst=re_9.search(s)
     if hst.group(2) in adjectives:
-        gender=gender_item [hst.group(3)]
+        gender=gender_item[hst.group(3)]
         new_word=adjectives[hst.group(1)][gender]
         new_word_2=adjectives[hst.group(2)][gender]
         s=s.replace(hst.group(0),new_word+" "+new_word_2+" "+hst.group(3))
@@ -1260,7 +1260,7 @@ def corr_item_16(s):
         s=s.replace("Кузница","Ковать")
         s=s.replace("Наконечники стрел","наконечники стрел баллисты")
         return s.capitalize()
-    if  hst.group(2) in adjectives :
+    if hst.group(2) in adjectives :
         gender=gender_item[hst.group(3)]
         material=adjectives[hst.group(2)][gender]
         s=hst.group(1)+" "+material+" "+hst.group(3)
@@ -1279,13 +1279,13 @@ def corr_item_17(s):
     hst=re_16.search(s)
     gem=""
     if hst.group(1)=="Огранить":
-        for word in  hst.group(2).split(" "):
+        for word in hst.group(2).split(" "):
             if word[-2:] in gem_okonch_vn:
                 word=word[0:-2]+gem_okonch_vn[word[-2:]]
             gem=(gem+" "+word).strip()
         s=hst.group(1)+" "+gem
         return s.capitalize()
-    for word in  hst.group(2).split(" "):
+    for word in hst.group(2).split(" "):
         if word[-2:] in gem_okonch_tv:
             word=word[0:-2]+gem_okonch_tv[word[-2:]]
         else:
@@ -1385,9 +1385,9 @@ def ChangeText(s):
       elif re_1.search(s):
           if re_1.search(s).group(0) in adjectives:
               return re_1.search(s).group(0)
-          elif  re_1.search(s).group(3) in adjectives:
+          elif re_1.search(s).group(3) in adjectives:
               return corr_item_1(s)
-          elif  re_2.search(s).group(2) in adjectives:
+          elif re_2.search(s).group(2) in adjectives:
               return corr_item_2(s)    
       elif re_6.search(s):
           return corr_item_6(s)
