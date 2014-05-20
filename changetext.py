@@ -1099,7 +1099,7 @@ def corr_item_4(s):
 def corr_item_5(s):
     print(5)
     hst=re_5.search(s)
-    s=s.replace(hst.group(0),hst.group(1)+"кожа"+" "+rod_pad(hst.group(2)))
+    s=s.replace(hst.group(0),hst.group(1)+"кожа "+rod_pad(hst.group(2)))
     return s 
     
 #выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
@@ -1192,9 +1192,9 @@ def corr_item_12(s):
     hst=re_13.search(s)
     if hst.group(2)=="деревце":
         if hst.group(1).split(" ")[0]=="Мёртвый":
-            s="Мёртое деревце"+"("+''.join(hst.group(0).split(" ")[1:-1])+")"
+            s="Мёртое деревце ("+''.join(hst.group(0).split(" ")[1:-1])+")"
         else:
-            s="Деревце"+"("+hst.group(1)+")"
+            s="Деревце ("+hst.group(1)+")"
         return s.capitalize()
     first_word=hst.group(1).split(" ")[0]
     if len((hst.group(1)).split(" "))==2:
@@ -1207,7 +1207,7 @@ def corr_item_12(s):
     if gender_items(second_word,hst.group(1),1):
         new_word_2=gender_items(second_word,hst.group(1),1)
 
-    s=hst.group(2)+" "+"из"+" "+rod_pad(hst.group(1))
+    s=hst.group(2)+" из "+rod_pad(hst.group(1))
     if new_word:
         s=s.replace(rod_pad(first_word),new_word)
     if new_word_2:
@@ -1234,7 +1234,7 @@ def corr_item_14(s):
     print(14)
     hst=re_13_2.search(s)
     if "частичный" in hst.group(1):
-        s="частичный"+" "+hst.group(2)+" "+rod_pad(hst.group(1).split(" ")[1])
+        s="частичный "+hst.group(2)+" "+rod_pad(hst.group(1).split(" ")[1])
     else:
         s=s.replace(hst.group(1)+" "+hst.group(2), hst.group(2)+" "+rod_pad(hst.group(1)))
     return s.capitalize()
