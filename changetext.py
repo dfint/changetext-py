@@ -930,8 +930,7 @@ def gender_items(word_first,word_second,sign):
             elif sign==2:
                 word=adjectives_item_2[word_first][gender]
             return word
-    else:
-        return None
+    return None
 
 def rod_pad(word):
 ###################### существительные+ прилаг  ######################
