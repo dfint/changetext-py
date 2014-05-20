@@ -1140,7 +1140,7 @@ def corr_item_8(s):
         new_word=adjectives[hst.group(1)][gender]
         s=s.replace(hst.group(0),new_word+" "+hst.group(2))
     
-    elif hst.group(2)[-2:]in ending_plur:
+    elif hst.group(2)[-2:] in ending_plur:
         s=s.replace("большой","большие,")
         s=s.replace("грубый","грубые")
     return s 
