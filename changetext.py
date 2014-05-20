@@ -1254,7 +1254,7 @@ def corr_item_16(s):
     if hst.group(3) in ablative_pad:
         item=ablative_pad[hst.group(3)]
         material_temp=adjectives[hst.group(2)][0]
-        material=material_temp[0:-2]+"ую"
+        material=material_temp[:-2]+"ую"
         s=hst.group(1)+" "+material+" "+item
         s=s.replace("Кузница","Ковать")
         s=s.replace("Наконечники стрел","наконечники стрел баллисты")
@@ -1280,13 +1280,13 @@ def corr_item_17(s):
     if hst.group(1)=="Огранить":
         for word in hst.group(2).split(" "):
             if word[-2:] in gem_okonch_vn:
-                word=word[0:-2]+gem_okonch_vn[word[-2:]]
+                word=word[:-2]+gem_okonch_vn[word[-2:]]
             gem=(gem+" "+word).strip()
         s=hst.group(1)+" "+gem
         return s.capitalize()
     for word in hst.group(2).split(" "):
         if word[-2:] in gem_okonch_tv:
-            word=word[0:-2]+gem_okonch_tv[word[-2:]]
+            word=word[:-2]+gem_okonch_tv[word[-2:]]
         else:
             word=word+"ом"
         gem=(gem+" "+word).strip()
