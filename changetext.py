@@ -1096,9 +1096,9 @@ def corr_item_4(s):
     return s
  
 #выражения типа "горный козёл из кожи"
-def corr_item_5(s):
+def corr_item_skin(s):
     print(5)
-    hst=re_5.search(s)
+    hst=re_skin.search(s)
     s=s.replace(hst.group(0),hst.group(1)+" кожа "+rod_pad(hst.group(2)))
     return s 
     
@@ -1319,7 +1319,7 @@ def corr_item_20(s):
         new_word=phrases[hst.group(2)]
     else:
         new_word=hst.group(2)
-    if hst.group(1)=='пряжа'or hst.group(1)=='растительное волокно':
+    if hst.group(1)=='пряжа' or hst.group(1)=='растительное волокно':
         material=adjectives[hst.group(1)]
         s=new_word+" "+material
         return s.capitalize()
@@ -1344,7 +1344,7 @@ re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+\/?\s?\-?\w+?\b))")
 re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо|кровь|сукровица|кольцоs|серьгаs|амулетs|браслетs|скипетрs|коронаs|статуэткаs\b)')
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
-re_5 = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)$')
+re_skin = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)$')
 re_6 = re.compile(r'(^[(+*-«☼]*?)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+?\b)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 re_gem_cutting = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой|грубый)\s(\w+\s?\w+?\b)')
@@ -1392,8 +1392,8 @@ def ChangeText(s):
           return corr_item_6(s)
       elif re_4.search(s):
           return corr_item_4(s)
-      elif re_5.search(s):
-          return corr_item_5(s)
+      elif re_skin.search(s):
+          return corr_item_skin(s)
       elif re_3.search(s):
           return corr_item_3(s)
       elif re_7.search(s):
