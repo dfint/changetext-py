@@ -1197,7 +1197,7 @@ def corr_item_12(s):
             s="Деревце ("+hst.group(1)+")"
         return s.capitalize()
     first_word=hst.group(1).split(" ")[0]
-    if len((hst.group(1)).split(" "))==2:
+    if len(hst.group(1).split(" "))==2:
         second_word=hst.group(1).split(" ")[1]
     new_word=""
     new_word_2=""
