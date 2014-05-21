@@ -1099,7 +1099,7 @@ def corr_item_4(s):
 def corr_item_5(s):
     print(5)
     hst=re_5.search(s)
-    s=s.replace(hst.group(0),hst.group(1)+"кожа "+rod_pad(hst.group(2)))
+    s=s.replace(hst.group(0),hst.group(1)+" кожа "+rod_pad(hst.group(2)))
     return s 
     
 #выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
