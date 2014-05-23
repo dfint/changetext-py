@@ -1043,10 +1043,11 @@ def corr_item_1(s):
     if new_word in gender_item:
         gender=gender_item[new_word]
     else:
-        if new_word.split(" ")[1] in gender_item:
-            gender=gender_item[new_word.split(" ")[1]]
-        elif new_word.split(" ")[0] in gender_item:
-            gender=gender_item[new_word.split(" ")[0]]
+        new_words=new_word.split(" ")
+        if new_words[1] in gender_item:
+            gender=gender_item[new_words[1]]
+        elif new_words[0] in gender_item:
+            gender=gender_item[new_words[0]]
         elif new_word=="индив выбор":
             gender=neuter
     material=adjectives[hst.group(3)][gender]
