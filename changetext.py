@@ -1042,14 +1042,14 @@ def corr_item_1(s):
         s_temp=s_temp.replace(words[-1], new_word)
     if new_word in gender_item:
         gender=gender_item[new_word]
+    elif new_word=="индив выбор": # вынести в gender_item ?
+        gender=neuter
     elif " " in new_word:
         new_words=new_word.split(" ")
         if new_words[1] in gender_item:
             gender=gender_item[new_words[1]]
         elif new_words[0] in gender_item:
             gender=gender_item[new_words[0]]
-        elif new_word=="индив выбор":
-            gender=neuter
     else:
         gender=masculine # по-умолчанию мужской род
     material=adjectives[hst.group(3)][gender]
