@@ -1,5 +1,7 @@
 import sys
 import re
+import traceback
+
 sys.stderr = open('changetext.err', 'w', 1)
 
 phrases = {
@@ -1441,7 +1443,15 @@ def ChangeText(s):
         print("{0:60}{1:14}{2}".format(s,"--------->    ",Test(s)), file=log_file)
         log_file.flush()
         not_translated.add(s)
-    return Test(s)
+    
+    try:
+        output = Test(s)
+    except Exception:
+        print('An error occured.', file=sys.stderr)
+        print('Initial string:', s, file=sys.stderr)
+        print(traceback, file=sys.stderr)
+    
+    return output
     
 if __name__ == '__main__':
     print(ChangeText("из висмутовой бронзы индив выбор, ближ"))
