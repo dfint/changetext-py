@@ -2,7 +2,7 @@ import sys
 import re
 import traceback
 
-sys.stderr = open('changetext.err', 'w', 1)
+#sys.stderr = open('changetext.err', 'w', 1)
 
 phrases = {
     'Slaves to Armok:  God of Blood':'Рабы Армока - бога крови',
@@ -1379,7 +1379,7 @@ debug = True
 if debug:
     log_file = open('changetext.log', 'a', 1, encoding='cp65001')
 
-not_translated = set()
+logged = set()
 
 def ChangeText(s):
     def Test(s): 
@@ -1433,29 +1433,27 @@ def ChangeText(s):
           return corr_item_21(s)         
    
       else :
-     #   if debug and s not in not_translated:
-     #       log_file.write('"%s"\n' % s)
-     #       log_file.flush()
-     #   not_translated.add(s)
           return None
-  
-    if debug and s not in not_translated:
-        print("{0:60}{1:14}{2}".format(s,"--------->    ",Test(s)), file=log_file)
-        log_file.flush()
-        not_translated.add(s)
     
     try:
         output = Test(s)
     except Exception:
         print('An error occured.', file=sys.stderr)
-        print('Initial string:', s, file=sys.stderr)
-        print(traceback, file=sys.stderr)
+        print('Initial string:', '"'+s+'"', file=sys.stderr)
+        print(traceback.format_exc(), file=sys.stderr)
+        print(file=sys.stderr)
+        output = None
+    
+    if debug and s not in logged:
+        print("{0:60}{1:14}{2}".format(s,"--------->    ",output), file=log_file)
+        log_file.flush()
+        logged.add(s)
     
     return output
     
 if __name__ == '__main__':
-    print(ChangeText("из висмутовой бронзы индив выбор, ближ"))
-    print(ChangeText("из железа индив выбор, дальн"))
+    print(ChangeText("ай-ай 1 кусает аистец 1    в   правая ступня, прокусывая кожа и повреждая"))
+#    print(ChangeText("из железа индив выбор, дальн"))
 #    print(ChangeText("из красного дерева щитs/баклерs"))
 #    print(ChangeText("из ребра цереуса щитs/баклерs"))
 #    print(ChangeText("птица-носорог из кожи обувь"))
