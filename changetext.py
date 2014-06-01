@@ -1100,8 +1100,8 @@ def corr_item_4(s):
 #выражения типа "горный козёл из кожи"
 def corr_item_skin(s):
     print(5)
-    hst=re_skin.search(s)
-    s=s.replace(hst.group(0),hst.group(1)+" кожа "+rod_pad(hst.group(2)))
+    hst = re_skin.search(s)
+    s = s.replace(hst.group(0), hst.group(1)+" кожа "+rod_pad(hst.group(2)))
     return s 
     
 #выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
@@ -1113,12 +1113,16 @@ def corr_item_6(s):
         symbol="X"
     hst=re_6.search(s)
     new_word=hst.group(4)
-    s=s.replace(hst.group(0),hst.group(1)+hst.group(4)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
+    if s[0] == "(":
+        st_kav = "("
+    s=s.replace(hst.group(0), hst.group(1)+hst.group(4)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
     if new_word in phrases:
-        new_word=phrases[new_word]
-        s=s.replace(hst.group(4), new_word)
-    s=s.replace("левый","левая")
-    s=s.replace("правый","правая")
+        new_word = phrases[new_word]
+        s = s.replace(hst.group(4), new_word)
+    s = s.replace("левый", "левая")
+    s = s.replace("правый", "правая")
+    if st_kav:
+        s=st_kav+s
     if symbol:
         s=symbol+s+symbol
     return s  
@@ -1128,7 +1132,7 @@ def corr_item_7(s):
     print(7)
     hst=re_7.search(s)
     new_word=adjectives["из "+hst.group(2)][3]
-    s=s.replace(hst.group(0),hst.group(1)+new_word+" "+hst.group(3))
+    s = s.replace(hst.group(0), hst.group(1)+new_word+" "+hst.group(3))
     return s  
     
 #выражения типа "(бриолетовый восковые опалы)"
@@ -1347,7 +1351,7 @@ re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|мясо|
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
 re_skin = re.compile(r'(\(?)(.+)\s(\bиз кожи\b)$')
-re_6 = re.compile(r'(^[(+*-«☼]*?)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+?\b)')
+re_6 = re.compile(r'(^[(+*-«☼]*?)\(?(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+?\b)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 re_gem_cutting = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой|грубый)\s(\w+\s?\w+?\b)')
 re_9 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
@@ -1380,7 +1384,7 @@ not_translated = set()
 
 def ChangeText(s):
     def Test(s): 
-#      print(re_1.search(s).group(0, 1,2,3,4,))
+      print(re_6.search(s).group(0, 1,2,3,4,))
       if s in phrases:
           return phrases[s]
       elif re_1.search(s):
@@ -1443,16 +1447,16 @@ def ChangeText(s):
     return Test(s)
     
 if __name__ == '__main__':
-    print(ChangeText("из висмутовой бронзы индив выбор, ближ"))
-    print(ChangeText("из железа индив выбор, дальн"))
+#   print(ChangeText("из висмутовой бронзы индив выбор, ближ"))
+#   print(ChangeText("из железа индив выбор, дальн"))
 #    print(ChangeText("из красного дерева щитs/баклерs"))
 #    print(ChangeText("из ребра цереуса щитs/баклерs"))
 #    print(ChangeText("птица-носорог из кожи обувь"))
 #    print(ChangeText("гигантская летучая мышь кожа"))
-#    print(ChangeText("гигантская полярная сова кожа")) 
+#    print(ChangeText("гигантская полярная сова кожа"))
 #    print(ChangeText("гигантский белый аист кожа"))
-#    print(ChangeText("гигантский длиннохвостый попугай кожа")) 
-#    print(ChangeText("акула-молот кожа")) 
+#    print(ChangeText("гигантский длиннохвостый попугай кожа"))
+#    print(ChangeText("акула-молот кожа"))
 #    print(ChangeText(" эльфийский лесное убежище Etathuatha"))  
 #    print(ChangeText(" людской крепость Belrokalle"))
 #    print(ChangeText("гнейс лестница вверх/вниз"))
@@ -1483,7 +1487,7 @@ if __name__ == '__main__':
 #    print(ChangeText("из висмутовой бронзы кольчуги"))
 #    print(ChangeText("гигантский из висмутовой бронзы колья"))
 #    print(ChangeText("горный козёл из кожи доспехи"))
-#    print(ChangeText("(омутник из кожи плащи [3])"))
+    print(ChangeText("(омутник из кожи плащи [3])"))
 #    print(ChangeText("(альпака из шерсти плащи [3])"))
 #    print(ChangeText("(овца из шерсти верёвкаs [3])"))
 #    print(ChangeText("(овца из шерсти пряжа)"))
