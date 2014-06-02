@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 import re
 import traceback
 
@@ -1387,7 +1387,6 @@ logged = set()
 
 def ChangeText(s):
     def Test(s): 
-      print(re_6.search(s).group(0, 1,2,3,4,))
       if s in phrases:
           return phrases[s]
       elif re_1.search(s):
