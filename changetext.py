@@ -1157,6 +1157,7 @@ def corr_item_skin(s):
 def corr_item_6(s):
     print(6)
     symbol=""
+    st_kav = ""
     if s[0]=="X" and s[-1]=="X":
         s=s[1:-1]
         symbol="X"
