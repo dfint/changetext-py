@@ -805,7 +805,7 @@ gender_item = {
     "улей":masculine,"рюкзак":masculine,"жилет":masculine,"плащ":masculine,"носок":masculine,
     "колчан":masculine,"силок":masculine,"шлюз":masculine,"люк":masculine,"сундук":masculine,
     "саркофаг":masculine,"ящик":masculine,"мемориал":masculine,
-    "головной убор":masculine, "кинжал":masculine, "болт":masculine,
+    "головной убор":masculine, "кинжал":masculine, "болт":masculine, "рычаг":masculine,
     
 # feminine
     "кирка":feminine, "наковальня":feminine, "булава":feminine,
@@ -1507,6 +1507,7 @@ if __name__ == '__main__':
     print(ChangeText("лиса из кожи"))
     print(ChangeText("(лама из кожи)"))
     print(ChangeText("(из бронзы болт)"))
+    print(ChangeText("из талька рычаг"))
     
 		
 
