@@ -816,7 +816,7 @@ gender_item = {
     "труба":feminine,"арфа":feminine,"флейта-пикколо":feminine,
     "корона":feminine,"перчатка":feminine,"Клетка":feminine,"клетка":feminine,
     "стойка":feminine,"решётка":feminine,"туника":feminine,"цепь":feminine,
-    "броня":feminine,"обувь":feminine,
+    "броня":feminine,"обувь":feminine, "крышка":feminine,
    
 # neuter
     "тренировочное копьё":neuter, "гнездо":neuter, "ведро":neuter, "копьё":neuter,
@@ -1084,9 +1084,11 @@ def corr_item_1(s):
         symbol="≡"
     words=s_temp.split(" ")            
     new_word=' '.join(words[2:])
+    # gender = masculine # по-умолчанию мужской род - включить в окончательной версии
     if new_word in phrases:
         new_word=phrases[new_word]
         s_temp=s_temp.replace(words[-1], new_word)
+    
     if new_word in gender_item:
         gender=gender_item[new_word]
     elif new_word=="индив выбор": # вынести в gender_item ?
@@ -1097,8 +1099,7 @@ def corr_item_1(s):
             gender=gender_item[new_words[1]]
         elif new_words[0] in gender_item:
             gender=gender_item[new_words[0]]
-    else:
-        gender=masculine # по-умолчанию мужской род
+        
     material=adjectives[hst.group(3)][gender]
     s_temp=material+" "+new_word
     if symbol:
@@ -1446,7 +1447,7 @@ def ChangeText(s):
           elif re_1.search(s).group(3) in adjectives:
               return corr_item_1(s)
           elif re_2.search(s).group(2) in adjectives:
-              return corr_item_2(s)    
+              return corr_item_2(s)
       elif re_6.search(s):
           return corr_item_6(s)
       elif re_4.search(s):
@@ -1509,7 +1510,9 @@ if __name__ == '__main__':
 
     print(ChangeText("Bembul Nilesonul, собака (Ручной)"))
     print(ChangeText("Ничей поросёнок (Ручной)"))
-
+    print(ChangeText("из доломита крышка люка"))
+    
+		
 
 #    print(ChangeText("ай-ай 1 кусает аистец 1    в   правая ступня, прокусывая кожа и повреждая"))
 #    print(ChangeText("из железа индив выбор, дальн"))
