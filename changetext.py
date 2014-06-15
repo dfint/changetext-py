@@ -816,7 +816,7 @@ gender_item = {
     "труба":feminine,"арфа":feminine,"флейта-пикколо":feminine,
     "корона":feminine,"перчатка":feminine,"Клетка":feminine,"клетка":feminine,
     "стойка":feminine,"решётка":feminine,"туника":feminine,"цепь":feminine,
-    "броня":feminine,"обувь":feminine, "крышка":feminine,
+    "броня":feminine,"обувь":feminine, "крышка":feminine, "звезда":feminine,
    
 # neuter
     "тренировочное копьё":neuter, "гнездо":neuter, "ведро":neuter, "копьё":neuter,
@@ -1512,6 +1512,7 @@ if __name__ == '__main__':
     print(ChangeText("Ничей поросёнок (Ручной)"))
     print(ChangeText("из доломита крышка люка"))
     print(ChangeText("({большой из серебра кинжал})"))
+    print(ChangeText("из железа утренняя звезда"))
     
 		
 
