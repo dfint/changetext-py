@@ -1251,24 +1251,29 @@ def corr_item_11(s):
 def corr_item_12(s):
     print(12)
     hst=re_13.search(s)
-    if hst.group(2)=="деревце":
-        if hst.group(1).split(" ")[0]=="Мёртвый":
+    group1 = hst.group(1)
+    group2 = hst.group(2)
+    if group2=="деревце":
+        if group1.split(" ")[0]=="Мёртвый":
             s="Мёртое деревце ("+''.join(hst.group(0).split(" ")[1:-1])+")"
         else:
             s="Деревце ("+hst.group(1)+")"
         return s.capitalize()
-    first_word=hst.group(1).split(" ")[0]
-    if len(hst.group(1).split(" "))==2:
-        second_word=hst.group(1).split(" ")[1]
-    new_word=""
-    new_word_2=""
-    second_word=""
-    if gender_items(first_word,hst.group(1),genitive):
-        new_word=gender_items(first_word,hst.group(1),genitive)
-    if gender_items(second_word,hst.group(1),2):
-        new_word_2=gender_items(second_word,hst.group(1),genitive)
+    
+    if " " in group1:
+        words = group1.split(" ")
+        first_word = words[0]
+        second_word = words[1]
+    else:
+        first_word = group1
+        second_word = None
+    first_word=group1.split(" ")[0]
+    
+    new_word=gender_items(first_word,group1,genitive)
+    if second_word:
+        new_word_2=gender_items(second_word,group1,genitive)
 
-    s=hst.group(2)+" из "+rod_pad(hst.group(1))
+    s=group2+" из "+rod_pad(group1)
     if new_word:
         s=s.replace(rod_pad(first_word),new_word)
     if new_word_2:
