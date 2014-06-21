@@ -1269,10 +1269,14 @@ def corr_item_12(s):
         second_word = None
     
     new_word=gender_items(first_word,group1,genitive)
+    
     if second_word:
         new_word_2=gender_items(second_word,group1,genitive)
-    
-    s=group2+" из "+rod_pad(group1)
+    s_temp=group1.split()
+    if len(s_temp)>2:
+        s=s_temp[0]+" "+group2+" из "+rod_pad(s_temp[1])+" "+rod_pad(s_temp[2])
+    else:
+      s=s_temp[0]+" "+group2+" из "+rod_pad(s_temp[1])  
     if new_word:
         s=s.replace(rod_pad(first_word),new_word)
     if new_word_2:
@@ -1540,6 +1544,8 @@ if __name__ == '__main__':
     assert(ChangeText("Густой морошка")=="Густая морошка")
     assert(ChangeText("Заснеженный Густой морошка")=="Заснеженная густая морошка")
     assert(ChangeText("Заснеженный Густой куропаточья трава")=="Заснеженная густая куропаточья трава")
+    assert(ChangeText("Заснеженный аргиллит валун")=="Заснеженный валун из аргиллита")
+    assert(ChangeText("Заснеженный Густой луговник подъем")=="Заснеженный подъем из густого луговника")
     input()
 else: # if runned not as a script
     if debug:
