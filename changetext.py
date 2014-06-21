@@ -1264,16 +1264,13 @@ def corr_item_12(s):
         words = group1.split(" ")
         first_word = words[0]
         second_word = words[1]
+        new_word_2=gender_items(second_word,group1,genitive)
     else:
         first_word = group1
         second_word = None
+        new_word_2 = None
     
     new_word=gender_items(first_word,group1,genitive)
-    
-    if second_word:
-        new_word_2=gender_items(second_word,group1,genitive)
-    else:
-        new_word_2=None
     
     if " " not in group1:
         s=group2+" из "+rod_pad(group1)
