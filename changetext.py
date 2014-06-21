@@ -959,6 +959,7 @@ gem_okonch_tv={
 ending_fem={
     "ва"  ,"ца" , "ма" , "ия" , "на",
     }
+
 ending_masc={
     "ск","ой","ал","ат","ик",
     }
@@ -1287,13 +1288,14 @@ def corr_item_13(s):
         print(13.1)
         s=s.replace(hst.group(1),new_word)
     
+    # don't make elif !
     if " " in object:
         words = object.split(" ")
         if words[0] in adjectives_item_genitive:
             print(13.2)
-            new_word=gender_items(words[0], words[1], nominative)
+            new_word=gender_items(words[0], words[-1], nominative)
             s=s.replace(words[0],new_word)
-            new_word=gender_items(first_adjective, words[1], nominative)
+            new_word=gender_items(first_adjective, words[-1], nominative)
             s=s.replace(first_adjective,new_word)
         
     return s.capitalize()
@@ -1535,6 +1537,7 @@ if __name__ == '__main__':
     print(ChangeText("из талька рычаг"))
     print(ChangeText("Густой морошка"))
     print(ChangeText("Заснеженный Густой морошка"))
+    print(ChangeText("Заснеженный Густой куропаточья трава"))
     input()
 else: # if runned not as a script
     sys.stdout = log_file # redirect standard output to the log file
