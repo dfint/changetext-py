@@ -1257,7 +1257,7 @@ def corr_item_12(s):
         if group1.split(" ")[0]=="Мёртвый":
             s="Мёртое деревце ("+''.join(hst.group(0).split(" ")[1:-1])+")"
         else:
-            s="Деревце ("+hst.group(1)+")"
+            s="Деревце ("+group1+")"
         return s.capitalize()
     
     if " " in group1:
@@ -1267,12 +1267,11 @@ def corr_item_12(s):
     else:
         first_word = group1
         second_word = None
-    first_word=group1.split(" ")[0]
     
     new_word=gender_items(first_word,group1,genitive)
     if second_word:
         new_word_2=gender_items(second_word,group1,genitive)
-
+    
     s=group2+" из "+rod_pad(group1)
     if new_word:
         s=s.replace(rod_pad(first_word),new_word)
