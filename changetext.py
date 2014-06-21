@@ -782,11 +782,19 @@ adjectives = {
     'кость':("костяной","костяная","костяное","костяные"),
 }
 
-
+# рода
 masculine = 0 # м. род
 feminine = 1 # ж. род
 neuter = 2 # ср. род
 plural = 3 # мн. ч.
+
+# падежи
+nominative = 1 # именительный
+genitive = 2 # родительный
+dative = 3 # дательный
+accusative = 4 # винительный
+instrumental = 5 # творительный
+prepositional = 6 # предложный
 
 gender_item = {
 #предметы
@@ -874,10 +882,14 @@ gender_item = {
 # neuter
     "лезвие топора":neuter,
 # plural
-    "колья":plural,"шары":plural,"винты":plural,"диски":plural,"лезвия топоров":plural,      
+    "колья":plural,"шары":plural,"винты":plural,"диски":plural,"лезвия топоров":plural,
+
+# Травы
+    "морошка":feminine
 }
 
-adjectives_item = {
+# некоторые прилагательные в родительном падеже
+adjectives_item_genitive = {
     'Густой':("густого","густой","густого","густых"),
     'густой':("густого","густой","густого","густых"),
     'Неотесанный':("неотесанного","неотесанной","неотесанного","неотесанных"),
@@ -885,7 +897,8 @@ adjectives_item = {
     'Влажный':("влажного","влажной","влажного","влажных"),
 }
 
-adjectives_item_2 = {
+# некоторые прилагательные в именительном падеже
+adjectives_item_nominative = {
     'Густой':("густой","густая","густое","густые"),
     'Редкий':("редкий","редкая","редкое","редкие"),
     'Заснеженный':("заснеженный","заснеженная","заснеженное","заснеженные"),
@@ -957,22 +970,25 @@ gem_okonch_vn={
     'са':'с','ки':'ку',
     }
 
-def gender_items(word_first,word_second,sign):
+def gender_items(adjective,object,case):
     gender=None
-    if word_first in adjectives_item:
-        if word_second[-2:] in ending_masc:
+    if adjective in adjectives_item_genitive:
+        if object[-2:] in ending_masc:
             gender=masculine
-        elif word_second[-2:] in ending_fem:
+        elif object[-2:] in ending_fem:
             gender=feminine
-        elif word_second[-2:] in ending_neut:
+        elif object[-2:] in ending_neut:
             gender=neuter
-        elif word_second[-2:] in ending_plur:
+        elif object[-2:] in ending_plur:
             gender=plural
-        if gender!=None:
-            if sign==1:
-                word=adjectives_item[word_first][gender]
-            elif sign==2:
-                word=adjectives_item_2[word_first][gender]
+        elif object in gender_item:
+            gender=gender_item[object]
+        
+        if gender is not None:
+            if case==genitive:
+                word=adjectives_item_genitive[adjective][gender]
+            elif case==nominative:
+                word=adjectives_item_nominative[adjective][gender]
             return word
     return None
 
@@ -1246,10 +1262,10 @@ def corr_item_12(s):
     new_word=""
     new_word_2=""
     second_word=""
-    if gender_items(first_word,hst.group(1),1):
-        new_word=gender_items(first_word,hst.group(1),1)
-    if gender_items(second_word,hst.group(1),1):
-        new_word_2=gender_items(second_word,hst.group(1),1)
+    if gender_items(first_word,hst.group(1),genitive):
+        new_word=gender_items(first_word,hst.group(1),genitive)
+    if gender_items(second_word,hst.group(1),2):
+        new_word_2=gender_items(second_word,hst.group(1),genitive)
 
     s=hst.group(2)+" из "+rod_pad(hst.group(1))
     if new_word:
@@ -1264,12 +1280,21 @@ def corr_item_12(s):
 def corr_item_13(s):
     print(13)
     hst=re_13_1.search(s)
-    if gender_items(hst.group(1), hst.group(2),2):
-        new_word=gender_items(hst.group(1),hst.group(2),2)
+    first_adjective = hst.group(1)
+    object = hst.group(2)
+    new_word = gender_items(first_adjective, object, nominative)
+    if new_word:
+        print(13.1)
         s=s.replace(hst.group(1),new_word)
-    if hst.group(2).split(" ")[0] in adjectives_item:
-        new_word=gender_items(hst.group(2).split(" ")[0],hst.group(2).split(" ")[1],2)
-        s=s.replace(hst.group(2).split(" ")[0],new_word)
+    
+    if " " in object:
+        words = object.split(" ")
+        if words[0] in adjectives_item_genitive:
+            print(13.2)
+            new_word=gender_items(words[0], words[1], nominative)
+            s=s.replace(words[0],new_word)
+            new_word=gender_items(first_adjective, words[1], nominative)
+            s=s.replace(first_adjective,new_word)
         
     return s.capitalize()
 
@@ -1475,7 +1500,7 @@ def ChangeText(s):
       elif re_19.search(s):
           return corr_item_20(s)
       elif re_20.search(s):
-          return corr_item_21(s)         
+          return corr_item_21(s)
    
       else :
           return None
@@ -1486,7 +1511,7 @@ def ChangeText(s):
         print('An error occured.', file=sys.stderr)
         print('Initial string:', '"'+s+'"', file=sys.stderr)
         print(traceback.format_exc(), file=sys.stderr)
-        print(file=sys.stderr)
+        print("", file=sys.stderr)
         output = None
     
     if debug and s not in logged:
@@ -1508,6 +1533,8 @@ if __name__ == '__main__':
     print(ChangeText("(лама из кожи)"))
     print(ChangeText("(из бронзы болт)"))
     print(ChangeText("из талька рычаг"))
+    print(ChangeText("Густой морошка"))
+    print(ChangeText("Заснеженный Густой морошка"))
     input()
 else: # if runned not as a script
     sys.stdout = log_file # redirect standard output to the log file
