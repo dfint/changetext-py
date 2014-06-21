@@ -1448,9 +1448,9 @@ Init()
 
 debug = True
 if debug:
-    log_file = open('changetext.log', 'a', 1, encoding='cp65001')
-else:
     log_file = sys.stdout
+else:
+    log_file = None
 
 logged = set()
 
@@ -1517,27 +1517,27 @@ def ChangeText(s):
         output = None
     
     if debug and s not in logged:
-        print("{0:60}{1:14}{2}".format(s,"--------->    ",output), file=log_file)
+        print('"%s" ---------> "%s"' % (s,output), file=log_file)
         log_file.flush()
         logged.add(s)
     
     return output
     
 if __name__ == '__main__':
-    print(ChangeText("Bembul Nilesonul, собака (Ручной)"))
-    print(ChangeText("Ничей поросёнок (Ручной)"))
-    print(ChangeText("из доломита крышка люка"))
-    print(ChangeText("({большой из серебра кинжал})"))
-    print(ChangeText("из железа утренняя звезда"))
-    print(ChangeText("чёрный медведь из кожи"))
-    print(ChangeText("x(лиса из кожи штаны)x"))
-    print(ChangeText("лиса из кожи"))
-    print(ChangeText("(лама из кожи)"))
-    print(ChangeText("(из бронзы болт)"))
-    print(ChangeText("из талька рычаг"))
-    print(ChangeText("Густой морошка"))
-    print(ChangeText("Заснеженный Густой морошка"))
-    print(ChangeText("Заснеженный Густой куропаточья трава"))
+    assert(ChangeText("из доломита крышка люка")=="доломитовая крышка люка")
+    assert(ChangeText("({большой из серебра кинжал})")=="({большой серебряный кинжал})")
+    assert(ChangeText("из железа утренняя звезда")=="железная утренняя звезда")
+    assert(ChangeText("чёрный медведь из кожи")=="кожа чёрного медведя")
+    assert(ChangeText("x(лиса из кожи штаны)x")=="x(штаны из кожи лисы)x")
+    assert(ChangeText("лиса из кожи")=="кожа лисы")
+    assert(ChangeText("(лама из кожи)")=="(кожа ламы)")
+    assert(ChangeText("(из бронзы болт)")=="(бронзовый болт)")
+    assert(ChangeText("из талька рычаг")=="тальковый рычаг")
+    assert(ChangeText("Густой морошка")=="Густая морошка")
+    assert(ChangeText("Заснеженный Густой морошка")=="Заснеженная густая морошка")
+    assert(ChangeText("Заснеженный Густой куропаточья трава")=="Заснеженная густая куропаточья трава")
     input()
 else: # if runned not as a script
-    sys.stdout = log_file # redirect standard output to the log file
+    if debug:
+        log_file = open('changetext.log', 'a', 1, encoding='cp65001')
+        sys.stdout = log_file # redirect standard output to the log file
