@@ -2,6 +2,12 @@ import sys
 import re
 import traceback
 
+try:
+    from tests import test_strings
+except ImportError:
+    print("Failed to import tests. Skipping.")
+    test_strings = None
+
 phrases = {
     'Slaves to Armok:  God of Blood':'Рабы Армока - бога крови',
     'Chapter II: Dwarf Fortress':'Глава II: Крепость дварфов',
@@ -1457,7 +1463,7 @@ Init()
 
 debug = True
 if debug:
-    log_file = sys.stdout
+    log_file = open('changetext.log', 'a', 1, encoding='cp65001')
 else:
     log_file = None
 
@@ -1533,25 +1539,19 @@ def ChangeText(s):
     return output
     
 if __name__ == '__main__':
-    assert(ChangeText("из доломита крышка люка")=="доломитовая крышка люка")
-    assert(ChangeText("({большой из серебра кинжал})")=="({большой серебряный кинжал})")
-    assert(ChangeText("из железа утренняя звезда")=="железная утренняя звезда")
-    assert(ChangeText("чёрный медведь из кожи")=="кожа чёрного медведя")
-    assert(ChangeText("x(лиса из кожи штаны)x")=="x(штаны из кожи лисы)x")
-    assert(ChangeText("лиса из кожи")=="кожа лисы")
-    assert(ChangeText("(лама из кожи)")=="(кожа ламы)")
-    assert(ChangeText("(из бронзы болт)")=="(бронзовый болт)")
-    assert(ChangeText("из талька рычаг")=="тальковый рычаг")
-    assert(ChangeText("Густой морошка")=="Густая морошка")
-    assert(ChangeText("Заснеженный Густой морошка")=="Заснеженная густая морошка")
-    assert(ChangeText("Заснеженный Густой куропаточья трава")=="Заснеженная густая куропаточья трава")
-    assert(ChangeText("Заснеженный аргиллит валун")=="Заснеженный валун из аргиллита")
-    assert(ChangeText("Заснеженный Густой луговник подъем")=="Заснеженный подъем из густого луговника")
-    assert(ChangeText("сланец галька")=="Галька из сланца")
-    assert(ChangeText("сланец подъем")=="Подъем из сланца")
-    
+    # ChangeText("риз алевролита мемориалр")
+    if test_strings:
+        for key in test_strings:
+            result = ChangeText(key)
+            try:
+                assert(result==test_strings[key])
+            except AssertionError:
+                print("A test failed.")
+                print("Given '%s'" % key)
+                print("Expected '%s'" % test_strings[key])
+                print("Got '%s'" % result)
+                raise
     input()
 else: # if runned not as a script
     if debug:
-        log_file = open('changetext.log', 'a', 1, encoding='cp65001')
         sys.stdout = log_file # redirect standard output to the log file
