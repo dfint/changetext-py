@@ -1007,7 +1007,6 @@ def gender_adjective_2(adjective, gender, case):
     return None
 
 def gender_adjective(adjective,object,case):
-    print(adjective, object, case)
     gender = get_gender(object)
     if gender is not None:
         return gender_adjective_2(adjective,gender,case)
@@ -1293,7 +1292,6 @@ def corr_item_12(s):
         if new_second_word:
             second_word = new_second_word
         
-        print(words[1:].insert(0,second_word))
         s = "%s %s из %s" % (first_word, object, " ".join(rod_pad(x) for x in [second_word]+words[2:]))
 
     else:
