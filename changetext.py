@@ -1531,8 +1531,8 @@ def ChangeText(s):
           return corr_item_18(s)
       elif re_18.search(s):
           return corr_item_19(s)
-      elif re_19.search(s):
-          return corr_item_20(s)
+      # elif re_19.search(s): # Отключено: дает ложные срабатывания в логе
+          # return corr_item_20(s) 
       elif re_20.search(s):
           return corr_item_21(s)
    
