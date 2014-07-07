@@ -1026,7 +1026,7 @@ let_2={
     'во':'ва','со':'са','ст':'ста','ко':'ка','хи':'хов','ые':'ых',
     'цы':'цы','ой':'ой','ки':'ки','ти':'ти','си':'си','ус':'си',
     'та':'та','ед':'ьда','чи':'чи','ри':'ри','па':'па','му':'му','ев':'ьва',
-    'зе':'зе','бо':'бо','ёк':'ька','ия':'ии','пи':'пи','ще':'ща','то':'та'
+    'зе':'зе','бо':'бо','ёк':'ька','ия':'ии','пи':'пи','ще':'ща','то':'та',
 }
 
 let_3={
@@ -1095,7 +1095,7 @@ def rod_pad_list(words):
             word_temp=word_temp[:-3]+let_3[word_temp[-3:]]
         elif word_temp[-2:] in let_2:
             word_temp=word_temp[:-2]+let_2[word_temp[-2:]]
-        elif word_temp[-1] in {'к'}:
+        elif word_temp[-1] in {'к','т'}:
             word_temp=word_temp+"а"
         new_list.append(word_temp)
     return new_list
@@ -1263,8 +1263,9 @@ def corr_item_11(s):
         s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+rod_pad(hst.group(1)))
     else:
         hst_1=re_12_1.search(hst.group(3))
-        new_word=hst_1.group(2)+" "+rod_pad(hst_1.group(1))
-        s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+rod_pad(hst.group(1)))
+        rod_pad_group1 = rod_pad(hst_1.group(1))
+        new_word=hst_1.group(2)+" "+rod_pad_group1
+        s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+rod_pad_group1)
         s=s.replace(hst.group(3),new_word)
     return s.capitalize()
 
@@ -1293,11 +1294,7 @@ def corr_item_12(s):
             new_first_word=gender_adjective(first_word, object, nominative)
             if new_first_word:
                 first_word = new_first_word
-            second_word = words[1]
-            new_second_word=gender_adjective(second_word, words[-1], genitive)
-            if new_second_word:
-                second_word = new_second_word
-            s = "%s %s из %s" % (first_word, object, " ".join(rod_pad_list([second_word]+words[2:])))
+            s = "%s %s из %s" % (first_word, object, " ".join(rod_pad_list(words[1:])))
     else:
         print(12.2)
         first_word = group1
