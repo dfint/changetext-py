@@ -2,6 +2,7 @@ import sys
 import re
 import traceback
 
+
 try:
     from tests import test_strings
 except ImportError:
@@ -788,7 +789,7 @@ adjectives = {
     'кость':("костяной","костяная","костяное","костяные"),
 }
 
-# рода
+# роды - значения не менять, т.к. используются как индексы
 masculine = 0 # м. род
 feminine = 1 # ж. род
 neuter = 2 # ср. род
@@ -830,6 +831,7 @@ gender_item = {
     "корона":feminine,"перчатка":feminine,"Клетка":feminine,"клетка":feminine,
     "стойка":feminine,"решётка":feminine,"туника":feminine,"цепь":feminine,
     "броня":feminine,"обувь":feminine, "крышка":feminine, "звезда":feminine,
+    "бирюза":feminine,
    
 # neuter
     "тренировочное копьё":neuter, "гнездо":neuter, "ведро":neuter, "копьё":neuter,
@@ -908,6 +910,7 @@ adjectives_item_nominative = {
     'Густой':("густой","густая","густое","густые"),
     'Редкий':("редкий","редкая","редкое","редкие"),
     'Заснеженный':("заснеженный","заснеженная","заснеженное","заснеженные"),
+    'Неотесанный':("неотесанный","неотесанная","неотесанное","неотесанные"),
 }
 
 ablative_pad= {
@@ -963,11 +966,11 @@ gem_okonch_tv={
 
 
 ending_fem={
-    "ва"  ,"ца" , "ма" , "ия" , "на",
+    "ва", "ца", "ма", "ия", "на",
     }
 
 ending_masc={
-    "ск","ой","ал","ат","ик",
+    "ск", "ой", "ал", "ат", "ик",
     }
 ending_neut={}
 ending_plur={"ны","ые",} 
@@ -977,26 +980,37 @@ gem_okonch_vn={
     'са':'с','ки':'ку',
     }
 
-def gender_items(adjective,object,case):
-    gender=None
+def get_gender(object):
+    if object in gender_item:
+        return gender_item[object]
+    elif len(object)<2:
+        return None
+    
+    ending = object[-2:]
+    if ending in ending_masc:
+        return masculine
+    elif ending in ending_fem:
+        return feminine
+    elif ending in ending_neut:
+        return neuter
+    elif ending in ending_plur:
+        return plural
+    else:
+        return None
+
+def gender_adjective_2(adjective, gender, case):
     if adjective in adjectives_item_genitive:
-        if object[-2:] in ending_masc:
-            gender=masculine
-        elif object[-2:] in ending_fem:
-            gender=feminine
-        elif object[-2:] in ending_neut:
-            gender=neuter
-        elif object[-2:] in ending_plur:
-            gender=plural
-        elif object in gender_item:
-            gender=gender_item[object]
-        
-        if gender is not None:
-            if case==genitive:
-                word=adjectives_item_genitive[adjective][gender]
-            elif case==nominative:
-                word=adjectives_item_nominative[adjective][gender]
-            return word
+        if case==genitive:
+            return adjectives_item_genitive[adjective][gender]
+        elif case==nominative:
+            return adjectives_item_nominative[adjective][gender]
+    return None
+
+def gender_adjective(adjective,object,case):
+    print(adjective, object, case)
+    gender = get_gender(object)
+    if gender is not None:
+        return gender_adjective_2(adjective,gender,case)
     return None
 
 def rod_pad(word):
@@ -1014,8 +1028,7 @@ def rod_pad(word):
         'во':'ва','со':'са','ст':'ста','ко':'ка','хи':'хов','ые':'ых',
         'цы':'цы','ой':'ой','ки':'ки','ти':'ти','т.':'тений','си':'си','ус':'си',
         'та':'та','ед':'ьда','чи':'чи','ри':'ри','па':'па','му':'му','ев':'ьва',
-        'зе':'зе','бо':'бо','ёк':'ька','ия':'ии','пи':'пи','ще':'ща',
-
+        'зе':'зе','бо':'бо','ёк':'ька','ия':'ии','пи':'пи','ще':'ща','то':'та'
     }
 
     let_3={
@@ -1033,7 +1046,7 @@ def rod_pad(word):
 
     iskl={
         'барсук-медоед':'барсука-медоеда',
-        'птица-носорог':'птицы-носорога',
+        'птица-носорог':'птицы-носорог',
         'угорь-конгер':'угря-конгера',
         'макака-резус':'макаки-резус',
         'паук-отшельник':'паука-отшельника',
@@ -1073,11 +1086,11 @@ def rod_pad(word):
         if word_temp in iskl:
             word_temp=iskl[word_temp]
             
-        elif word_temp.startswith("были"):
+        elif word_temp.startswith("были"): # @todo: распространить на все существительные
             word_temp="вер"+word_temp[4:]
             word_temp=rod_pad(word_temp)
         elif word_temp[-3:] in let_3:
-            word_temp=word_temp[:-3]+let_3[word_temp[-3:]]    
+            word_temp=word_temp[:-3]+let_3[word_temp[-3:]]
     
         elif word_temp[-2:] in let_2:
             word_temp=word_temp[:-2]+let_2[word_temp[-2:]]
@@ -1104,7 +1117,7 @@ def corr_item_1(s):
     if s_temp[0]=="р" and s_temp[-1]=="р":
         s_temp=s_temp[1:-1]
         symbol="≡"
-    words=s_temp.split(" ")            
+    words=s_temp.split(" ")
     new_word=' '.join(words[2:])
     # gender = masculine # по-умолчанию мужской род - включить в окончательной версии
     if new_word in phrases:
@@ -1253,41 +1266,45 @@ def corr_item_11(s):
         s=s.replace(hst.group(3),new_word)
     return s.capitalize()
 
-#"элементы рельефа, крепости и тп"
+# Элементы рельефа, крепости и т.п.
+#    (прилагательное) (первое дополнение) (второе дополнение) =>
+# => (прилагательное) (второе дополнение) из (первое дополнение)
 def corr_item_12(s):
     print(12)
     hst=re_13.search(s)
     group1 = hst.group(1)
-    group2 = hst.group(2)
-    if group2=="деревце":
+    object = hst.group(2)
+    if object=="деревце":
         if group1.split(" ")[0]=="Мёртвый":
-            s="Мёртое деревце ("+''.join(hst.group(0).split(" ")[1:-1])+")"
+            s="Мёртвое деревце ("+''.join(hst.group(0).split(" ")[1:-1])+")"
         else:
             s="Деревце ("+group1+")"
         return s.capitalize()
     
     if " " in group1:
+        print(12.1)
         words = group1.split(" ")
         first_word = words[0]
+        new_first_word=gender_adjective(first_word, object, nominative)
+        if new_first_word:
+            first_word = new_first_word
         second_word = words[1]
-        new_word_2=gender_items(second_word,group1,genitive)
+        new_second_word=gender_adjective(second_word, words[-1], genitive)
+        if new_second_word:
+            second_word = new_second_word
+        
+        print(words[1:].insert(0,second_word))
+        s = "%s %s из %s" % (first_word, object, " ".join(rod_pad(x) for x in [second_word]+words[2:]))
+
     else:
+        print(12.2)
         first_word = group1
-        second_word = None
-        new_word_2 = None
+        new_first_word=gender_adjective(first_word,group1,genitive)
+        
+        if new_first_word:
+            first_word = new_first_word
+        s = "%s из %s" % (object, rod_pad(first_word))
     
-    new_word=gender_items(first_word,group1,genitive)
-    
-    if " " not in group1:
-        s=group2+" из "+rod_pad(group1)
-    else:
-        s_temp=group1.split()
-        s = s_temp[0] + " " + group2 + " из " + " ".join(rod_pad(x) for x in s_temp[1:])
-    
-    if new_word:
-        s=s.replace(rod_pad(first_word),new_word)
-    if new_word_2:
-        s=s.replace(rod_pad(second_word),new_word_2)
     if "иза" in s:
         s=s.replace(" иза", "")
     return s.capitalize()
@@ -1298,7 +1315,7 @@ def corr_item_13(s):
     hst=re_13_1.search(s)
     first_adjective = hst.group(1)
     object = hst.group(2)
-    new_word = gender_items(first_adjective, object, nominative)
+    new_word = gender_adjective(first_adjective, object, nominative)
     if new_word:
         print(13.1)
         s=s.replace(hst.group(1),new_word)
@@ -1308,9 +1325,9 @@ def corr_item_13(s):
         words = object.split(" ")
         if words[0] in adjectives_item_genitive:
             print(13.2)
-            new_word=gender_items(words[0], words[-1], nominative)
+            new_word=gender_adjective(words[0], words[-1], nominative)
             s=s.replace(words[0],new_word)
-            new_word=gender_items(first_adjective, words[-1], nominative)
+            new_word=gender_adjective(first_adjective, words[-1], nominative)
             s=s.replace(first_adjective,new_word)
         
     return s.capitalize()
