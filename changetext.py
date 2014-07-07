@@ -1259,7 +1259,7 @@ def corr_item_11(s):
     if hst.group(3) in adjectives:
         s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+rod_pad(hst.group(1)))
     else:
-        hst_1=re_12_1.search(hst.group(3))
+        hst_1=re_13.search(hst.group(3))
         new_word=hst_1.group(2)+" "+rod_pad(hst_1.group(1))
         s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+rod_pad(hst.group(1)))
         s=s.replace(hst.group(3),new_word)
@@ -1270,7 +1270,7 @@ def corr_item_11(s):
 # => (прилагательное) (второе дополнение) из (первое дополнение)
 def corr_item_12(s):
     print(12)
-    hst=re_13.search(s)
+    hst=re_12.search(s)
     group1 = hst.group(1)
     object = hst.group(2)
     if object=="деревце":
@@ -1310,7 +1310,7 @@ def corr_item_12(s):
 #"Густой и тп"
 def corr_item_13(s):
     print(13)
-    hst=re_13_1.search(s)
+    hst=re_13.search(s)
     first_adjective = hst.group(1)
     object = hst.group(2)
     new_word = gender_adjective(first_adjective, object, nominative)
@@ -1333,7 +1333,7 @@ def corr_item_13(s):
 #"Скелет, останки и тп"
 def corr_item_14(s):
     print(14)
-    hst=re_13_2.search(s)
+    hst=re_14.search(s)
     if "частичный" in hst.group(1):
         s="частичный "+hst.group(2)+" "+rod_pad(hst.group(1).split(" ")[1])
     else:
@@ -1343,15 +1343,15 @@ def corr_item_14(s):
 #"Изделия из стекла"
 def corr_item_15(s):
     print(15)
-    hst=re_14.search(s)
+    hst=re_15.search(s)
     s=hst.group(1)+" "+hst.group(3)+" "+adjectives[hst.group(2)]
     return s.capitalize()
     
 #кузница
 def corr_item_16(s):
     print(16)
-    hst=re_15.search(s)
-    hst_1=re_15_1.search(s)
+    hst=re_16.search(s)
+    hst_1=re_16_1.search(s)
     if hst.group(3) in ablative_pad:
         item=ablative_pad[hst.group(3)]
         material_temp=adjectives[hst.group(2)][0]
@@ -1376,7 +1376,7 @@ def corr_item_16(s):
 #Ювелирная мастерская
 def corr_item_17(s):
     print(17)
-    hst = re_16.search(s)
+    hst = re_17.search(s)
     gem = ""
     if hst.group(1) == "Огранить":
         for word in hst.group(2).split(" "):
@@ -1410,7 +1410,7 @@ def corr_item_18(s):
 #убежище, крепость
 def corr_item_19(s):
     print(19)
-    hst=re_18.search(s)
+    hst=re_19.search(s)
     if hst.group(2)=="убежище":
         s=s.replace("эльфийский", "эльфийское")
     elif hst.group(2)=="крепость":
@@ -1420,7 +1420,7 @@ def corr_item_19(s):
 #выбор материала
 def corr_item_20(s):
     print(20)
-    hst=re_19.search(s)
+    hst=re_20.search(s)
     if hst.group(2) in phrases:
         new_word=phrases[hst.group(2)]
     else:
@@ -1437,7 +1437,7 @@ def corr_item_20(s):
 #кожа, шерсть-длинные названия
 def corr_item_21(s):
     print(21)
-    hst=re_20.search(s)
+    hst=re_21.search(s)
     s=hst.group(2)+" "+rod_pad(hst.group(1))
     return s.capitalize() 
 
@@ -1459,20 +1459,20 @@ re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
 re_gem_cutting = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой|грубый)\s(\w+\s?\w+?\b)')
 re_9 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
 re_10 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)')
-re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|\♀)')
+re_10 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|\♀)')
 re_container = re.compile(r'\((.+)\s(бочка|мешок)\s\((.+)\)(.+)?\)')
-re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
-re_13 = re.compile(r'(.+)\s(Подъем|Стена|Кластер|валун|склон|Пол Пещеры|лестница вверх/вниз|пол пещеры|Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b')
-re_13_1=re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
-re_13_2 = re.compile(r'^[{]?(\w+\s?\w+?)\s(панцирь|скелет|искалеченный труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп)\}?\b')
-re_14=re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(зелёное стекло|прозрачное стекло|хрусталь)\s(\w+)')
-re_15 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+)\s(\w+\s?\w+?\b)")
-re_15_1 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)")
-re_16 = re.compile(r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
+re_13 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
+re_12 = re.compile(r'(.+)\s(Подъем|Стена|Кластер|валун|склон|Пол Пещеры|лестница вверх/вниз|пол пещеры|Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b')
+re_13=re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
+re_14 = re.compile(r'^[{]?(\w+\s?\w+?)\s(панцирь|скелет|искалеченный труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп)\}?\b')
+re_15=re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(зелёное стекло|прозрачное стекло|хрусталь)\s(\w+)')
+re_16 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+)\s(\w+\s?\w+?\b)")
+re_16_1 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)")
+re_17 = re.compile(r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
 re_corpses = re.compile(r'(трупs)\s(.+)')
-re_18 = re.compile(r'(.+)\s(убежище|крепость)\s(.+)')
-# re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
-re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
+re_19 = re.compile(r'(.+)\s(убежище|крепость)\s(.+)')
+# re_20 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
+re_21 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
 re_stopped_construction = re.compile(r' дварфы приостановили строительство (\w+).')
 ############################################################################
 def Init():
@@ -1513,31 +1513,31 @@ def ChangeText(s):
           return corr_item_9(s) 
       elif re_gem_cutting.search(s):
           return corr_item_8(s)
-      elif re_11.search(s):
+      elif re_10.search(s):
           return corr_item_10(s)
       elif re_container.search(s):
           return corr_item_11(s)
       elif re_stopped_construction.search(s):
           return corr_stopped_construction(s)
-      elif re_13.search(s):
+      elif re_12.search(s):
           return corr_item_12(s)
-      elif re_13_1.search(s):
+      elif re_13.search(s):
           return corr_item_13(s)
-      elif re_13_2.search(s):
-          return corr_item_14(s)
       elif re_14.search(s):
-          return corr_item_15(s)
+          return corr_item_14(s)
       elif re_15.search(s):
-          return corr_item_16(s)
+          return corr_item_15(s)
       elif re_16.search(s):
+          return corr_item_16(s)
+      elif re_17.search(s):
           return corr_item_17(s)
       elif re_corpses.search(s):
           return corr_item_18(s)
-      elif re_18.search(s):
+      elif re_19.search(s):
           return corr_item_19(s)
-      # elif re_19.search(s): # Отключено: дает ложные срабатывания в логе
+      # elif re_20.search(s): # Отключено: дает ложные срабатывания в логе
           # return corr_item_20(s) 
-      elif re_20.search(s):
+      elif re_21.search(s):
           return corr_item_21(s)
    
       else :
