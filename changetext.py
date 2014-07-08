@@ -911,6 +911,11 @@ adjectives_item_nominative = {
     'Редкий':("редкий","редкая","редкое","редкие"),
     'Заснеженный':("заснеженный","заснеженная","заснеженное","заснеженные"),
     'Неотесанный':("неотесанный","неотесанная","неотесанное","неотесанные"),
+    'людской':("людской","людская","людское","людские"),
+    'дварфийский':("дварфийский","дварфийкая","дварфийское","дварфийские"),
+    'эльфийский':("эльфийский","эльфийская","эльфийское","эльфийские"),
+    'гоблинский':("гоблинский","гоблинская","гоблинское","гоблинские"),
+    'тёмный':("тёмный","тёмная","тёмное","тёмные"),
 }
 
 ablative_pad= {
@@ -998,12 +1003,11 @@ def get_gender(object):
     else:
         return None
 
-def gender_adjective_2(adjective, gender, case):
-    if adjective in adjectives_item_genitive:
-        if case==genitive:
-            return adjectives_item_genitive[adjective][gender]
-        elif case==nominative:
-            return adjectives_item_nominative[adjective][gender]
+def gender_adjective_2(adjective, gender, case=nominative):
+    if case==genitive and adjective in adjectives_item_genitive:
+        return adjectives_item_genitive[adjective][gender]
+    elif case==nominative and adjective in adjectives_item_nominative:
+        return adjectives_item_nominative[adjective][gender]
     return None
 
 def gender_adjective(adjective,object,case):
@@ -1082,7 +1086,6 @@ iskl={
 def rod_pad_list(words):
     new_list = []
     gender = get_gender(words[-1])
-    print("gender: ",gender)
     for word_temp in words:
         if word_temp in adjectives_item_genitive and gender is not None:
             word_temp=adjectives_item_genitive[word_temp][gender]
@@ -1401,25 +1404,36 @@ def corr_item_17(s):
     s=incrustation_item[hst.group(1)]+gem
     return s.capitalize()
     
-#трупs
+# трупs
 def corr_item_18(s):
     print(18)
     hst=re_corpses.search(s)
     s_temp=phrases[hst.group(1)]
     s=s.replace(hst.group(1), s_temp)
     return s.capitalize()   
-    
-#убежище, крепость
-def corr_item_19(s):
-    print(19)
-    hst=re_18.search(s)
-    if hst.group(2)=="убежище":
-        s=s.replace("эльфийский", "эльфийское")
-    elif hst.group(2)=="крепость":
-        s=s.replace("людской", "людская")
-    return s.capitalize()
+
+gender_item["лесное убежище"]=neuter
+gender_item["крепость"]=feminine
+gender_item["селение"]=neuter
+gender_item["горный город"]=masculine
+gender_item["городок"]=masculine
+gender_item["гробница"]=feminine
+
+# убежище, крепость
+def corr_settlement(s):
+    print("corr_settlement")
+    hst=re_settlement.search(s)
+    adjective = hst.group(1)
+    settlement = hst.group(2)
+    name = hst.group(3)
+    gender = gender_item[settlement]
+    if " " not in adjective:
+        adjective = gender_adjective_2(adjective,gender)
+    else:
+        adjective = " ".join(gender_adjective_2(word,gender) for word in adjective.split(" "))
+    return "%s %s %s" % (adjective.capitalize(), settlement, name.capitalize())
    
-#выбор материала
+# выбор материала
 def corr_item_20(s):
     print(20)
     hst=re_19.search(s)
@@ -1472,7 +1486,7 @@ re_15 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изгот�
 re_15_1 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)")
 re_16 = re.compile(r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
 re_corpses = re.compile(r'(трупs)\s(.+)')
-re_18 = re.compile(r'(.+)\s(убежище|крепость)\s(.+)')
+re_settlement = re.compile(r'\s(.+)\s(лесное убежище|крепость|селение|горный город|городок|гробница)\s(.+)')
 # re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
 re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
 re_stopped_construction = re.compile(r' дварфы приостановили строительство (\w+).')
@@ -1535,8 +1549,8 @@ def ChangeText(s):
           return corr_item_17(s)
       elif re_corpses.search(s):
           return corr_item_18(s)
-      elif re_18.search(s):
-          return corr_item_19(s)
+      elif re_settlement.search(s):
+          return corr_settlement(s)
       # elif re_19.search(s): # Отключено: дает ложные срабатывания в логе
           # return corr_item_20(s) 
       elif re_20.search(s):
