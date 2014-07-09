@@ -1423,15 +1423,23 @@ gender_item["гробница"]=feminine
 def corr_settlement(s):
     print("corr_settlement")
     hst=re_settlement.search(s)
-    adjective = hst.group(1)
+    adjective = hst.group(1).strip()
     settlement = hst.group(2)
     name = hst.group(3)
+    
+    if len(adjective)==0:
+        return "%s %s" % (settlement.capitalize(), name.capitalize())
+        
     gender = gender_item[settlement]
     if " " not in adjective:
-        adjective = gender_adjective_2(adjective,gender)
+        adjective_2 = gender_adjective_2(adjective,gender)
     else:
-        adjective = " ".join(gender_adjective_2(word,gender) for word in adjective.split(" "))
-    return "%s %s %s" % (adjective.capitalize(), settlement, name.capitalize())
+        adjective_2 = " ".join(gender_adjective_2(word,gender) for word in adjective.split(" "))
+    
+    if adjective_2 is None:
+        adjective_2 = adjective
+    
+    return "%s %s %s" % (adjective_2.capitalize(), settlement, name.capitalize())
    
 # выбор материала
 def corr_item_20(s):
@@ -1486,7 +1494,7 @@ re_15 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изгот�
 re_15_1 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)")
 re_16 = re.compile(r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
 re_corpses = re.compile(r'(трупs)\s(.+)')
-re_settlement = re.compile(r'\s(.+)\s(лесное убежище|крепость|селение|горный город|городок|гробница)\s(.+)')
+re_settlement = re.compile(r'(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница)\s(.+)')
 # re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
 re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
 re_stopped_construction = re.compile(r' дварфы приостановили строительство (\w+).')
