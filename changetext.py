@@ -825,7 +825,7 @@ gender_item = {
     "кирка":feminine, "наковальня":feminine, "булава":feminine,
     "кружка":feminine, "кровать":feminine, "головоломка":feminine,
     "статуя":feminine, "бочка":feminine, "дверь":feminine,
-    "мини-кузница":feminine, "верь":feminine,"шина":feminine,"статуэтка":feminine,
+    "мини-кузница":feminine, "шина":feminine,"статуэтка":feminine,
     "кольчуга":feminine,"шапка":feminine,"вагонетка":feminine,"тачка":feminine,
     "труба":feminine,"арфа":feminine,"флейта-пикколо":feminine,
     "корона":feminine,"перчатка":feminine,"Клетка":feminine,"клетка":feminine,
