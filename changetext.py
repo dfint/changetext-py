@@ -941,7 +941,6 @@ def get_gender(object):
     if object in gender_item:
         return gender_item[object]
     elif len(object)>=2:
-        return None
         ending = object[-2:]
         if ending in ending_masc:
             return masculine
