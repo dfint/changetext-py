@@ -1472,6 +1472,11 @@ def corr_clothiers_shop(s):
     else:
         return ' '.join([verb,product_accus,of_material])
 
+re_werebeast = re.compile(r"были(\w+)")
+def corr_werebeast(s):
+    hst = re_werebeast.search(s)
+    return s.replace(hst.group(0),hst.group(1)+"-оборотень")
+
 ############################################################################
 #компилированные регулярные выражения
 re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+\/?\s?\-?\w+?\b)")
@@ -1522,7 +1527,9 @@ def ChangeText(s):
         if re_plural_s.search(s):
             s = corr_plural_s(s)
             result = s
-        # @todo: быливолки сюда же
+        if re_werebeast.search(s):
+            s = corr_werebeast(s)
+            result = s
         
         if s in phrases:
             result = phrases[s]
