@@ -2,7 +2,6 @@ import sys
 import re
 import traceback
 
-
 try:
     from tests import test_strings
 except ImportError:
@@ -260,60 +259,9 @@ phrases = {
     'HONEYCOMB_PRESS_MAT жидкость':'Мед',
 
 # Лавка портного
-# @todo: "делать ткань", "делать шёлк", "делать пряжа" - объединить в правило
     'Ткать шёлк':'Ткать шёлк',
-    'Делать ткань роба':'Шить робу из ткани',
-    'Делать ткань туника':'Шить тунику из ткани',
-    'Делать ткань рубаха':'Шить рубаху из ткани',
-    'Делать ткань одежда':'Шить одежду из ткани',
-    'Делать ткань мундир':'Шить мундир из ткани',
-    'Делать ткань жилет':'Шить жилет из ткани',
-    'Делать ткань плащ':'Шить плащ из ткани',
-    'Делать ткань штаны':'Шить штаны из ткани',
-    'Делать ткань шапка':'Шить шапку из ткани',
-    'Делать ткань капюшон':'Шить капюшон из ткани',
-    'Делать ткань перчатка':'Шить перчатку из ткани',
-    'Делать ткань варежка':'Шить варежку из ткани',
-    'Делать ткань носок':'Шить носок из ткани',
-    'Делать ткань башмак':'Шить башмак из ткани',
-    'Изготовить ткань мешок':'Изготовить мешок из ткани',
-    'Делать ткань верёвка':'Вить верёвку из ткани',
     'Вышивать ткань изображение':'Вышивать изображение на ткани',
-    
-    'Делать шёлк роба':'Шить шёлковую робу',
-    'Делать шёлк туника':'Шить шёлковую тунику',
-    'Делать шёлк рубаха':'Шить шёлковую рубаху',
-    'Делать шёлк одежда':'Шить шёлковую одежду',
-    'Делать шёлк мундир':'Шить шёлковый мундир',
-    'Делать шёлк жилет':'Шить шёлковый жилет',
-    'Делать шёлк плащ':'Шить шёлковый плащ',
-    'Делать шёлк штаны':'Шить шёлковые штаны',
-    'Делать шёлк шапка':'Шить шёлковую шапку',
-    'Делать шёлк капюшон':'Шить шёлковый капюшон',
-    'Делать шёлк перчатка':'Шить шёлковую перчатку',
-    'Делать шёлк варежка':'Шить шёлковую варежку',
-    'Делать шёлк носок':'Шить шёлковый носок',
-    'Делать шёлк башмак':'Шить шёлковый башмак',
-    'Изготовить шёлк мешок':'Шить шёлковый мешок',
-    'Делать шёлк верёвка':'Вить шёлковую верёвку',
     'Вышивать шёлк изображение':'Вышивать изображение на шёлке',
-    
-    'Делать пряжа роба':'Вязать робу из пряжи',
-    'Делать пряжа туника':'Вязать тунику из пряжи',
-    'Делать пряжа рубаха':'Вязать рубаху из пряжи ',
-    'Делать пряжа одежда':'Вязать одежду из пряжи',
-    'Делать пряжа мундир':'Вязать мундир из пряжи',
-    'Делать пряжа жилет':'Вязать жилет из пряжи',
-    'Делать пряжа плащ':'Вязать плащ из пряжи',
-    'Делать пряжа штаны':'Вязать штаны из пряжи',
-    'Делать пряжа шапка':'Вязать шапку из пряжи',
-    'Делать пряжа капюшон':'Вязать капюшон из пряжи',
-    'Делать пряжа перчатка':'Вязать перчатку из пряжи',
-    'Делать пряжа варежка':'Вязать варежку из пряжи',
-    'Делать пряжа носок':'Вязать носок из пряжи',
-    'Делать пряжа башмак':'Вязать башмак из пряжи',
-    'Изготовить пряжа мешок':'Вязать мешок из пряжи',
-    'Делать пряжа верёвка':'Вить верёвку из пряжи',
     'Вышивать пряжа изображение':'Вязать изображение из пряжи',
     
 # Кузница
@@ -831,15 +779,6 @@ gender_item = {
     "морошка":feminine
 }
 
-# некоторые прилагательные в родительном падеже
-adjectives_item_genitive = {
-    'Густой':("густого","густой","густого","густых"),
-    'густой':("густого","густой","густого","густых"),
-    'Неотесанный':("неотесанного","неотесанной","неотесанного","неотесанных"),
-    'Заснеженный':("заснеженного","заснеженной","заснеженного","заснеженных"),
-    'Влажный':("влажного","влажной","влажного","влажных"),
-}
-
 # некоторые прилагательные в именительном падеже
 adjectives_item_nominative = {
     'Густой':("густой","густая","густое","густые"),
@@ -853,7 +792,21 @@ adjectives_item_nominative = {
     'тёмный':("тёмный","тёмная","тёмное","тёмные"),
 }
 
-ablative_pad= {
+# некоторые прилагательные в родительном падеже
+adjectives_item_genitive = {
+    'Густой':("густого","густой","густого","густых"),
+    'густой':("густого","густой","густого","густых"),
+    'Неотесанный':("неотесанного","неотесанной","неотесанного","неотесанных"),
+    'Заснеженный':("заснеженного","заснеженной","заснеженного","заснеженных"),
+    'Влажный':("влажного","влажной","влажного","влажных"),
+}
+
+# некоторые прилагательные в винительном падеже
+adjectives_item_accusative = {
+    "шёлковый":("шёлковый","шёлковую","шёлковое","шёлковые")
+}
+
+accusative_case= {
     'булава':"булаву",
     'кирка':"кирку",
     'кольчуга':"кольчугу",
@@ -903,22 +856,21 @@ gem_okonch_tv={
     'ики': 'икой','ора': 'ором',
     }
 
-
-
 ending_fem={
-    "ва", "ца", "ма", "ия", "на",
-    }
+    "ва", "ца", "ма", "ия", "на", "ха", "ка", "ба", "да"
+}
 
 ending_masc={
-    "ск", "ой", "ал", "ат", "ик",
-    }
+    "ск", "ой", "ал", "ат", "ик", "ир"
+}
+
 ending_neut={}
 ending_plur={"ны","ые",} 
 gem_okonch_vn={
     'ая':'ую', 'ма':'му','ка':'ку','да':'ду','ра':'рой','на':'ну',
     'за':'зу','ла':'лу','ой':'ую','ны':'ну','ди':'дь','ри':'рь',
     'са':'с','ки':'ку',
-    }
+}
 
 plurals = {
     'готовая еда':'готовая еда',
@@ -988,33 +940,36 @@ plurals = {
 def get_gender(object):
     if object in gender_item:
         return gender_item[object]
-    elif len(object)<2:
+    elif len(object)>=2:
         return None
-    
-    ending = object[-2:]
-    if ending in ending_masc:
-        return masculine
-    elif ending in ending_fem:
-        return feminine
-    elif ending in ending_neut:
-        return neuter
-    elif ending in ending_plur:
-        return plural
-    else:
-        return None
+        ending = object[-2:]
+        if ending in ending_masc:
+            return masculine
+        elif ending in ending_fem:
+            return feminine
+        elif ending in ending_neut:
+            return neuter
+        elif ending in ending_plur:
+            return plural
+    print("get_gender:")
+    print("Gender not recognized for '%s'" % object)
+    return None
 
 def gender_adjective_2(adjective, gender, case=nominative):
     if case==genitive and adjective in adjectives_item_genitive:
         return adjectives_item_genitive[adjective][gender]
     elif case==nominative and adjective in adjectives_item_nominative:
         return adjectives_item_nominative[adjective][gender]
+    elif case==accusative and adjective in adjectives_item_accusative:
+        return adjectives_item_accusative[adjective][gender]
     return None
 
 def gender_adjective(adjective,object,case):
     gender = get_gender(object)
-    if gender is not None:
+    if gender is None:
+        return None
+    else:
         return gender_adjective_2(adjective,gender,case)
-    return None
 
 ###################### существительные+ прилаг  ######################
 #дублируются сь и ль
@@ -1083,23 +1038,24 @@ iskl={
     'камень':'каменных',
 }
 
+def rod_pad_single_noun(word):
+    if word in iskl:
+        return iskl[word]
+    elif word[-3:] in let_3:
+        return word[:-3]+let_3[word[-3:]]
+    elif word[-2:] in let_2:
+        return word[:-2]+let_2[word[-2:]]
+    elif word[-1] in {"к","т"}:
+        return word+"а"
+
 def rod_pad_list(words):
     new_list = []
     gender = get_gender(words[-1])
     for word_temp in words:
         if word_temp in adjectives_item_genitive and gender is not None:
             word_temp=adjectives_item_genitive[word_temp][gender]
-        elif word_temp in iskl:
-            word_temp=iskl[word_temp]
-        # elif word_temp.startswith("были"): # @todo: распространить на все существительные
-            # word_temp="вер"+word_temp[4:]
-            # word_temp=rod_pad(word_temp)
-        elif word_temp[-3:] in let_3:
-            word_temp=word_temp[:-3]+let_3[word_temp[-3:]]
-        elif word_temp[-2:] in let_2:
-            word_temp=word_temp[:-2]+let_2[word_temp[-2:]]
-        elif word_temp[-1] in {'к','т'}:
-            word_temp=word_temp+"а"
+        else:
+            word_temp=rod_pad_single_noun(word_temp)
         new_list.append(word_temp)
     return new_list
 
@@ -1219,7 +1175,7 @@ def corr_item_8(s):
     print(8)
     hst=re_gem_cutting.search(s)
     if hst.group(2).split(" ")[-1] in item_other:
-        return corr_item_14(s)
+        return corr_item_body_parts(s)
     if hst.group(2) in gender_item:
         gender=gender_item[hst.group(2)]
         new_word=adjectives[hst.group(1)][gender]
@@ -1336,9 +1292,9 @@ def corr_item_13(s):
     return s.capitalize()
 
 #"Скелет, останки и тп"
-def corr_item_14(s):
+def corr_item_body_parts(s):
     print(14)
-    hst=re_13_2.search(s)
+    hst=re_body_parts.search(s)
     if "частичный" in hst.group(1):
         s="частичный "+hst.group(2)+" "+rod_pad(hst.group(1).split(" ")[1])
     else:
@@ -1357,22 +1313,22 @@ def corr_item_16(s):
     print(16)
     hst=re_15.search(s)
     hst_1=re_15_1.search(s)
-    if hst.group(3) in ablative_pad:
-        item=ablative_pad[hst.group(3)]
+    if hst.group(3) in accusative_case:
+        item=accusative_case[hst.group(3)]
         material_temp=adjectives[hst.group(2)][0]
         material=material_temp[:-2]+"ую"
         s=hst.group(1)+" "+material+" "+item
         s=s.replace("Кузница","Ковать")
         s=s.replace("Наконечники стрел","наконечники стрел баллисты")
         return s.capitalize()
-    if hst.group(2) in adjectives :
+    if hst.group(2) in adjectives:
         gender=gender_item[hst.group(3)]
         material=adjectives[hst.group(2)][gender]
         s=hst.group(1)+" "+material+" "+hst.group(3)
-    elif hst_1.group(2) in adjectives :
+    elif hst_1.group(2) in adjectives:
         item=hst_1.group(3)
-        if item in ablative_pad:
-            item=ablative_pad[item]
+        if item in accusative_case:
+            item=accusative_case[item]
         s=hst_1.group(1)+" "+item+" "+hst_1.group(2)
     s=s.replace("Кузница","Ковать")
     s=s.replace("Наконечники стрел","наконечники стрел баллисты")
@@ -1475,8 +1431,47 @@ def corr_plural_s(s):
     print("corr_plural_s")
     hst=re_plural_s.search(s)
     group1=hst.group(1)
-    s=s.replace(group1,plurals[group1[:-1]])
+    if group1[:-1] in plurals:
+        s=s.replace(group1,plurals[group1[:-1]])
     return s
+
+# Clothier's shop
+
+re_clothiers_shop = re.compile(r'(Делать|Изготовить) (ткань|шёлк|пряжа) (\w+)')
+
+cloth_subst = {
+    "ткань":("Шить","из ткани"),
+    "шёлк":("Шить","шёлковый"),
+    "пряжа":("Вязать","из пряжи")
+}
+
+accusative_case["носок"]="носок"
+accusative_case["штаны"]="штаны"
+accusative_case["верёвка"]="верёвку"
+accusative_case["капюшон"]="капюшон"
+accusative_case["башмак"]="башмак"
+accusative_case["мундир"]="мундир"
+accusative_case["плащ"]="плащ"
+accusative_case["мешок"]="мешок"
+accusative_case["жилет"]="жилет"
+accusative_case["рубаха"]="рубаху"
+
+adjectives_item_nominative["шёлковый"]=("шёлковый","шёлковая","шёлковое","шёлковые")
+
+def corr_clothiers_shop(s):
+    print("Corr clothier's shop")
+    hst = re_clothiers_shop.search(s)
+    material = hst.group(2)
+    product = hst.group(3)
+    verb, of_material = cloth_subst[material]
+    if product == "верёвка":
+        verb = "Вить"
+    product_accus = accusative_case[product]
+    if material == "шёлк":
+        material_adj = gender_adjective("шёлковый",product,accusative)
+        return ' '.join([verb,material_adj,product_accus])
+    else:
+        return ' '.join([verb,product_accus,of_material])
 
 ############################################################################
 #компилированные регулярные выражения
@@ -1496,7 +1491,7 @@ re_container = re.compile(r'\((.+)\s(бочка|мешок)\s\((.+)\)(.+)?\)')
 re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 re_13 = re.compile(r'(.+)\s(Подъем|Стена|Кластер|валун|склон|Пол Пещеры|лестница вверх/вниз|пол пещеры|Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b')
 re_13_1=re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
-re_13_2 = re.compile(r'^[{]?(\w+\s?\w+?)\s(панцирь|скелет|искалеченный труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп)\}?\b')
+re_body_parts = re.compile(r'^[{]?(\w+\s?\w+?|)\s(панцирь|скелет|искалеченный труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп)\}?\b')
 re_14=re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(зелёное стекло|прозрачное стекло|хрусталь)\s(\w+)')
 re_15 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+)\s(\w+\s?\w+?\b)")
 re_15_1 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)")
@@ -1522,60 +1517,67 @@ else:
 logged = set()
 
 def ChangeText(s):
-    def Test(s): 
-      if s in phrases:
-          return phrases[s]
-      elif re_1.search(s):
-          if re_1.search(s).group(0) in adjectives:
-              return re_1.search(s).group(0)
-          elif re_1.search(s).group(3) in adjectives:
-              return corr_item_1(s)
-          elif re_2.search(s).group(2) in adjectives:
-              return corr_item_2(s)
-      elif re_6.search(s):
-          return corr_item_6(s)
-      elif re_4.search(s):
-          return corr_item_4(s)
-      elif re_skin.search(s):
-          return corr_item_skin(s)
-      elif re_3.search(s):
-          return corr_item_3(s)
-      elif re_7.search(s):
-          return corr_item_7(s)
-      elif re_9.search(s):
-          return corr_item_9(s) 
-      elif re_gem_cutting.search(s):
-          return corr_item_8(s)
-      elif re_11.search(s):
-          return corr_item_10(s)
-      elif re_container.search(s):
-          return corr_item_11(s)
-      elif re_stopped_construction.search(s):
-          return corr_stopped_construction(s)
-      elif re_13.search(s):
-          return corr_item_12(s)
-      elif re_13_1.search(s):
-          return corr_item_13(s)
-      elif re_13_2.search(s):
-          return corr_item_14(s)
-      elif re_14.search(s):
-          return corr_item_15(s)
-      elif re_15.search(s):
-          return corr_item_16(s)
-      elif re_16.search(s):
-          return corr_item_17(s)
-      elif re_corpses.search(s):
-          return corr_item_18(s)
-      elif re_settlement.search(s):
-          return corr_settlement(s)
-      # elif re_19.search(s): # Отключено: дает ложные срабатывания в логе
-          # return corr_item_20(s) 
-      elif re_20.search(s):
-          return corr_item_21(s)
-      elif re_plural_s.search(s):
-          return corr_plural_s(s)
-      else :
-          return None
+    def Test(s):
+        result = None
+        # prepocessing:
+        if re_plural_s.search(s):
+            s = corr_plural_s(s)
+            result = s
+        # @todo: быливолки сюда же
+        
+        if s in phrases:
+            result = phrases[s]
+        elif re_1.search(s):
+            if re_1.search(s).group(0) in adjectives:
+                result = re_1.search(s).group(0)
+            elif re_1.search(s).group(3) in adjectives:
+                result = corr_item_1(s)
+            elif re_2.search(s).group(2) in adjectives:
+                result = corr_item_2(s)
+        elif re_6.search(s):
+            result = corr_item_6(s)
+        elif re_4.search(s):
+            result = corr_item_4(s)
+        elif re_skin.search(s):
+            result = corr_item_skin(s)
+        elif re_3.search(s):
+            result = corr_item_3(s)
+        elif re_7.search(s):
+            result = corr_item_7(s)
+        elif re_9.search(s):
+            result = corr_item_9(s) 
+        elif re_gem_cutting.search(s):
+            result = corr_item_8(s)
+        elif re_11.search(s):
+            result = corr_item_10(s)
+        elif re_container.search(s):
+            result = corr_item_11(s)
+        elif re_stopped_construction.search(s):
+            result = corr_stopped_construction(s)
+        elif re_13.search(s):
+            result = corr_item_12(s)
+        elif re_13_1.search(s):
+            result = corr_item_13(s)
+        elif re_14.search(s):
+            result = corr_item_15(s)
+        elif re_15.search(s):
+            result = corr_item_16(s)
+        elif re_16.search(s):
+            result = corr_item_17(s)
+        elif re_corpses.search(s):
+            result = corr_item_18(s)
+        elif re_settlement.search(s):
+            result = corr_settlement(s)
+        # elif re_19.search(s): # Отключено: дает ложные срабатывания в логе
+            # result = corr_item_20(s) 
+        elif re_clothiers_shop.search(s):
+            result = corr_clothiers_shop(s)
+        elif re_body_parts.search(s):
+            result = corr_item_body_parts(s)
+        elif re_20.search(s):
+            result = corr_item_21(s)
+        
+        return result
     
     try:
         output = Test(s)
