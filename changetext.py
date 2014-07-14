@@ -776,7 +776,10 @@ gender_item = {
     "колья":plural,"шары":plural,"винты":plural,"диски":plural,"лезвия топоров":plural,
 
 # Травы
-    "морошка":feminine
+    "морошка":feminine,
+    
+    "червь":masculine,
+    "коза":feminine,
 }
 
 # некоторые прилагательные в именительном падеже
@@ -799,6 +802,9 @@ adjectives_item_genitive = {
     'Неотесанный':("неотесанного","неотесанной","неотесанного","неотесанных"),
     'Заснеженный':("заснеженного","заснеженной","заснеженного","заснеженных"),
     'Влажный':("влажного","влажной","влажного","влажных"),
+    'земляной':("земляного","земляной","земляного","земляных"),
+    "гигантский":("гигантского","гигантской","гигантского","гигантских"),
+    "горный":("горного","горной","горного","горных"),
 }
 
 # некоторые прилагательные в винительном падеже
@@ -1048,12 +1054,16 @@ def rod_pad_single_noun(word):
         return word+"а"
 
 def rod_pad_list(words):
+    print("rod_pad_list")
+    print(words)
     new_list = []
     gender = get_gender(words[-1])
     for word_temp in words:
         if word_temp in adjectives_item_genitive and gender is not None:
+            print(word_temp,"is adj")
             word_temp=adjectives_item_genitive[word_temp][gender]
         else:
+            print(word_temp,"is noun")
             word_temp=rod_pad_single_noun(word_temp)
         new_list.append(word_temp)
     return new_list
@@ -1135,6 +1145,7 @@ def corr_item_3(s):
     return s 
     
 #выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
+re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
 def corr_item_4(s):
     print(4)
     hst=re_4.search(s)
@@ -1418,7 +1429,7 @@ def corr_item_21(s):
     print(21)
     hst=re_20.search(s)
     s=hst.group(2)+" "+rod_pad(hst.group(1))
-    return s.capitalize() 
+    return s
 
 def corr_stopped_construction(s):
     print("corr_stopped_construction")
@@ -1483,7 +1494,6 @@ re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+\/?\s?\-?\w+?\b)")
 re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+\/?\s?\-?\w+?\b))")
 re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольцоs|серьгаs|амулетs|браслетs|скипетрs|коронаs|статуэткаs\b)')
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
-re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
 re_skin = re.compile(r'(\(?)(.+)\s(из кожи)')
 re_6 = re.compile(r'^([x\(+*-«☼]*)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+?\b)')
 re_7 = re.compile(r'(\(?)древесина\s(\w+)\s(брёвна)')
