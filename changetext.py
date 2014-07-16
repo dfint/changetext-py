@@ -686,6 +686,8 @@ accusative = 4 # винительный
 instrumental = 5 # творительный
 prepositional = 6 # предложный
 
+case_names = ["nominative","genitive","dative","accusative","instrumental","prepositional"]
+
 gender_item = {
 #предметы
 # masculine
@@ -786,6 +788,7 @@ gender_item = {
 adjectives_item_nominative = {
     'Густой':("густой","густая","густое","густые"),
     'Редкий':("редкий","редкая","редкое","редкие"),
+    'Влажный':("влажный","влажная","влажное","влажные"),
     'Заснеженный':("заснеженный","заснеженная","заснеженное","заснеженные"),
     'Неотесанный':("неотесанный","неотесанная","неотесанное","неотесанные"),
     'людской':("людской","людская","людское","людские"),
@@ -967,6 +970,8 @@ def gender_adjective_2(adjective, gender, case=nominative):
         return adjectives_item_nominative[adjective][gender]
     elif case==accusative and adjective in adjectives_item_accusative:
         return adjectives_item_accusative[adjective][gender]
+    print("gender_adjective_2:")
+    print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case-1]))
     return None
 
 def gender_adjective(adjective,object,case):
@@ -1239,6 +1244,7 @@ def corr_item_11(s):
     return s.capitalize()
 
 # Элементы рельефа, крепости и т.п.
+re_13 = re.compile(r'(.+)\s(Подъем|Стена|Кластер|валун|склон|Пол Пещеры|лестница вверх/вниз|пол пещеры|Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b')
 #    (прилагательное) (первое дополнение) (второе дополнение) =>
 # => (прилагательное) (второе дополнение) из (первое дополнение)
 def corr_item_12(s):
@@ -1257,13 +1263,33 @@ def corr_item_12(s):
         print(12.1)
         words = group1.split(" ")
         first_word = words[0]
-        if first_word not in {"Заснеженный","Неотесанный"}:
-            s = "%s из %s" % (object, " ".join(rod_pad_list(words)))
+        first_words = []
+        gender = get_gender(object)
+        for word in words:
+            if word in {"Заснеженный","Неотесанный","Влажный"}:
+                if gender is not None:
+                    new_word = gender_adjective_2(word, gender)
+                    if not new_word:
+                        new_word = word
+                else:
+                    new_word = word
+                first_words.append(new_word)
+            else:
+                break
+        
+        words = words[len(first_words):]
+        
+        if words[0] == "из":
+            words = words[1:]
         else:
-            new_first_word=gender_adjective(first_word, object, nominative)
-            if new_first_word:
-                first_word = new_first_word
-            s = "%s %s из %s" % (first_word, object, " ".join(rod_pad_list(words[1:])))
+            words = rod_pad_list(words)
+            
+        if not first_words:
+            print("12.1.1")
+            s = "%s из %s" % (object, " ".join(words))
+        else:
+            print("12.1.2")
+            s = "%s %s из %s" % (" ".join(first_words), object, " ".join(words))
     else:
         print(12.2)
         first_word = group1
@@ -1503,7 +1529,6 @@ re_10 = re.compile(r'(шипованный|огромный|большой|за�
 re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|\♀)')
 re_container = re.compile(r'\((.+)\s(бочка|мешок)\s\((.+)\)(.+)?\)')
 re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
-re_13 = re.compile(r'(.+)\s(Подъем|Стена|Кластер|валун|склон|Пол Пещеры|лестница вверх/вниз|пол пещеры|Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b')
 re_13_1=re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
 re_body_parts = re.compile(r'^[{]?(\w+\s?\w+?|)\s(панцирь|скелет|искалеченный труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп)\}?\b')
 re_14=re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(зелёное стекло|прозрачное стекло|хрусталь)\s(\w+)')
