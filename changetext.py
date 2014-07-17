@@ -870,7 +870,7 @@ ending_fem={
 }
 
 ending_masc={
-    "ск", "ой", "ал", "ат", "ик", "ир"
+    "ск", "ой", "ал", "ат", "ик", "ир", "ут"
 }
 
 ending_neut={}
@@ -1372,7 +1372,14 @@ def corr_item_16(s):
     s=s.replace("Кузница","Ковать")
     s=s.replace("Наконечники стрел","наконечники стрел баллисты")
     return s.capitalize()
-    
+
+def instrumental_case(word):
+    gender = get_gender(word)
+    if gender == masculine:
+        return word + "ом"
+    elif gender == feminine:
+        return word + "ой"
+
 #Ювелирная мастерская
 def corr_item_17(s):
     print(17)
@@ -1517,6 +1524,15 @@ def corr_werebeast(s):
     hst = re_werebeast.search(s)
     return s.replace(hst.group(0),hst.group(1)+"-оборотень")
 
+# re_become = re.compile(r"(.+)\s(вырос и стал|стал)\s(.+)\.")
+re_become = re.compile(r"(.+)\s(стал)\s(.+)\.")
+def corr_become(s):
+    print("corr_become")
+    hst = re_become.search(s)
+    words = hst.group(3).split()
+    words[0] = instrumental_case(words[0])
+    return "%s %s %s." % (hst.group(1), hst.group(2), " ".join(words))
+
 ############################################################################
 #компилированные регулярные выражения
 re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+\/?\s?\-?\w+?\b)")
@@ -1619,6 +1635,8 @@ def ChangeText(s):
             result = corr_item_body_parts(s)
         elif re_20.search(s):
             result = corr_item_21(s)
+        elif re_become.search(s):
+            result = corr_become(s)
         
         return result
     
