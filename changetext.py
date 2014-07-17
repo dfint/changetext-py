@@ -1048,7 +1048,7 @@ iskl={
     'камень':'каменных',
 }
 
-def rod_pad_single_noun(word):
+def genitive_case_single_noun(word):
     if word in iskl:
         return iskl[word]
     elif word[-3:] in let_3:
@@ -1058,8 +1058,8 @@ def rod_pad_single_noun(word):
     elif word[-1] in {"к","т"}:
         return word+"а"
 
-def rod_pad_list(words):
-    print("rod_pad_list")
+def genitive_case_list(words):
+    print("genitive_case_list")
     print(words)
     new_list = []
     gender = get_gender(words[-1])
@@ -1069,12 +1069,12 @@ def rod_pad_list(words):
             word_temp=adjectives_item_genitive[word_temp][gender]
         else:
             print(word_temp,"is noun")
-            word_temp=rod_pad_single_noun(word_temp)
+            word_temp=genitive_case_single_noun(word_temp)
         new_list.append(word_temp)
     return new_list
 
-def rod_pad(word):
-    return ' '.join(rod_pad_list(word.split()))
+def genitive_case(word):
+    return ' '.join(genitive_case_list(word.split()))
 
 #############################################################################
 # words={"трупs", "часть телаs",}
@@ -1137,7 +1137,7 @@ def corr_item_3(s):
     hst=re_3.search(s)
     if re_3_1.search(s):
         hst=re_3_1.search(s)
-        s=hst.group(1)+" "+rod_pad(hst.group(3)+" "+hst.group(2))
+        s=hst.group(1)+" "+genitive_case(hst.group(3)+" "+hst.group(2))
         return s.capitalize()
     if hst.group(3) in phrases:
         new_word=phrases[hst.group(3)]
@@ -1146,7 +1146,7 @@ def corr_item_3(s):
     if hst.group(2) in adjectives:
         s=s.replace(hst.group(0),hst.group(1)+new_word+" "+adjectives[hst.group(2)])
     else:
-        s=s.replace(hst.group(0),hst.group(1)+new_word+" "+rod_pad(hst.group(2)))
+        s=s.replace(hst.group(0),hst.group(1)+new_word+" "+genitive_case(hst.group(2)))
     return s 
     
 #выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
@@ -1154,14 +1154,14 @@ re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+
 def corr_item_4(s):
     print(4)
     hst=re_4.search(s)
-    s=s.replace(hst.group(0),hst.group(1)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
+    s=s.replace(hst.group(0),hst.group(1)+" "+hst.group(3)+" "+genitive_case(hst.group(2)))
     return s
  
 #выражения типа "горный козёл из кожи"
 def corr_item_skin(s):
     print(5)
     hst = re_skin.search(s)
-    s = s.replace(hst.group(0), hst.group(1)+"кожа "+rod_pad(hst.group(2)))
+    s = s.replace(hst.group(0), hst.group(1)+"кожа "+genitive_case(hst.group(2)))
     return s 
     
 #выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
@@ -1169,7 +1169,7 @@ def corr_item_6(s):
     print(6)
     hst=re_6.search(s)
     new_word=hst.group(4)
-    s=s.replace(hst.group(0), hst.group(1)+hst.group(4)+" "+hst.group(3)+" "+rod_pad(hst.group(2)))
+    s=s.replace(hst.group(0), hst.group(1)+hst.group(4)+" "+hst.group(3)+" "+genitive_case(hst.group(2)))
     if new_word[:-1] in plurals:
         new_word = plurals[new_word[:-1]]
         s = s.replace(hst.group(4), new_word)
@@ -1234,12 +1234,12 @@ def corr_item_11(s):
     print(11)
     hst=re_container.search(s)
     if hst.group(3) in adjectives:
-        s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+rod_pad(hst.group(1)))
+        s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+genitive_case(hst.group(1)))
     else:
         hst_1=re_12_1.search(hst.group(3))
-        rod_pad_group1 = rod_pad(hst_1.group(1))
-        new_word=hst_1.group(2)+" "+rod_pad_group1
-        s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+rod_pad_group1)
+        genitive_case_group1 = genitive_case(hst_1.group(1))
+        new_word=hst_1.group(2)+" "+genitive_case_group1
+        s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+genitive_case_group1)
         s=s.replace(hst.group(3),new_word)
     return s.capitalize()
 
@@ -1282,7 +1282,7 @@ def corr_item_12(s):
         if words[0] == "из":
             words = words[1:]
         else:
-            words = rod_pad_list(words)
+            words = genitive_case_list(words)
             
         if not first_words:
             print("12.1.1")
@@ -1297,7 +1297,7 @@ def corr_item_12(s):
         
         if new_first_word:
             first_word = new_first_word
-        s = "%s из %s" % (object, rod_pad(first_word))
+        s = "%s из %s" % (object, genitive_case(first_word))
     
     if "иза" in s:
         s=s.replace(" иза", "")
@@ -1332,9 +1332,9 @@ def corr_item_body_parts(s):
     print(14)
     hst=re_body_parts.search(s)
     if "частичный" in hst.group(1):
-        s="частичный "+hst.group(2)+" "+rod_pad(hst.group(1).split(" ")[1])
+        s="частичный "+hst.group(2)+" "+genitive_case(hst.group(1).split(" ")[1])
     else:
-        s=s.replace(hst.group(1)+" "+hst.group(2), hst.group(2)+" "+rod_pad(hst.group(1)))
+        s=s.replace(hst.group(1)+" "+hst.group(2), hst.group(2)+" "+genitive_case(hst.group(1)))
     return s.capitalize()
     
 #"Изделия из стекла"
@@ -1454,13 +1454,13 @@ def corr_item_20(s):
 def corr_item_21(s):
     print(21)
     hst=re_20.search(s)
-    s=hst.group(2)+" "+rod_pad(hst.group(1))
+    s=hst.group(2)+" "+genitive_case(hst.group(1))
     return s
 
 def corr_stopped_construction(s):
     print("corr_stopped_construction")
     hst=re_stopped_construction.search(s)
-    return ("Дварфы приостановили строительство %s." % rod_pad(hst.group(1))).capitalize()
+    return ("Дварфы приостановили строительство %s." % genitive_case(hst.group(1))).capitalize()
 
 re_plural_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*[sы])')
 def corr_plural_s(s):
