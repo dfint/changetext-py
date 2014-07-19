@@ -808,6 +808,7 @@ adjectives_item_genitive = {
     'земляной':("земляного","земляной","земляного","земляных"),
     "гигантский":("гигантского","гигантской","гигантского","гигантских"),
     "горный":("горного","горной","горного","горных"),
+    "синий":("синего","синей","синего","синих")
 }
 
 # некоторые прилагательные в винительном падеже
@@ -1055,7 +1056,7 @@ def genitive_case_single_noun(word):
         return word[:-3]+let_3[word[-3:]]
     elif word[-2:] in let_2:
         return word[:-2]+let_2[word[-2:]]
-    elif word[-1] in {"к","т"}:
+    elif word[-1] in {"к","т","н"}:
         return word+"а"
 
 def genitive_case_list(words):
@@ -1063,8 +1064,11 @@ def genitive_case_list(words):
     print(words)
     new_list = []
     gender = get_gender(words[-1])
+    if gender is None:
+        print("Assuming gender of '%s' is masculine" % words[-1])
+        gender = masculine
     for word_temp in words:
-        if word_temp in adjectives_item_genitive and gender is not None:
+        if word_temp in adjectives_item_genitive:
             print(word_temp,"is adj")
             word_temp=adjectives_item_genitive[word_temp][gender]
         else:
@@ -1479,6 +1483,10 @@ def corr_plural_s(s):
     group1=hst.group(1)
     if group1[:-1] in plurals:
         s=s.replace(group1,plurals[group1[:-1]])
+    else:
+        words = group1.split()
+        if words[-1][:-1] in plurals:
+            s=s.replace(words[-1],plurals[words[-1][:-1]])
     return s
 
 # Clothier's shop
