@@ -397,7 +397,7 @@ phrases = {
 }
 
 ############################################################################
-adjectives = {
+adjectives_item_nominative = {
 # металл
     'из меди':('медный','медная','медное','медные'),
     'из железа':('железный','железная','железное','железные'),
@@ -670,7 +670,25 @@ adjectives = {
     'шёлк':("шёлковый","шёлковая","шёлковое","шёлковые"),
     'дерево':("деревянный","деревянная","деревянное","деревянные"),
     'кость':("костяной","костяная","костяное","костяные"),
+# }
+
+# # некоторые прилагательные в именительном падеже
+# adjectives_item_nominative = {
+    'Густой':("густой","густая","густое","густые"),
+    'Редкий':("редкий","редкая","редкое","редкие"),
+    'Влажный':("влажный","влажная","влажное","влажные"),
+    'Заснеженный':("заснеженный","заснеженная","заснеженное","заснеженные"),
+    'Неотесанный':("неотесанный","неотесанная","неотесанное","неотесанные"),
+    'людской':("людской","людская","людское","людские"),
+    'дварфийский':("дварфийский","дварфийкая","дварфийское","дварфийские"),
+    'эльфийский':("эльфийский","эльфийская","эльфийское","эльфийские"),
+    'гоблинский':("гоблинский","гоблинская","гоблинское","гоблинские"),
+    'тёмный':("тёмный","тёмная","тёмное","тёмные"),
+    'огненный':("огненный","огненная","огненное","огненные"),
+    'восковой':("восковой","восковая","восковое","восковые"),
+    'яшмовый':("яшмовый","яшмовая","яшмовое","яшмовые"),
 }
+
 
 # роды - значения не менять, т.к. используются как индексы
 masculine = 0 # м. род
@@ -784,19 +802,6 @@ gender_item = {
     "коза":feminine,
 }
 
-# некоторые прилагательные в именительном падеже
-adjectives_item_nominative = {
-    'Густой':("густой","густая","густое","густые"),
-    'Редкий':("редкий","редкая","редкое","редкие"),
-    'Влажный':("влажный","влажная","влажное","влажные"),
-    'Заснеженный':("заснеженный","заснеженная","заснеженное","заснеженные"),
-    'Неотесанный':("неотесанный","неотесанная","неотесанное","неотесанные"),
-    'людской':("людской","людская","людское","людские"),
-    'дварфийский':("дварфийский","дварфийкая","дварфийское","дварфийские"),
-    'эльфийский':("эльфийский","эльфийская","эльфийское","эльфийские"),
-    'гоблинский':("гоблинский","гоблинская","гоблинское","гоблинские"),
-    'тёмный':("тёмный","тёмная","тёмное","тёмные"),
-}
 
 # некоторые прилагательные в родительном падеже
 adjectives_item_genitive = {
@@ -875,7 +880,8 @@ ending_masc={
 }
 
 ending_neut={}
-ending_plur={"ны","ые",} 
+
+ending_plur={"ны","лы", "ы"}
 gem_okonch_vn={
     'ая':'ую', 'ма':'му','ка':'ку','да':'ду','ра':'рой','на':'ну',
     'за':'зу','ла':'лу','ой':'ую','ны':'ну','ди':'дь','ри':'рь',
@@ -951,14 +957,15 @@ def get_gender(object):
     if object in gender_item:
         return gender_item[object]
     elif len(object)>=2:
-        ending = object[-2:]
-        if ending in ending_masc:
+        ending2 = object[-2:]
+        ending1 = object[-1:]
+        if ending2 in ending_masc:
             return masculine
-        elif ending in ending_fem:
+        elif ending2 in ending_fem:
             return feminine
-        elif ending in ending_neut:
+        elif ending2 in ending_neut:
             return neuter
-        elif ending in ending_plur:
+        elif ending2 in ending_plur or ending1 in ending_plur:
             return plural
     print("get_gender:")
     print("Gender not recognized for '%s'" % object)
@@ -1086,7 +1093,7 @@ def genitive_case(word):
 animals_female={"собака","самка","крольчиха","гусыня","утка","кошка","ослица","кобыла","корова","овца","свинья",
                     "коза","курица","свинка","буйволица","важенка","лама","альпака","цесарка","пава","индейка",}
 
-item_other={"панцирь", "скелет", "искалеченный труп","останки","кость","кожа","шёлк","волокна","шерсть","мех"," хвост"}
+body_parts={"панцирь", "скелет", "искалеченный труп","останки","кость","кожа","шёлк","волокна","шерсть","мех"," хвост"}
 #выражения типа (из меди кирки [3])
 def corr_item_1(s):
     print(1)
@@ -1114,7 +1121,7 @@ def corr_item_1(s):
         elif new_words[0] in gender_item:
             gender=gender_item[new_words[0]]
         
-    material=adjectives[hst.group(3)][gender]
+    material=adjectives_item_nominative[hst.group(3)][gender]
     s_temp=material+" "+new_word
     if symbol:
         s_temp=symbol+s_temp+symbol
@@ -1147,8 +1154,8 @@ def corr_item_3(s):
         new_word=phrases[hst.group(3)]
     else:
         new_word=hst.group(3)
-    if hst.group(2) in adjectives:
-        s=s.replace(hst.group(0),hst.group(1)+new_word+" "+adjectives[hst.group(2)])
+    if hst.group(2) in adjectives_item_nominative:
+        s=s.replace(hst.group(0),hst.group(1)+new_word+" "+adjectives_item_nominative[hst.group(2)])
     else:
         s=s.replace(hst.group(0),hst.group(1)+new_word+" "+genitive_case(hst.group(2)))
     return s 
@@ -1186,42 +1193,47 @@ def corr_item_6(s):
 def corr_item_7(s):
     print(7)
     hst=re_7.search(s)
-    new_word=adjectives["из "+hst.group(2)][3]
+    new_word=adjectives_item_nominative["из "+hst.group(2)][3]
     s = s.replace(hst.group(0), hst.group(1)+new_word+" "+hst.group(3))
     return s  
     
 #выражения типа "(бриолетовый восковые опалы)"
-re_gem_cutting = re.compile(r'(бриолетовый|большой|огранённый розой|огранённый подушечкой|грубый)\s(\w+\s?\w+?\b)')
+re_gem_cutting = re.compile(r'((бриолетовый|большой|огранённый|огранённый|грубый)\s[\w\s-]+)')
 def corr_item_8(s):
     print(8)
     hst=re_gem_cutting.search(s)
-    if hst.group(2).split(" ")[-1] in item_other:
+    words = hst.group(1).split()
+    if words[-1] in body_parts:
         print(8.1)
         return corr_item_body_parts(s)
-    if hst.group(2) in gender_item:
-        print(8.2)
-        gender=gender_item[hst.group(2)]
-        new_word=adjectives[hst.group(1)][gender]
-        s=s.replace(hst.group(0),new_word+" "+hst.group(2))
-    elif hst.group(2)[-2:] in ending_plur:
-        print(8.3)
-        s=s.replace("большой","большие")
-        s=s.replace("грубый","грубые")
-    return s 
+    
+    print(words)
+    gender = get_gender(words[-1])
+    print(gender)
+    
+    new_list = []
+    for word in words[:-1]:
+        if word in adjectives_item_nominative:
+            word = adjectives_item_nominative[word][gender]
+        new_list.append(word)
+        
+    new_list.append(words[-1])
+    
+    return s.replace(hst.group(0)," ".join(new_list))
     
 #выражения типа "гигантский из ясеня лезвия топоров"
 def corr_item_9(s):
     print(9)
     hst=re_9.search(s)
-    if hst.group(2) in adjectives:
+    if hst.group(2) in adjectives_item_nominative:
         gender=gender_item[hst.group(3)]
-        new_word=adjectives[hst.group(1)][gender]
-        new_word_2=adjectives[hst.group(2)][gender]
+        new_word=adjectives_item_nominative[hst.group(1)][gender]
+        new_word_2=adjectives_item_nominative[hst.group(2)][gender]
         s=s.replace(hst.group(0),new_word+" "+new_word_2+" "+hst.group(3))
     else:
         hst=re_10.search(s)
         gender=gender_item[hst.group(3)]
-        new_word=adjectives[hst.group(1)][gender]
+        new_word=adjectives_item_nominative[hst.group(1)][gender]
         s=s.replace(hst.group(0),new_word+" "+hst.group(3)+" "+hst.group(2))
     return s
     
@@ -1241,7 +1253,7 @@ def corr_item_10(s):
 def corr_item_11(s):
     print(11)
     hst=re_container.search(s)
-    if hst.group(3) in adjectives:
+    if hst.group(3) in adjectives_item_nominative:
         s=s.replace(hst.group(1)+" "+hst.group(2),hst.group(2)+" "+genitive_case(hst.group(1)))
     else:
         hst_1=re_12_1.search(hst.group(3))
@@ -1351,7 +1363,7 @@ def corr_item_body_parts(s):
 def corr_item_15(s):
     print(15)
     hst=re_14.search(s)
-    s=hst.group(1)+" "+hst.group(3)+" "+adjectives[hst.group(2)]
+    s=hst.group(1)+" "+hst.group(3)+" "+adjectives_item_nominative[hst.group(2)]
     return s.capitalize()
     
 #кузница
@@ -1361,17 +1373,17 @@ def corr_item_16(s):
     hst_1=re_15_1.search(s)
     if hst.group(3) in accusative_case:
         item=accusative_case[hst.group(3)]
-        material_temp=adjectives[hst.group(2)][0]
+        material_temp=adjectives_item_nominative[hst.group(2)][0]
         material=material_temp[:-2]+"ую"
         s=hst.group(1)+" "+material+" "+item
         s=s.replace("Кузница","Ковать")
         s=s.replace("Наконечники стрел","наконечники стрел баллисты")
         return s.capitalize()
-    if hst.group(2) in adjectives:
+    if hst.group(2) in adjectives_item_nominative:
         gender=gender_item[hst.group(3)]
-        material=adjectives[hst.group(2)][gender]
+        material=adjectives_item_nominative[hst.group(2)][gender]
         s=hst.group(1)+" "+material+" "+hst.group(3)
-    elif hst_1.group(2) in adjectives:
+    elif hst_1.group(2) in adjectives_item_nominative:
         item=hst_1.group(3)
         if item in accusative_case:
             item=accusative_case[item]
@@ -1459,11 +1471,11 @@ def corr_item_20(s):
     else:
         new_word=hst.group(2)
     if hst.group(1)=='пряжа' or hst.group(1)=='растительное волокно':
-        material=adjectives[hst.group(1)]
+        material=adjectives_item_nominative[hst.group(1)]
         s=new_word+" "+material
         return s.capitalize()
     gender=gender_item[new_word]
-    material=adjectives[hst.group(1)][gender]
+    material=adjectives_item_nominative[hst.group(1)][gender]
     s=material+" "+new_word
     return s.capitalize() 
 
@@ -1608,11 +1620,11 @@ def ChangeText(s):
         if s in phrases:
             result = phrases[s]
         elif re_1.search(s):
-            if re_1.search(s).group(0) in adjectives:
+            if re_1.search(s).group(0) in adjectives_item_nominative:
                 result = re_1.search(s).group(0)
-            elif re_1.search(s).group(3) in adjectives:
+            elif re_1.search(s).group(3) in adjectives_item_nominative:
                 result = corr_item_1(s)
-            elif re_2.search(s).group(2) in adjectives:
+            elif re_2.search(s).group(2) in adjectives_item_nominative:
                 result = corr_item_2(s)
         elif re_6.search(s):
             result = corr_item_6(s)
