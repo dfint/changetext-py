@@ -397,6 +397,118 @@ phrases = {
 }
 
 ############################################################################
+# роды - значения не менять, т.к. используются как индексы
+masculine = 0 # м. род
+feminine = 1 # ж. род
+neuter = 2 # ср. род
+plural = 3 # мн. ч.
+
+# падежи
+nominative = 0 # именительный
+genitive = 1 # родительный
+dative = 2 # дательный
+accusative = 3 # винительный
+instrumental = 4 # творительный
+prepositional = 5 # предложный
+
+case_names = ["nominative","genitive","dative","accusative","instrumental","prepositional"]
+
+gender_item = {
+#предметы
+# masculine
+    "тренировочный топор":masculine, "щит":masculine, "баклер":masculine,
+    "стол":masculine, "трон":masculine, "горшок":masculine, "шкаф":masculine,
+    "ларец":masculine, "гроб":masculine, "игрушечный кораблик":masculine,
+    "игрушечный молоток":masculine, "игрушечный топорик":masculine,
+    "кубок":masculine,"костыль":masculine,"шлем":masculine,
+    "капюшон":masculine,"сапог":masculine,"ботинок":masculine,"башмак":masculine,
+    "песок":masculine,"кувшин":masculine,"барабан":masculine,"стул":masculine,
+    "мешок":masculine,"боевой топор":masculine,"короткий меч":masculine,
+    "тренировочный меч":masculine,"арбалет":masculine,"боевой молот":masculine,
+    "амулет":masculine,"нагрудник":masculine,"инструмент":masculine,
+    "улей":masculine,"рюкзак":masculine,"жилет":masculine,"плащ":masculine,"носок":masculine,
+    "колчан":masculine,"силок":masculine,"шлюз":masculine,"люк":masculine,"сундук":masculine,
+    "саркофаг":masculine,"ящик":masculine,"мемориал":masculine,
+    "головной убор":masculine, "кинжал":masculine, "болт":masculine, "рычаг":masculine,
+    
+# feminine
+    "кирка":feminine, "наковальня":feminine, "булава":feminine,
+    "кружка":feminine, "кровать":feminine, "головоломка":feminine,
+    "статуя":feminine, "бочка":feminine, "дверь":feminine,
+    "мини-кузница":feminine, "шина":feminine,"статуэтка":feminine,
+    "кольчуга":feminine,"шапка":feminine,"вагонетка":feminine,"тачка":feminine,
+    "труба":feminine,"арфа":feminine,"флейта-пикколо":feminine,
+    "корона":feminine,"перчатка":feminine,"Клетка":feminine,"клетка":feminine,
+    "стойка":feminine,"решётка":feminine,"туника":feminine,"цепь":feminine,
+    "броня":feminine,"обувь":feminine, "крышка":feminine, "звезда":feminine,
+    "бирюза":feminine,
+   
+# neuter
+    "тренировочное копьё":neuter, "гнездо":neuter, "ведро":neuter, "копьё":neuter,
+    "кольцо":neuter,"Ведро":neuter,
+# plural
+    "кирки":plural, "тренировочные топоры":plural, "наковальни":plural, "булавы":plural,
+    "копья":plural, "кружки":plural,"стулья":plural,
+    "боевые топоры":plural, "болты":plural, "боевые молоты":plural,"топоры":plural,
+    "арбалеты":plural, "щиты":plural, "рукавицы":plural, "поножи":plural,
+    "нагрудники":plural, "брёвна":plural, "тренировочные мечи":plural,
+    "цереуса":plural, "ведра":plural, "гробы":plural,"молотки":plural,
+    "статуи":plural, "ларцы":plural, "механизмы":plural, "головоломки":plural,
+    "игрушечные кораблики":plural, "столы":plural,"кольчужный":plural,
+    "ларецы":plural,"тренировочные копья":plural,"флейты-пикколо":plural,
+    "игрушечные молотки":plural, "игрушечные топорики":plural,
+    "мини-кузницы":plural, "стрелы":plural, "дротики":plural, "баклеры":plural,
+    "короткие мечи":plural,"слитки":plural,"шины":plural,"костыли":plural,"бочки":plural,
+    "клетки":plural,"ульи":plural,"горшки":plural,"гнёзда":plural,"вёдра":plural,
+    "фляги":plural,"бурдюки":plural,"блоки":plural,"барабаны":plural,
+    "браслеты":plural,"скипетры":plural,"короны":plural,"статуэтки":plural,"кольца":plural,
+    "серьги":plural,"колчаны":plural,"рюкзаки":plural,"мешоки":plural,
+    "верёвки":plural,"кольчуги":plural,"шлемы":plural,"одежды":plural,
+    "шапки":plural,"капюшоны":plural,"сапоги":plural,"ботинки":plural,"башмаки":plural,
+    "рейтузы":plural,"штаны":plural,"амулеты":plural,"кувшины":plural,
+    "вагонетки":plural,"тачки":plural,"флейты":plural,"трубы":plural,"арфы":plural,"Поделки":plural,
+    "монеты":plural,"Блоки":plural,"Наконечники стрел":plural,"шкафы":plural,"двери":plural,
+    "кровати":plural,"жернова":plural,"троны":plural,"стойки":plural,"сундуки":plural,"изделия":plural,
+    "перчатки":plural,"брюки":plural,"доспехи":plural,"щиты/баклеры":plural,"плащи":plural,
+    "рубахи":plural,"накидки":plural,"робы":plural,"жилеты":plural,"туники":plural,"тоги":plural,
+    
+
+# самоцветы
+# masculine
+    "хрусталь":masculine,"морганит":masculine,"кошачий глаз":masculine,"опал":masculine,
+# feminine
+    "яшма":feminine, "шпинель":feminine,"тигровая яшма":feminine,
+# neuter
+
+# plural
+    "шерлы":plural,"прозапалы":plural,"кровавики":plural,"моховые агаты":plural,"хризопразы":plural,"сердолики":plural,
+    "изысканные огненные опалы":plural,"костяные опалы":plural,"моховые опалы":plural,
+    "молочные кварцы":plural,"цитрины":plural,"пириты":plural,"зелёные турмалины":plural,"белые халцедоны":plural,"лунные камни":plural,"красные пиропы":plural,
+    "синие гранаты":plural,"чёрные цирконы":plural,"демантоиды":plural,"биксбиты":plural,"топазы":plural,"кунциты":plural,"фиолетовые спессартины":plural,
+    "гелиодоры":plural,"гошениты":plural,"аметисты":plural,"аквамарины":plural,"хризобериллы":plural,"арлекины":plural,
+    "изумруды":plural,"александриты":plural, "морионы":plural,"лазуриты":plural,"празеолиты":plural,"лавандовые нефриты":plural,
+    "розовые нефриты":plural,"восковые опалы":plural,"янтарные опалы":plural,"золотистые опалы":plural,"ракушечные опалы":plural,
+    "авантюрины":plural, "альмандины":plural, "родолиты":plural,"танзаниты":plural,"золотистые бериллы":plural,"топазолиты":plural,
+    "светло-жёлтые алмазы":plural,"рубицеллы":plural,"сардониксы":plural,"белые нефриты":plural,"ананасовые опалы":plural,
+    "трубчатые опалы":plural, "розовые кварцы":plural,"зелёные цирконы":plural,"зелёные нефриты":plural,"красные цирконы":plural,
+    "яшмовые опалы":plural,"розовые турмалины":plural,"огненные опалы":plural,"желейные опалы":plural,
+    "коричневые цирконы":plural,"жёлтые цирконы":plural,"жёлтые спессартины":plural,"чистые гранаты":plural,
+    "чистые цирконы":plural,"чёрные опалы":plural,"кристаллические опалы":plural,"слоистые огненные опалы":plural,
+    "дымчатые кварцы":plural,"смолистые опалы":plural,"светло":plural,"розовые опалы":plural,"розовые перриты":plural,
+# masculine
+    "кол":masculine,"винт":masculine,"шар":masculine,"диск":masculine,
+# neuter
+    "лезвие топора":neuter,
+# plural
+    "колья":plural,"шары":plural,"винты":plural,"диски":plural,"лезвия топоров":plural,
+
+# Травы
+    "морошка":feminine,
+    
+    "червь":masculine,
+    "коза":feminine,
+}
+
 adjectives_item_nominative = {
 # металл
     'из меди':('медный','медная','медное','медные'),
@@ -690,119 +802,6 @@ adjectives_item_nominative = {
 }
 
 
-# роды - значения не менять, т.к. используются как индексы
-masculine = 0 # м. род
-feminine = 1 # ж. род
-neuter = 2 # ср. род
-plural = 3 # мн. ч.
-
-# падежи
-nominative = 1 # именительный
-genitive = 2 # родительный
-dative = 3 # дательный
-accusative = 4 # винительный
-instrumental = 5 # творительный
-prepositional = 6 # предложный
-
-case_names = ["nominative","genitive","dative","accusative","instrumental","prepositional"]
-
-gender_item = {
-#предметы
-# masculine
-    "тренировочный топор":masculine, "щит":masculine, "баклер":masculine,
-    "стол":masculine, "трон":masculine, "горшок":masculine, "шкаф":masculine,
-    "ларец":masculine, "гроб":masculine, "игрушечный кораблик":masculine,
-    "игрушечный молоток":masculine, "игрушечный топорик":masculine,
-    "кубок":masculine,"костыль":masculine,"шлем":masculine,
-    "капюшон":masculine,"сапог":masculine,"ботинок":masculine,"башмак":masculine,
-    "песок":masculine,"кувшин":masculine,"барабан":masculine,"стул":masculine,
-    "мешок":masculine,"боевой топор":masculine,"короткий меч":masculine,
-    "тренировочный меч":masculine,"арбалет":masculine,"боевой молот":masculine,
-    "амулет":masculine,"нагрудник":masculine,"инструмент":masculine,
-    "улей":masculine,"рюкзак":masculine,"жилет":masculine,"плащ":masculine,"носок":masculine,
-    "колчан":masculine,"силок":masculine,"шлюз":masculine,"люк":masculine,"сундук":masculine,
-    "саркофаг":masculine,"ящик":masculine,"мемориал":masculine,
-    "головной убор":masculine, "кинжал":masculine, "болт":masculine, "рычаг":masculine,
-    
-# feminine
-    "кирка":feminine, "наковальня":feminine, "булава":feminine,
-    "кружка":feminine, "кровать":feminine, "головоломка":feminine,
-    "статуя":feminine, "бочка":feminine, "дверь":feminine,
-    "мини-кузница":feminine, "шина":feminine,"статуэтка":feminine,
-    "кольчуга":feminine,"шапка":feminine,"вагонетка":feminine,"тачка":feminine,
-    "труба":feminine,"арфа":feminine,"флейта-пикколо":feminine,
-    "корона":feminine,"перчатка":feminine,"Клетка":feminine,"клетка":feminine,
-    "стойка":feminine,"решётка":feminine,"туника":feminine,"цепь":feminine,
-    "броня":feminine,"обувь":feminine, "крышка":feminine, "звезда":feminine,
-    "бирюза":feminine,
-   
-# neuter
-    "тренировочное копьё":neuter, "гнездо":neuter, "ведро":neuter, "копьё":neuter,
-    "кольцо":neuter,"Ведро":neuter,
-# plural
-    "кирки":plural, "тренировочные топоры":plural, "наковальни":plural, "булавы":plural,
-    "копья":plural, "кружки":plural,"стулья":plural,
-    "боевые топоры":plural, "болты":plural, "боевые молоты":plural,"топоры":plural,
-    "арбалеты":plural, "щиты":plural, "рукавицы":plural, "поножи":plural,
-    "нагрудники":plural, "брёвна":plural, "тренировочные мечи":plural,
-    "цереуса":plural, "ведра":plural, "гробы":plural,"молотки":plural,
-    "статуи":plural, "ларцы":plural, "механизмы":plural, "головоломки":plural,
-    "игрушечные кораблики":plural, "столы":plural,"кольчужный":plural,
-    "ларецы":plural,"тренировочные копья":plural,"флейты-пикколо":plural,
-    "игрушечные молотки":plural, "игрушечные топорики":plural,
-    "мини-кузницы":plural, "стрелы":plural, "дротики":plural, "баклеры":plural,
-    "короткие мечи":plural,"слитки":plural,"шины":plural,"костыли":plural,"бочки":plural,
-    "клетки":plural,"ульи":plural,"горшки":plural,"гнёзда":plural,"вёдра":plural,
-    "фляги":plural,"бурдюки":plural,"блоки":plural,"барабаны":plural,
-    "браслеты":plural,"скипетры":plural,"короны":plural,"статуэтки":plural,"кольца":plural,
-    "серьги":plural,"колчаны":plural,"рюкзаки":plural,"мешоки":plural,
-    "верёвки":plural,"кольчуги":plural,"шлемы":plural,"одежды":plural,
-    "шапки":plural,"капюшоны":plural,"сапоги":plural,"ботинки":plural,"башмаки":plural,
-    "рейтузы":plural,"штаны":plural,"амулеты":plural,"кувшины":plural,
-    "вагонетки":plural,"тачки":plural,"флейты":plural,"трубы":plural,"арфы":plural,"Поделки":plural,
-    "монеты":plural,"Блоки":plural,"Наконечники стрел":plural,"шкафы":plural,"двери":plural,
-    "кровати":plural,"жернова":plural,"троны":plural,"стойки":plural,"сундуки":plural,"изделия":plural,
-    "перчатки":plural,"брюки":plural,"доспехи":plural,"щиты/баклеры":plural,"плащи":plural,
-    "рубахи":plural,"накидки":plural,"робы":plural,"жилеты":plural,"туники":plural,"тоги":plural,
-    
-
-# самоцветы
-# masculine
-    "хрусталь":masculine,"морганит":masculine,"кошачий глаз":masculine,"опал":masculine,
-# feminine
-    "яшма":feminine, "шпинель":feminine,"тигровая яшма":feminine,
-# neuter
-
-# plural
-    "шерлы":plural,"прозапалы":plural,"кровавики":plural,"моховые агаты":plural,"хризопразы":plural,"сердолики":plural,
-    "изысканные огненные опалы":plural,"костяные опалы":plural,"моховые опалы":plural,
-    "молочные кварцы":plural,"цитрины":plural,"пириты":plural,"зелёные турмалины":plural,"белые халцедоны":plural,"лунные камни":plural,"красные пиропы":plural,
-    "синие гранаты":plural,"чёрные цирконы":plural,"демантоиды":plural,"биксбиты":plural,"топазы":plural,"кунциты":plural,"фиолетовые спессартины":plural,
-    "гелиодоры":plural,"гошениты":plural,"аметисты":plural,"аквамарины":plural,"хризобериллы":plural,"арлекины":plural,
-    "изумруды":plural,"александриты":plural, "морионы":plural,"лазуриты":plural,"празеолиты":plural,"лавандовые нефриты":plural,
-    "розовые нефриты":plural,"восковые опалы":plural,"янтарные опалы":plural,"золотистые опалы":plural,"ракушечные опалы":plural,
-    "авантюрины":plural, "альмандины":plural, "родолиты":plural,"танзаниты":plural,"золотистые бериллы":plural,"топазолиты":plural,
-    "светло-жёлтые алмазы":plural,"рубицеллы":plural,"сардониксы":plural,"белые нефриты":plural,"ананасовые опалы":plural,
-    "трубчатые опалы":plural, "розовые кварцы":plural,"зелёные цирконы":plural,"зелёные нефриты":plural,"красные цирконы":plural,
-    "яшмовые опалы":plural,"розовые турмалины":plural,"огненные опалы":plural,"желейные опалы":plural,
-    "коричневые цирконы":plural,"жёлтые цирконы":plural,"жёлтые спессартины":plural,"чистые гранаты":plural,
-    "чистые цирконы":plural,"чёрные опалы":plural,"кристаллические опалы":plural,"слоистые огненные опалы":plural,
-    "дымчатые кварцы":plural,"смолистые опалы":plural,"светло":plural,"розовые опалы":plural,"розовые перриты":plural,
-# masculine
-    "кол":masculine,"винт":masculine,"шар":masculine,"диск":masculine,
-# neuter
-    "лезвие топора":neuter,
-# plural
-    "колья":plural,"шары":plural,"винты":plural,"диски":plural,"лезвия топоров":plural,
-
-# Травы
-    "морошка":feminine,
-    
-    "червь":masculine,
-    "коза":feminine,
-}
-
-
 # некоторые прилагательные в родительном падеже
 adjectives_item_genitive = {
     'Густой':("густого","густой","густого","густых"),
@@ -819,6 +818,54 @@ adjectives_item_genitive = {
 # некоторые прилагательные в винительном падеже
 adjectives_item_accusative = {
     "шёлковый":("шёлковый","шёлковую","шёлковое","шёлковые")
+}
+
+adjective_cases = {
+    "ый": # медный, шелковый etc.
+    (
+        ("ый","ая","ое","ые"), # именительный - nominative
+        ("ого","ой","ого","ых"), # родительный - genitive
+        ("ому","ой","ому","ым"), # дательный - dative
+        ("ый","ую","ое","ые"), # винительный  - accusative
+        ("ым","ой","ым","ыми"), # творительный  - instrumental
+        ("ом","ой","ом","ых"), # предложный  - prepositional
+    ),
+    "ой": # золотой, густой etc.
+    (
+        ("ой","ая","ое","ые"), # именительный - nominative
+        ("ого","ой","ого","ых"), # родительный - genitive
+        ("ому","ой","ому","ым"), # дательный - dative
+        ("ого","оую","ое","ых"), # винительный  - accusative
+        ("ым","ой","ым","ыми"), # творительный  - instrumental
+        ("ом","ой","ом","ых"), # предложный  - prepositional
+    ),
+    "ний": # синий etc.
+    (
+        ("ний","няя","нее","ние"), # именительный - nominative
+        ("него","нюю","нее","них"), # родительный - genitive
+        ("нему","ней","нему","ним"), # дательный - dative
+        ("него","нюю","нее","них"), # винительный  - accusative
+        ("ним","ней","ним","ними"), # творительный  - instrumental
+        ("нем","ней","нем","них"), # предложный  - prepositional
+    ),
+    "кий": # гигантский, высокий etc.
+    (
+        ("кий","кая","кое","кие"), # именительный - nominative
+        ("кого","кую","кого","ких"), # родительный - genitive
+        ("кому","кой","кому","ким"), # дательный - dative
+        ("кого","кую","кое","ких"), # винительный  - accusative
+        ("ким","кой","ким","кими"), # творительный  - instrumental
+        ("ком","кой","ком","ких"), # предложный  - prepositional
+    ),
+    "чий": # куропаточий etc.
+    (
+        ("чий","чья","чье","чьи"), # именительный - nominative
+        ("чьего","чью","чьего","чьих"), # родительный - genitive
+        ("чьему","чьей","чьему","чьим"), # дательный - dative
+        ("чьего","чью","чье","чьих"), # винительный  - accusative
+        ("чьим","чьей","чьим","чьими"), # творительный  - instrumental
+        ("чьем","чьей","чьем","чьих"), # предложный  - prepositional
+    ),
 }
 
 accusative_case= {
@@ -974,7 +1021,13 @@ def get_gender(object):
     return None
 
 def gender_adjective_2(adjective, gender, case=nominative):
-    if case==genitive and adjective in adjectives_item_genitive:
+    ending3 = adjective[-3:]
+    ending2 = adjective[-2:]
+    if ending3 in adjective_cases:
+        return adjective[:-3] + adjective_cases[ending3][case][gender]
+    elif ending2 in adjective_cases:
+        return adjective[:-2] + adjective_cases[ending2][case][gender]
+    elif case==genitive and adjective in adjectives_item_genitive:
         return adjectives_item_genitive[adjective][gender]
     elif case==nominative and adjective in adjectives_item_nominative:
         return adjectives_item_nominative[adjective][gender]
