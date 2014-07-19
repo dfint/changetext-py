@@ -768,9 +768,9 @@ gender_item = {
 
 # самоцветы
 # masculine
-    "горный хрусталь":masculine,"морганит":masculine,"кошачий глаз":masculine,"опал":masculine,
+    "хрусталь":masculine,"морганит":masculine,"кошачий глаз":masculine,"опал":masculine,
 # feminine
-    "яшма":feminine,"красная шпинель":feminine,"тигровая яшма":feminine,
+    "яшма":feminine, "шпинель":feminine,"тигровая яшма":feminine,
 # neuter
 
 # plural
@@ -915,7 +915,8 @@ plurals = {
     'стол':'столы', 
     'оружие':'оружие',
     'сундук':'сундуки',
-    'щитs/баклер':'щиты/баклеры', #
+    'щит':'щиты', #
+    'баклер':'баклеры', #
     'мешок':'мешки',
     'ларец':'ларцы',
     'кружка':'кружки',
@@ -1054,6 +1055,7 @@ iskl={
     'корова':'коровы',
     'сумерками':'сумеречной',
     'камень':'каменных',
+    'шпинель':'шпинели'
 }
 
 def genitive_case_single_noun(word):
@@ -1095,6 +1097,7 @@ animals_female={"собака","самка","крольчиха","гусыня",
 
 body_parts={"панцирь", "скелет", "искалеченный труп","останки","кость","кожа","шёлк","волокна","шерсть","мех"," хвост"}
 #выражения типа (из меди кирки [3])
+re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+\/?\s?\-?\w+?\b)")
 def corr_item_1(s):
     print(1)
     symbol=""
@@ -1120,27 +1123,43 @@ def corr_item_1(s):
             gender=gender_item[new_words[1]]
         elif new_words[0] in gender_item:
             gender=gender_item[new_words[0]]
-        
+    
     material=adjectives_item_nominative[hst.group(3)][gender]
     s_temp=material+" "+new_word
     if symbol:
         s_temp=symbol+s_temp+symbol
     s=s.replace(hst.group(2)+hst.group(3)+" "+hst.group(4),s_temp )
-    s=s.replace("кольчужный","кольчужные")
+    # s=s.replace("кольчужный","кольчужные")
 
     return s
     
 #выражения типа "(из висмутовой бронзы кирка [3])"
+re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+\/?\s?\-?\w+?\b))")
 def corr_item_2(s):
     print(2)
     hst=re_2.search(s)
-    if hst.group(3)[:-1] in plurals:
-        new_word=plurals[hst.group(3)[:-1]]
+    print(hst.group(1))
+    print(hst.group(2))
+    print(hst.group(3))
+    
+    object=hst.group(3)
+    if " " in object:
+        words = object.split()
+        object = words[-1]
+        gender = get_gender(words[-1])
+        adjs = []
+        for adj in words[:-1]:
+            new_adj = gender_adjective_2(adj,gender)
+            if new_adj is None:
+                new_adj = adj
+            adjs.append(new_adj)
+        
+        first_part = "%s %s" % (" ".join(adjs),object)
     else:
-        new_word=hst.group(3)
-    s=s.replace(hst.group(1),new_word+" "+hst.group(2))
-    s=s.replace("кольчужный","кольчужные")
-    return s 
+        first_part = object
+    
+    s=s.replace(hst.group(1),first_part+" "+hst.group(2))
+    return s
  
 #выражения типа "рогатый филин яйцо"
 def corr_item_3(s):
@@ -1491,7 +1510,7 @@ def corr_stopped_construction(s):
     hst=re_stopped_construction.search(s)
     return ("Дварфы приостановили строительство %s." % genitive_case(hst.group(1))).capitalize()
 
-re_plural_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*[sы])')
+re_plural_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*s\b)')
 def corr_plural_s(s):
     print("corr_plural_s")
     hst=re_plural_s.search(s)
@@ -1563,10 +1582,16 @@ def corr_with_his(s):
     # return "%s своим%s" % (hst.group(1), instrumental_case(hst.group(2)))
     return "%s своим%s" % (hst.group(1), hst.group(2)) # пока хотя бы так
 
+re_crafts = re.compile(r"([\w\s]+) (кольцо|кольца)")
+def corr_crafts(s):
+    print("corr_crafts")
+    hst = re_crafts.search(s)
+    object = hst.group(2)
+    description = hst.group(1)
+    return s.replace(hst.group(0), "%s из %s" % (object,genitive_case(description)))
+
 ############################################################################
 #компилированные регулярные выражения
-re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+\/?\s?\-?\w+?\b)")
-re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+\/?\s?\-?\w+?\b))")
 re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольцоs|серьгаs|амулетs|браслетs|скипетрs|коронаs|статуэткаs\b)')
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 re_skin = re.compile(r'(\(?)(.+)\s(из кожи)')
@@ -1607,9 +1632,10 @@ def ChangeText(s):
     def Test(s):
         result = None
         # prepocessing:
-        if re_plural_s.search(s):
+        while re_plural_s.search(s): # убрать из trans.txt 686284|s|ы|
             s = corr_plural_s(s)
             result = s
+        
         if re_werebeast.search(s):
             s = corr_werebeast(s)
             result = s
@@ -1670,6 +1696,8 @@ def ChangeText(s):
             result = corr_item_21(s)
         elif re_become.search(s):
             result = corr_become(s)
+        elif re_crafts.search(s):
+            result = corr_crafts(s)
         
         return result
     
