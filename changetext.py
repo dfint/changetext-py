@@ -1301,35 +1301,47 @@ def corr_item_8(s):
     return s.replace(hst.group(0)," ".join(new_list))
     
 #выражения типа "гигантский из ясеня лезвия топоров"
-re_9  = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\b)\s(\w+\s?\w+?\b)')
-re_10 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)')
+re_9 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s[\w\s]+\b)')
 def corr_item_9(s):
     print(9)
     hst=re_9.search(s)
-    if hst.group(2) in make_adjective:
+    adj = hst.group(1)
+    words = hst.group(2).split()
+    if " ".join(words[:2]) in make_adjective:
         print(9.1)
-        gender=gender_item[hst.group(3)]
-        print("gender:",gender)
-        if hst.group(1) not in make_adjective and " " in hst.group(1):
-            words = hst.group(1).split()
-            new_words = [gender_adjective_2(make_adjective[word],gender) for word in words]
-            new_word = " ".join(new_words)
+        material = " ".join(words[:2])
+        print("material:",material)
+        object = " ".join(words[2:])
+        print("object:",object)
+        gender = gender_item[object]
+        print("object gender:",gender)
+        if adj not in make_adjective and " " in adj:
+            adj_words = adj.split()
+            new_words = [gender_adjective_2(make_adjective[word],gender) for word in adj_words]
+            new_adj = " ".join(new_words)
         else:
-            new_word=gender_adjective_2(make_adjective[hst.group(1)],gender)
-        print(hst.group(1),":",new_word)
-        new_word_2=gender_adjective_2(make_adjective[hst.group(2)],gender)
-        print(hst.group(2),":",new_word_2)
-        
-        s=s.replace(hst.group(0),new_word+" "+new_word_2+" "+hst.group(3))
+            new_adj = gender_adjective_2(make_adjective[adj],gender)
+        print(adj,":",new_adj)
+        new_word_2 = gender_adjective_2(make_adjective[material],gender)
+        print(material,":",new_word_2)
+        s=s.replace(hst.group(0),"%s %s %s" % (new_adj,new_word_2,object))
     else:
         print(9.2)
-        hst=re_10.search(s)
-        gender=gender_item[hst.group(3)]
-        adj = make_adjective[hst.group(1)]
-        new_word=gender_adjective_2(adj,gender)
-        s=s.replace(hst.group(0),new_word+" "+hst.group(3)+" "+hst.group(2))
+        material = " ".join(words[:3])
+        print("material:",material)
+        object = " ".join(words[3:])
+        print("object:",object)
+        gender = gender_item[object]
+        if adj not in make_adjective and " " in adj:
+            adj_words = ajd.split()
+            new_words = [gender_adjective_2(make_adjective[word],gender) for word in adj_words]
+            new_adj = " ".join(new_words)
+        else:
+            new_adj = gender_adjective_2(make_adjective[adj],gender)
+        print(adj,":",new_adj)
+        s=s.replace(hst.group(0),"%s %s %s" % (new_adj,object,material))
     return s
-    
+
 #"животные"
 def corr_item_10(s):
     print(10)
