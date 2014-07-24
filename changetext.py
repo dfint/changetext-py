@@ -925,7 +925,7 @@ gem_okonch_vn={
     'са':'с','ки':'ку',
 }
 
-plurals = {
+dict_ending_s = {
     'готовая еда':'готовая еда',
     'питьё':'питьё',
     'ведро':'вёдра',
@@ -989,6 +989,7 @@ plurals = {
     'труп':'трупы',
     'часть тела':'части тела',
     'конечность/тело гипс':'гипс для конечностей тела',
+    'душите':'душит' # strangle - strangles
 }
 
 def get_gender(object):
@@ -1255,9 +1256,6 @@ def corr_item_6(s):
     hst=re_6.search(s)
     new_word=hst.group(4)
     s=s.replace(hst.group(0), hst.group(1)+hst.group(4)+" "+hst.group(3)+" "+genitive_case(hst.group(2)))
-    if new_word[:-1] in plurals:
-        new_word = plurals[new_word[:-1]]
-        s = s.replace(hst.group(4), new_word)
     s = s.replace("левый", "левая")
     s = s.replace("правый", "правая")
     return s  
@@ -1598,17 +1596,18 @@ def corr_stopped_construction(s):
     hst=re_stopped_construction.search(s)
     return ("Дварфы приостановили строительство %s." % genitive_case(hst.group(1))).capitalize()
 
-re_plural_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*s\b)')
-def corr_plural_s(s):
-    print("corr_plural_s")
-    hst=re_plural_s.search(s)
+# Корректировка для окончания s - перевод существительного во множественное число или глагола в 3-е лицо ед.ч.
+re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*s\b)')
+def corr_ending_s(s):
+    print("corr_ending_s")
+    hst=re_ending_s.search(s)
     group1=hst.group(1)
-    if group1[:-1] in plurals:
-        s=s.replace(group1,plurals[group1[:-1]])
+    if group1[:-1] in dict_ending_s:
+        s=s.replace(group1,dict_ending_s[group1[:-1]])
     else:
         words = group1.split()
-        if words[-1][:-1] in plurals:
-            s=s.replace(words[-1],plurals[words[-1][:-1]])
+        if words[-1][:-1] in dict_ending_s:
+            s=s.replace(words[-1],dict_ending_s[words[-1][:-1]])
     return s
 
 # Clothier's shop
@@ -1715,8 +1714,8 @@ def ChangeText(s):
     def Test(s):
         result = None
         # prepocessing:
-        while re_plural_s.search(s): # убрать из trans.txt 686284|s|ы|
-            s = corr_plural_s(s)
+        while re_ending_s.search(s): # убрать из trans.txt 686284|s|ы|
+            s = corr_ending_s(s)
             result = s
         
         if re_werebeast.search(s):
