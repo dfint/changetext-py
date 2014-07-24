@@ -1608,6 +1608,8 @@ def corr_ending_s(s):
         words = group1.split()
         if words[-1][:-1] in dict_ending_s:
             s=s.replace(words[-1],dict_ending_s[words[-1][:-1]])
+        else:
+            return None
     return s
 
 # Clothier's shop
@@ -1716,6 +1718,8 @@ def ChangeText(s):
         # prepocessing:
         while re_ending_s.search(s): # убрать из trans.txt 686284|s|ы|
             s = corr_ending_s(s)
+            if s is None:
+                return None
             result = s
         
         if re_werebeast.search(s):
