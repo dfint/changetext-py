@@ -1662,12 +1662,12 @@ def corr_become(s):
     words[0] = instrumental_case(words[0])
     return "%s %s %s." % (hst.group(1), hst.group(2), " ".join(words))
 
-re_with_his = re.compile(r'(.*) с его(.*)')
+re_with_his = re.compile(r'(.*) с (его|её)(.*)')
 def corr_with_his(s):
     print("corr_with_his")
     hst = re_with_his.search(s)
-    # return "%s своим%s" % (hst.group(1), instrumental_case(hst.group(2)))
-    return "%s своим%s" % (hst.group(1), hst.group(2)) # пока хотя бы так
+    # return "%s своим%s" % (hst.group(1), instrumental_case(hst.group(3)))
+    return "%s своим%s" % (hst.group(1), hst.group(3)) # пока хотя бы так
 
 re_crafts = re.compile(r"([\w\s]+) (кольцо|кольца)")
 def corr_crafts(s):
