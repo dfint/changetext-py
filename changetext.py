@@ -1717,9 +1717,10 @@ def ChangeText(s):
         result = None
         # prepocessing:
         while re_ending_s.search(s): # убрать из trans.txt 686284|s|ы|
-            s = corr_ending_s(s)
-            if s is None:
-                return None
+            s1 = corr_ending_s(s)
+            if s1 is None:
+                break
+            s = s1
             result = s
         
         if re_werebeast.search(s):
