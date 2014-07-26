@@ -1715,9 +1715,12 @@ else:
 logged = set()
 
 def ChangeText(s):
-    def Test(s):
+    def ChangeText_internal(s):
         result = None
         # prepocessing:
+        if s in phrases:
+            result = phrases[s]
+        
         while re_ending_s.search(s): # убрать из trans.txt 686284|s|ы|
             s1 = corr_ending_s(s)
             if s1 is None:
@@ -1732,9 +1735,7 @@ def ChangeText(s):
             s = corr_with_his(s)
             result = s
         
-        if s in phrases:
-            result = phrases[s]
-        elif re_1.search(s):
+        if re_1.search(s):
             if re_1.search(s).group(0) in make_adjective:
                 result = re_1.search(s).group(0)
             elif re_1.search(s).group(3) in make_adjective:
@@ -1791,7 +1792,7 @@ def ChangeText(s):
         return result
     
     try:
-        output = Test(s)
+        output = ChangeText_internal(s)
     except Exception:
         print('An error occured.', file=sys.stderr)
         print('Initial string:', '"'+s+'"', file=sys.stderr)
