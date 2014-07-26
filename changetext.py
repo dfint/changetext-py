@@ -989,7 +989,8 @@ dict_ending_s = {
     'труп':'трупы',
     'часть тела':'части тела',
     'конечность/тело гипс':'гипс для конечностей тела',
-    'душите':'душит' # strangle - strangles
+    'душите':'душит', # strangle - strangles
+    'ребро':'рёбра'
 }
 
 def get_gender(object):
@@ -1609,6 +1610,7 @@ def corr_ending_s(s):
         if words[-1][:-1] in dict_ending_s:
             s=s.replace(words[-1],dict_ending_s[words[-1][:-1]])
         else:
+            print("Couldn't find correct -s form for %s." % words[-1][:-1])
             return None
     return s
 
