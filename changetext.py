@@ -1598,7 +1598,7 @@ def corr_stopped_construction(s):
     return ("Дварфы приостановили строительство %s." % genitive_case(hst.group(1))).capitalize()
 
 # Корректировка для окончания s - перевод существительного во множественное число или глагола в 3-е лицо ед.ч.
-re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*s\b)')
+re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*e?s\b)')
 def corr_ending_s(s):
     print("corr_ending_s")
     hst=re_ending_s.search(s)
