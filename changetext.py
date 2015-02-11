@@ -524,6 +524,7 @@ gender_item = {
 
     "червь": masculine,
     "коза": feminine,
+    "галька": feminine
 }
 
 make_adjective = {
@@ -1176,7 +1177,7 @@ body_parts = {"панцирь", "скелет", "искалеченный тру
               " хвост"}
 
 # выражения типа (из меди кирки [3])
-re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+\/?\s?\-?\w+?\b)")
+re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+/?\s?\-?\w+?\b)")
 
 
 def corr_item_1(s):
@@ -1192,19 +1193,16 @@ def corr_item_1(s):
     # gender = masculine # по-умолчанию мужской род - включить в окончательной версии
     if new_word in phrases:
         new_word = phrases[new_word]
-        s_temp = s_temp.replace(words[-1], new_word)
 
-    gender = None
-    if new_word in gender_item:
-        gender = gender_item[new_word]
-    elif new_word == "индив выбор":  # вынести в gender_item ?
+    if new_word == "индив выбор":  # вынести в gender_item ?
         gender = neuter
     elif " " in new_word:
         new_words = new_word.split(" ")
-        if new_words[1] in gender_item:
-            gender = gender_item[new_words[1]]
-        elif new_words[0] in gender_item:
-            gender = gender_item[new_words[0]]
+        gender = get_gender(new_words[1])
+        if not gender:
+            gender = get_gender(new_words[0])
+    else:
+        gender = get_gender(new_word)
 
     of_mat = hst.group(3)
 
@@ -1226,7 +1224,7 @@ def corr_item_1(s):
     return s
 
 # выражения типа "(из висмутовой бронзы кирка [3])"
-re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+\/?\s?\-?\w+?\b))")
+re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+/?\s?\-?\w+?\b))")
 
 
 def corr_item_2(s):
@@ -1281,7 +1279,7 @@ def corr_item_3(s):
     return s
 
 # выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
-re_4 = re.compile("(приготовленные|рубленная)\s(.+)\s(\w+)")
+re_4 = re.compile(r"(приготовленные|рубленная)\s(.+)\s(\w+)")
 
 
 def corr_item_4(s):
@@ -1773,7 +1771,7 @@ re_3 = re.compile(
     r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольцоs|серьгаs|амулетs|браслетs|скипетрs|коронаs|статуэткаs\b)')
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 re_skin = re.compile(r'(\(?)(.+)\s(из кожи)')
-re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|\♀)')
+re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
 re_container = re.compile(r'\((.+)\s(бочка|мешок)\s\((.+)\)(.+)?\)')
 re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
