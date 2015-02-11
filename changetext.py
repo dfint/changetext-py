@@ -1021,6 +1021,7 @@ dict_ending_s = {
     'Лорд молота': 'Лорды молота',
     'Мастер меча': 'Мастера меча',
     'Мастер копья': 'Мастера копья',
+    'очко': 'очков'
 }
 
 
@@ -1187,13 +1188,14 @@ def corr_item_1(s):
     if s_temp[0] == "р" and s_temp[-1] == "р":
         s_temp = s_temp[1:-1]
         symbol = "≡"
-    words = s_temp.split(" ")
+    words = s_temp.split()
     new_word = ' '.join(words[2:])
     # gender = masculine # по-умолчанию мужской род - включить в окончательной версии
     if new_word in phrases:
         new_word = phrases[new_word]
         s_temp = s_temp.replace(words[-1], new_word)
 
+    gender = None
     if new_word in gender_item:
         gender = gender_item[new_word]
     elif new_word == "индив выбор":  # вынести в gender_item ?
@@ -1447,7 +1449,6 @@ def corr_item_12(s):
     if " " in group1:
         print(12.1)
         words = group1.split(" ")
-        first_word = words[0]
         first_words = []
         gender = get_gender(obj)
         for word in words:
@@ -1763,9 +1764,9 @@ re_crafts = re.compile(r"([\w\s]+) (кольцо|кольца)")
 def corr_crafts(s):
     print("corr_crafts")
     hst = re_crafts.search(s)
-    object = hst.group(2)
+    obj = hst.group(2)
     description = hst.group(1)
-    return s.replace(hst.group(0), "%s из %s" % (object, genitive_case(description)))
+    return s.replace(hst.group(0), "%s из %s" % (obj, genitive_case(description)))
 
 ############################################################################
 # компилированные регулярные выражения
