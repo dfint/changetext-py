@@ -1540,15 +1540,15 @@ def corr_item_15(s):
 # кузница
 def corr_item_16(s):
     print(16)
-    hst=re_15.search(s)
-    hst_1=re_15_1.search(s)
+    hst = re_15.search(s)
+    hst_1 = re_15_1.search(s)
     if hst.group(3) in accusative_case:
-        item=accusative_case[hst.group(3)]
-        material_temp=make_adjective[hst.group(2)][0]
-        material=material_temp[:-2]+"ую"
-        s=hst.group(1)+" "+material+" "+item
-        s=s.replace("Кузница","Ковать")
-        s=s.replace("Наконечники стрел","наконечники стрел баллисты")
+        item = accusative_case[hst.group(3)]
+        material_temp = make_adjective[hst.group(2)][0]
+        material = material_temp[:-2] + "ую"
+        s = hst.group(1) + " " + material + " " + item
+        s = s.replace("Кузница", "Ковать")
+        s = s.replace("Наконечники стрел", "наконечники стрел баллисты")
         return s.capitalize()
     if hst.group(2) in make_adjective:
         gender=gender_item[hst.group(3)]
