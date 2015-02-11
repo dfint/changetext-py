@@ -1235,10 +1235,10 @@ def corr_item_2(s):
     print(hst.group(2))
     print(hst.group(3))
 
-    object = hst.group(3)
-    if " " in object:
-        words = object.split()
-        object = words[-1]
+    obj = hst.group(3)
+    if " " in obj:
+        words = obj.split()
+        obj = words[-1]
         gender = get_gender(words[-1])
         adjs = []
         for adj in words[:-1]:
@@ -1247,9 +1247,9 @@ def corr_item_2(s):
                 new_adj = adj
             adjs.append(new_adj)
 
-        first_part = "%s %s" % (" ".join(adjs), object)
+        first_part = "%s %s" % (" ".join(adjs), obj)
     else:
-        first_part = object
+        first_part = obj
 
     s = s.replace(hst.group(1), first_part + " " + hst.group(2))
     return s
@@ -1297,7 +1297,7 @@ def corr_item_skin(s):
     s = s.replace(hst.group(0), hst.group(1) + "кожа " + genitive_case(hst.group(2)))
     return s
 
-#выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
+# выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
 re_6 = re.compile(
     r'^([x\(+*-«☼]*)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+?\b)')
 
@@ -1311,7 +1311,7 @@ def corr_item_6(s):
     s = s.replace("правый", "правая")
     return s
 
-#выражения типа "древесина дуба брёвна"
+# выражения типа "древесина дуба брёвна"
 re_7 = re.compile(r'(древесина)\s(\w+)\s(брёвна)')
 
 
@@ -1326,7 +1326,7 @@ def corr_item_7(s):
         s = s.replace(hst.group(0), hst.group(1) + " " + hst.group(2))  # древесина акации
     return s
 
-#выражения типа "(бриолетовый восковые опалы)"
+# выражения типа "(бриолетовый восковые опалы)"
 re_gem_cutting = re.compile(r'((бриолетовый|большой|огранённый|огранённый|грубый)\s[\w\s-]+)')
 
 
@@ -1353,7 +1353,7 @@ def corr_item_8(s):
 
     return s.replace(hst.group(0), " ".join(new_list))
 
-#выражения типа "гигантский из ясеня лезвия топоров"
+# выражения типа "гигантский из ясеня лезвия топоров"
 re_9 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s[\w\s]+\b)')
 
 
@@ -1398,7 +1398,7 @@ def corr_item_9(s):
     return s
 
 
-#"животные"
+# "животные"
 def corr_item_10(s):
     print(10)
     s = s.replace("сырой", "сырая")
@@ -1411,7 +1411,7 @@ def corr_item_10(s):
     return s
 
 
-#выражения типа "(дварфийское пиво бочка (из ольхи))"
+# выражения типа "(дварфийское пиво бочка (из ольхи))"
 def corr_item_11(s):
     print(11)
     hst = re_container.search(s)
@@ -1430,12 +1430,14 @@ re_13 = re.compile(
     r'(.+)\s(Подъем|Стена|Кластер|валун|склон|Пол Пещеры|лестница вверх/вниз|пол пещеры|Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b')
 #    (прилагательное) (первое дополнение) (второе дополнение) =>
 # => (прилагательное) (второе дополнение) из (первое дополнение)
+
+
 def corr_item_12(s):
     print(12)
     hst = re_13.search(s)
     group1 = hst.group(1)
-    object = hst.group(2)
-    if object == "деревце":
+    obj = hst.group(2)
+    if obj == "деревце":
         if group1.split(" ")[0] == "Мёртвый":
             s = "Мёртвое деревце (" + ''.join(hst.group(0).split(" ")[1:-1]) + ")"
         else:
@@ -1447,7 +1449,7 @@ def corr_item_12(s):
         words = group1.split(" ")
         first_word = words[0]
         first_words = []
-        gender = get_gender(object)
+        gender = get_gender(obj)
         for word in words:
             if word in {"Заснеженный", "Неотесанный", "Влажный"}:
                 if gender is not None:
@@ -1469,10 +1471,10 @@ def corr_item_12(s):
 
         if not first_words:
             print("12.1.1")
-            s = "%s из %s" % (object, " ".join(words))
+            s = "%s из %s" % (obj, " ".join(words))
         else:
             print("12.1.2")
-            s = "%s %s из %s" % (" ".join(first_words), object, " ".join(words))
+            s = "%s %s из %s" % (" ".join(first_words), obj, " ".join(words))
     else:
         print(12.2)
         first_word = group1
@@ -1480,23 +1482,23 @@ def corr_item_12(s):
 
         if new_first_word:
             first_word = new_first_word
-        s = "%s из %s" % (object, genitive_case(first_word))
+        s = "%s из %s" % (obj, genitive_case(first_word))
 
     if "иза" in s:
         s = s.replace(" иза", "")
     return s.capitalize()
 
 
-#"Густой и тп"
+# "Густой и тп"
 def corr_item_13(s):
     print(13)
     hst = re_13_1.search(s)
     adjective = hst.group(1)
-    object = hst.group(2)
+    obj = hst.group(2)
 
-    if " " in object:
+    if " " in obj:
         print(13.1)
-        words = object.split(" ")
+        words = obj.split(" ")
         if is_adjective(words[0]):
             print("13.1.1")
             gender = get_gender(words[-1])
@@ -1506,14 +1508,14 @@ def corr_item_13(s):
             s = s.replace(adjective, new_word)
     else:
         print(13.2)
-        new_word = gender_adjective(adjective, object, nominative)
+        new_word = gender_adjective(adjective, obj, nominative)
         if new_word:
             print("13.2.1")
-            s = new_word + " " + object
+            s = new_word + " " + obj
 
     return s.capitalize()
 
-#"Скелет, останки и тп"
+# "Скелет, останки и тп"
 re_body_parts = re.compile(
     r'^[{]?(\w+\s?\w+?|)\s(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп|голень)\}?\b')
 
@@ -1529,7 +1531,7 @@ def corr_item_body_parts(s):
     return s.capitalize()
 
 
-#"Изделия из стекла"
+# "Изделия из стекла"
 def corr_item_15(s):
     print(15)
     hst = re_14.search(s)
@@ -1537,23 +1539,22 @@ def corr_item_15(s):
     return s.capitalize()
 
 
+re_15 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+)\s(\w+\s?\w+?\b)")
+re_15_1 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)")
+
+
 # кузница
 def corr_item_16(s):
     print(16)
     hst = re_15.search(s)
     hst_1 = re_15_1.search(s)
-    if hst.group(3) in accusative_case:
-        item = accusative_case[hst.group(3)]
-        material_temp = make_adjective[hst.group(2)][0]
-        material = material_temp[:-2] + "ую"
-        s = hst.group(1) + " " + material + " " + item
-        s = s.replace("Кузница", "Ковать")
-        s = s.replace("Наконечники стрел", "наконечники стрел баллисты")
-        return s.capitalize()
     if hst.group(2) in make_adjective:
-        gender = gender_item[hst.group(3)]
+        item = hst.group(3)
+        gender = gender_item[item]
+        if item in accusative_case:
+            item = accusative_case[item]
         material = gender_adjective_2(make_adjective[hst.group(2)], gender, accusative)
-        s = hst.group(1) + " " + material + " " + hst.group(3)
+        s = hst.group(1) + " " + material + " " + item
     elif hst_1.group(2) in make_adjective:
         item = hst_1.group(3)
         if item in accusative_case:
@@ -1591,7 +1592,7 @@ def corr_item_17(s):
         if word[-3:] in gem_okonch_tv:
             word = word[:-3] + gem_okonch_tv[word[-3:]]
         else:
-            word = word + "ом"
+            word += "ом"
         if word == "изом":
             word = ""
         gem = (gem + " " + word).strip()
@@ -1614,6 +1615,7 @@ gender_item["селение"] = neuter
 gender_item["горный город"] = masculine
 gender_item["городок"] = masculine
 gender_item["гробница"] = feminine
+
 
 # убежище, крепость
 def corr_settlement(s):
@@ -1766,7 +1768,7 @@ def corr_crafts(s):
     return s.replace(hst.group(0), "%s из %s" % (object, genitive_case(description)))
 
 ############################################################################
-#компилированные регулярные выражения
+# компилированные регулярные выражения
 re_3 = re.compile(
     r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольцоs|серьгаs|амулетs|браслетs|скипетрs|коронаs|статуэткаs\b)')
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
@@ -1776,8 +1778,6 @@ re_container = re.compile(r'\((.+)\s(бочка|мешок)\s\((.+)\)(.+)?\)')
 re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
 re_14 = re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(зелёное стекло|прозрачное стекло|хрусталь)\s(\w+)')
-re_15 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+)\s(\w+\s?\w+?\b)")
-re_15_1 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)")
 re_16 = re.compile(
     r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
 re_corpses = re.compile(r'(трупs)\s(.+)')
@@ -1792,6 +1792,7 @@ verbs = {
     "душит", "пропускает", "истёк",
     "помещает",  # помещатет удушающий захват - заменить на что-то другое
 }
+
 
 ############################################################################
 def Init():
@@ -1896,7 +1897,7 @@ def ChangeText(s):
         print("", file=sys.stderr)
         output = None
 
-    if debug and s not in logged:
+    if debug and output and s not in logged:
         print('"%s" ---------> "%s"' % (s, output), file=log_file)
         log_file.flush()
         logged.add(s)
