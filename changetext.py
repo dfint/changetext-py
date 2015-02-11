@@ -1551,9 +1551,9 @@ def corr_item_16(s):
         s = s.replace("Наконечники стрел", "наконечники стрел баллисты")
         return s.capitalize()
     if hst.group(2) in make_adjective:
-        gender=gender_item[hst.group(3)]
-        material=make_adjective[hst.group(2)][gender]
-        s=hst.group(1)+" "+material+" "+hst.group(3)
+        gender = gender_item[hst.group(3)]
+        material = gender_adjective_2(make_adjective[hst.group(2)], gender, accusative)
+        s = hst.group(1) + " " + material + " " + hst.group(3)
     elif hst_1.group(2) in make_adjective:
         item = hst_1.group(3)
         if item in accusative_case:
