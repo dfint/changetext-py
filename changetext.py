@@ -1830,7 +1830,7 @@ def ChangeText(s):
             s = corr_with_his(s)
             result = s
 
-        if 'Я' in s and 'колодец' in s:
+        if 'Я ' in s and 'колодец' in s:
             s = s.replace('колодец', 'хорошо')
             if 'чувствую' in s and 'чувствую себя' not in s:
                 s = s.replace('чувствую', 'чувствую себя')
