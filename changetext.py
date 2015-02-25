@@ -1304,7 +1304,6 @@ re_6 = re.compile(
 def corr_item_6(s):
     print(6)
     hst = re_6.search(s)
-    new_word = hst.group(4)
     s = s.replace(hst.group(0), hst.group(1) + hst.group(4) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
     s = s.replace("левый", "левая")
     s = s.replace("правый", "правая")
