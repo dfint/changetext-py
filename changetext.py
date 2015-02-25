@@ -1830,6 +1830,12 @@ def ChangeText(s):
             s = corr_with_his(s)
             result = s
 
+        if 'Я' in s and 'колодец' in s:
+            s = s.replace('колодец', 'хорошо')
+            if 'чувствую' in s and 'чувствую себя' not in s:
+                s = s.replace('чувствую', 'чувствую себя')
+            result = s
+
         if re_1.search(s):
             if re_1.search(s).group(0) in make_adjective:
                 result = re_1.search(s).group(0)
