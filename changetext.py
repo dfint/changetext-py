@@ -1910,7 +1910,12 @@ def _ChangeText(s):
 
 
 def ChangeText(s):
-    return _ChangeText(s.decode("utf-16")).encode("utf-16")
+    output = _ChangeText(s.decode("utf-16"))
+    if output is None:
+        return None
+    else:
+        return output.encode("utf-16")
+    
 
 
 if __name__ == '__main__':
