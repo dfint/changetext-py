@@ -1802,7 +1802,7 @@ Init()
 
 debug = True
 if debug:
-    log_file = open('changetext.log', 'a', 1, encoding='cp65001')
+    log_file = open('changetext.log', 'a', 1, encoding='utf-8')
 else:
     log_file = None
 
