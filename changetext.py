@@ -1809,7 +1809,7 @@ else:
 logged = set()
 
 
-def ChangeText(s):
+def _ChangeText(s):
     def ChangeText_internal(s):
         result = None
         # prepocessing:
@@ -1909,10 +1909,14 @@ def ChangeText(s):
     return output
 
 
+def ChangeText(s):
+    return _ChangeText(s.decode("utf-16")).encode("utf-16")
+
+
 if __name__ == '__main__':
     if test_strings:
         for key in test_strings:
-            result = ChangeText(key)
+            result = _ChangeText(key)
             try:
                 assert (result == test_strings[key])
             except AssertionError:
