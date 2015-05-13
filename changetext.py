@@ -1914,7 +1914,7 @@ def ChangeText(s):
     if output is None:
         return None
     else:
-        return output.encode("utf-16")
+        return output.encode("utf-16")[2:] + bytes(2)  # Truncate BOM marker and add b'\0\0' to the end
     
 
 
