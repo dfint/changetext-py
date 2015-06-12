@@ -1025,8 +1025,20 @@ dict_ending_s = {
     'очко': 'очков'
 }
 
+pm_genders = {'masc': masculine, 'femn': feminine, 'neut': neuter, 'plur': plural, None: None}
 
-def get_gender(obj):
+
+def pm_gender(parse):
+    tag = parse.tag
+    if tag.number == 'plur':
+        gender = tag.number
+    else:
+        gender = tag.gender
+    print("pm_gender() is %s" % gender)
+    return pm_genders[gender]
+
+
+def legacy_gender(obj):
     if obj in gender_item:
         return gender_item[obj]
     elif len(obj) >= 2:
@@ -1040,9 +1052,34 @@ def get_gender(obj):
             return neuter
         elif ending2 in ending_plur or ending1 in ending_plur:
             return plural
-    print("get_gender:")
     print("Gender not recognized for '%s'" % obj)
     return None
+
+
+def get_gender(obj):
+    def is_suitable(parse):
+        if len(parse) >= 2 and parse[0].score > parse[1].score:
+            return True
+        score = parse[0].score
+        gender = pm_gender(parse[0])
+        for p in parse[1:]:
+            if abs(p.score - score) > 1e-5:
+                break
+            if pm_gender(p) != gender:
+                return False
+        return True
+
+    print("get_gender('%s')" % obj)
+    parse = morph.parse(obj)
+    print('pymorphy2 parse:')
+    for p in parse:
+        print(p)
+    if is_suitable(parse):
+        print('pymorphy2 method')
+        return pm_gender(parse[0])
+    else:
+        print('Using legacy method')
+        return legacy_gender(obj)
 
 
 def gender_adjective_2(adjective, gender, case=nominative):
@@ -1803,8 +1840,8 @@ def Init():
 
 Init()
 
-debug = True
-if debug:
+log = True
+if log:
     log_file = open('changetext.log', 'a', 1, encoding='utf-8')
 else:
     log_file = None
@@ -1904,7 +1941,7 @@ def _ChangeText(s):
         print("", file=sys.stderr)
         output = None
 
-    if debug and s not in logged:
+    if log and s not in logged:
         print('"%s" --> "%s"' % (s, output), file=log_file)
         log_file.flush()
         logged.add(s)
@@ -1935,5 +1972,5 @@ if __name__ == '__main__':
                 raise
     input()
 else:  # if runned not as a script
-    if debug:
+    if log:
         sys.stdout = log_file  # redirect standard output to the log file
