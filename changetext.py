@@ -2,6 +2,9 @@ import sys
 import re
 import traceback
 
+import pymorphy2
+morph = pymorphy2.MorphAnalyzer()
+
 try:
     from tests import test_strings
 except ImportError:
