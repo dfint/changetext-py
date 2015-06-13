@@ -1214,7 +1214,7 @@ def genitive_case_single_noun(word):
     print(word)
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
     # parse = morph.parse(word)
-    if word.lower() in gent_case_except:
+    if word.lower() in gent_case_except or not parse:
         if word in iskl:
             return iskl[word]
         elif word[-3:] in endings_to_genitive:
@@ -1723,6 +1723,9 @@ gender_item["гробница"] = feminine
 gender_item["пригорки"] = plural
 
 
+re_settlement = re.compile(r'(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)')
+
+
 # убежище, крепость
 def corr_settlement(s):
     print("corr_settlement")
@@ -1733,7 +1736,10 @@ def corr_settlement(s):
 
     if len(adjective) == 0:
         return "%s %s" % (settlement.capitalize(), name.capitalize())
-
+    
+    if adjective in {'Покинуть', 'Разрушить'}:
+        return
+    
     gender = gender_item[settlement]
     if " " not in adjective:
         adjective_2 = inflect_adjective_2(adjective, gender)
@@ -1887,7 +1893,6 @@ re_14 = re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s
 re_16 = re.compile(
     r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
 re_corpses = re.compile(r'(трупs)\s(.+)')
-re_settlement = re.compile(r'(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)')
 re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
 re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
 re_stopped_construction = re.compile(r' дварфы приостановили строительство (\w+).')
