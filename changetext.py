@@ -1206,19 +1206,32 @@ iskl = {
     'известняка': 'известняка',
 }
 
+gent_case_except = {
+    'луговник',  # определяет как глагол
+    'шпинель',  # определяет как сущ. м.р.
+    'стена',  # определяет как сущ. м.р.
+    'лиса',  # определяет как сущ. м.р.
+}
 
 def genitive_case_single_noun(word):
     print('genitive_case_single_noun')
     print(word)
-    if word in iskl:
-        return iskl[word]
-    elif word[-3:] in endings_to_genitive:
-        return word[:-3] + endings_to_genitive[word[-3:]]
-    elif word[-2:] in endings_to_genitive:
-        return word[:-2] + endings_to_genitive[word[-2:]]
-    elif word[-1] in {"к", "т", "н"}:
-        return word + "а"
-
+    parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
+    # parse = morph.parse(word)
+    if word.lower() in gent_case_except:
+        if word in iskl:
+            return iskl[word]
+        elif word[-3:] in endings_to_genitive:
+            return word[:-3] + endings_to_genitive[word[-3:]]
+        elif word[-2:] in endings_to_genitive:
+            return word[:-2] + endings_to_genitive[word[-2:]]
+        elif word[-1] in {"к", "т", "н"}:
+            return word + "а"
+    else:
+        print(parse)
+        genitive = parse[0].inflect({'gent'})
+        print(genitive)
+        return genitive.word
 
 def is_adjective(word):
     def POS_of_all(parse):
