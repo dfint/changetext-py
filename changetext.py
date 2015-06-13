@@ -412,15 +412,19 @@ feminine = 1  # ж. род
 neuter = 2  # ср. род
 plural = 3  # мн. ч.
 
+gender_names = ('masc', 'femn', 'neut', 'plur')
+
 # падежи
 nominative = 0  # именительный
 genitive = 1  # родительный
 dative = 2  # дательный
 accusative = 3  # винительный
 instrumental = 4  # творительный
+ablative = instrumental
 prepositional = 5  # предложный
+locative = prepositional
 
-case_names = ["nominative", "genitive", "dative", "accusative", "instrumental", "prepositional"]
+case_names = ("nomn", "gent", "datv", "accs", "ablt", "loct")
 
 gender_item = {
     # предметы
@@ -467,7 +471,7 @@ gender_item = {
     "ларецы": plural, "тренировочные копья": plural, "флейты-пикколо": plural,
     "игрушечные молотки": plural, "игрушечные топорики": plural,
     "мини-кузницы": plural, "стрелы": plural, "дротики": plural, "баклеры": plural,
-    "короткие мечи": plural, "слитки": plural, "шины": plural, "костыли": plural, "бочки": plural,
+    "короткие мечи": plural, "мечи": plural, "слитки": plural, "шины": plural, "костыли": plural, "бочки": plural,
     "клетки": plural, "ульи": plural, "горшки": plural, "гнёзда": plural, "вёдра": plural,
     "фляги": plural, "бурдюки": plural, "блоки": plural, "барабаны": plural,
     "браслеты": plural, "скипетры": plural, "короны": plural, "статуэтки": plural, "кольца": plural,
@@ -862,16 +866,17 @@ adjective_cases = {
         ("жим", "жей", "жим", "жими"),  # творительный  - instrumental
         ("жем", "жей", "жем", "жих"),  # предложный  - prepositional
     ),
-    "чий":  # куропаточий etc.
+    "чий":  # летучий etc.
     (
-        ("чий", "чья", "чье", "чьи"),  # именительный - nominative
-        ("чьего", "чьей", "чьего", "чьих"),  # родительный - genitive
-        ("чьему", "чьей", "чьему", "чьим"),  # дательный - dative
-        ("чьего", "чью", "чье", "чьих"),  # винительный  - accusative
-        ("чьим", "чьей", "чьим", "чьими"),  # творительный  - instrumental
-        ("чьем", "чьей", "чьем", "чьих"),  # предложный  - prepositional
+        ("чий", "чая", "чее", "чие"),  # именительный - nominative
+        ("чего", "чей", "чего", "чих"),  # родительный - genitive
+        ("чему", "чей", "чему", "чим"),  # дательный - dative
+        ("чего", "чую", "чее", "чих"),  # винительный  - accusative
+        ("чим", "чей", "чим", "чими"),  # творительный  - instrumental
+        ("чем", "чей", "чем", "чих"),  # предложный  - prepositional
     ),
 }
+
 
 accusative_case = {
     'булава': "булаву",
@@ -1056,15 +1061,26 @@ def legacy_gender(obj):
     return None
 
 
+def most_probable(parse, score=None):
+    if score is None:
+        score = parse[0].score
+    for p in parse:
+        assert(score >= p.score)
+        if score - p.score > 1e-5:
+            break
+        yield p
+
+
+gender_exceptions = {'шпинель'}
+
+
 def get_gender(obj):
     def is_suitable(parse):
         if len(parse) >= 2 and parse[0].score > parse[1].score:
             return True
         score = parse[0].score
         gender = pm_gender(parse[0])
-        for p in parse[1:]:
-            if abs(p.score - score) > 1e-5:
-                break
+        for p in most_probable(parse[1:], score):
             if pm_gender(p) != gender:
                 return False
         return True
@@ -1074,7 +1090,7 @@ def get_gender(obj):
     print('pymorphy2 parse:')
     for p in parse:
         print(p)
-    if is_suitable(parse):
+    if obj not in gender_exceptions and is_suitable(parse):
         print('pymorphy2 method')
         return pm_gender(parse[0])
     else:
@@ -1082,24 +1098,47 @@ def get_gender(obj):
         return legacy_gender(obj)
 
 
-def gender_adjective_2(adjective, gender, case=nominative):
-    ending3 = adjective[-3:]
-    ending2 = adjective[-2:]
-    if ending3 in adjective_cases:
-        return adjective[:-3] + adjective_cases[ending3][case][gender]
-    elif ending2 in adjective_cases:
-        return adjective[:-2] + adjective_cases[ending2][case][gender]
-    print("gender_adjective_2:")
-    print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case - 1]))
-    return None
+adj_except = {
+    'шёлковый',  # склоняет как одушевлённое - "шёлкового", нужно - "шёлковый"
+    'медный',  # склоняет как одушевлённое - "медного"
+    'заснеженный',  # склоняет как разговорное - "заснежённый", нужно - "заснеженный"
+}
 
 
-def gender_adjective(adjective, obj, case):
+def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
+    if adjective.lower() in adj_except:
+        ending3 = adjective[-3:]
+        ending2 = adjective[-2:]
+        if ending3 in adjective_cases:
+            return adjective[:-3] + adjective_cases[ending3][case][gender]
+        elif ending2 in adjective_cases:
+            return adjective[:-2] + adjective_cases[ending2][case][gender]
+        print("gender_adjective_2:")
+        print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case - 1]))
+        return None
+    else:
+        parse = morph.parse(adjective)[0]
+        print('inflect_adjective_2:')
+        print(parse)
+        assert(gender is not None)
+        form_set = {gender_names[gender], case_names[case]}
+        print('animated=%s'%animated)
+        if animated is not None:
+            form_set.add('anim' if animated else 'inan')
+        print(form_set)
+        new_form = parse.inflect(form_set)
+        print(new_form)
+        ret = new_form.word
+        print('%s -> %s' % (adjective, ret))
+        return ret
+
+
+def inflect_adjective(adjective, obj, case, **pargs):
     gender = get_gender(obj)
     if gender is None:
         return None
     else:
-        return gender_adjective_2(adjective, gender, case)
+        return inflect_adjective_2(adjective, gender, case, **pargs)
 
 # существительные+ прилаг
 endings_to_genitive = {
@@ -1162,11 +1201,15 @@ iskl = {
     'корова': 'коровы',
     'сумерками': 'сумеречной',
     'камень': 'каменных',
-    'шпинель': 'шпинели'
+    'шпинель': 'шпинели',
+    'сланца': 'сланца',
+    'известняка': 'известняка',
 }
 
 
 def genitive_case_single_noun(word):
+    print('genitive_case_single_noun')
+    print(word)
     if word in iskl:
         return iskl[word]
     elif word[-3:] in endings_to_genitive:
@@ -1178,29 +1221,45 @@ def genitive_case_single_noun(word):
 
 
 def is_adjective(word):
-    is_adj = len(word) >= 2 and word[-2:] in adjective_endings_masculine
-    if not is_adj:
-        print("'%s' not recognized as an adjective" % word)
-    return is_adj
+    def POS_of_all(parse):
+        POS = None
+        for p in parse:
+            if POS is None:
+                POS = p.tag.POS
+            elif p.tag.POS != POS:
+                return None
+        return POS
+
+    parse = most_probable(morph.parse(word))
+    POS = POS_of_all(parse)
+    print(POS)
+    if POS:
+        return POS == 'ADJF'
+    else:
+        is_adj = len(word) >= 2 and word[-2:] in adjective_endings_masculine
+        if not is_adj:
+            print("'%s' not recognized as an adjective" % word)
+        return is_adj
 
 
 def genitive_case_list(words):
     print("genitive_case_list")
     print(words)
-    new_list = []
     gender = get_gender(words[-1])
     if gender is None:
         print("Assuming gender of '%s' is masculine" % words[-1])
         gender = masculine
-    for word_temp in words:
-        if is_adjective(word_temp):
-            print(word_temp, "is adj")
-            word_temp = gender_adjective_2(word_temp, gender, genitive)
+    for word in words:
+        if is_adjective(word):
+            print(word, "is adj")
+            parse = morph.parse(word)[0]
+            if parse.tag.gender != 'masc':
+                word = parse.normal_form
+            word = inflect_adjective_2(word, gender, genitive)
         else:
-            print(word_temp, "isn't adj")
-            word_temp = genitive_case_single_noun(word_temp)
-        new_list.append(word_temp)
-    return new_list
+            print(word, "isn't adj")
+            word = genitive_case_single_noun(word)
+        yield word
 
 
 def genitive_case(word):
@@ -1251,7 +1310,7 @@ def corr_item_1(s):
             print("make_adjective['%s'] is tuple" % of_mat)
             material = make_adjective[of_mat][gender]
         else:
-            material = gender_adjective_2(make_adjective[of_mat], gender)
+            material = inflect_adjective_2(make_adjective[of_mat], gender)
         s_temp = material + " " + new_word
     else:
         s_temp = new_word + " " + hst.group(3)
@@ -1281,7 +1340,7 @@ def corr_item_2(s):
         gender = get_gender(words[-1])
         adjs = []
         for adj in words[:-1]:
-            new_adj = gender_adjective_2(adj, gender)
+            new_adj = inflect_adjective_2(adj, gender)
             if new_adj is None:
                 new_adj = adj
             adjs.append(new_adj)
@@ -1358,7 +1417,7 @@ def corr_item_7(s):
     hst = re_7.search(s)
     of_wood = "из " + hst.group(2)
     if of_wood in make_adjective:
-        adj = gender_adjective_2(make_adjective[of_wood], plural)
+        adj = inflect_adjective_2(make_adjective[of_wood], plural)
         s = s.replace(hst.group(0), adj + " " + hst.group(3))  # берёзовые брёвна
     else:
         s = s.replace(hst.group(0), hst.group(1) + " " + hst.group(2))  # древесина акации
@@ -1384,7 +1443,7 @@ def corr_item_8(s):
     for word in words[:-1]:
         if word in make_adjective:
             adj = make_adjective[word]
-            word = gender_adjective_2(adj, gender)
+            word = inflect_adjective_2(adj, gender)
         new_list.append(word)
 
     new_list.append(words[-1])
@@ -1410,12 +1469,12 @@ def corr_item_9(s):
         print("object gender:", gender)
         if adj not in make_adjective and " " in adj:
             adj_words = adj.split()
-            new_words = [gender_adjective_2(make_adjective[word], gender) for word in adj_words]
+            new_words = [inflect_adjective_2(make_adjective[word], gender) for word in adj_words]
             new_adj = " ".join(new_words)
         else:
-            new_adj = gender_adjective_2(make_adjective[adj], gender)
+            new_adj = inflect_adjective_2(make_adjective[adj], gender)
         print(adj, ":", new_adj)
-        new_word_2 = gender_adjective_2(make_adjective[material], gender)
+        new_word_2 = inflect_adjective_2(make_adjective[material], gender)
         print(material, ":", new_word_2)
         s = s.replace(hst.group(0), "%s %s %s" % (new_adj, new_word_2, obj))
     else:
@@ -1427,10 +1486,10 @@ def corr_item_9(s):
         gender = gender_item[obj]
         if adj not in make_adjective and " " in adj:
             adj_words = adj.split()
-            new_words = [gender_adjective_2(make_adjective[word], gender) for word in adj_words]
+            new_words = [inflect_adjective_2(make_adjective[word], gender) for word in adj_words]
             new_adj = " ".join(new_words)
         else:
-            new_adj = gender_adjective_2(make_adjective[adj], gender)
+            new_adj = inflect_adjective_2(make_adjective[adj], gender)
         print(adj, ":", new_adj)
         s = s.replace(hst.group(0), "%s %s %s" % (new_adj, obj, material))
     return s
@@ -1490,7 +1549,7 @@ def corr_item_12(s):
         for word in words:
             if word in {"Заснеженный", "Неотесанный", "Влажный"}:
                 if gender is not None:
-                    new_word = gender_adjective_2(word, gender)
+                    new_word = inflect_adjective_2(word, gender)
                     if not new_word:
                         new_word = word
                 else:
@@ -1515,7 +1574,7 @@ def corr_item_12(s):
     else:
         print(12.2)
         first_word = group1
-        new_first_word = gender_adjective(first_word, group1, genitive)
+        new_first_word = inflect_adjective(first_word, group1, genitive)
 
         if new_first_word:
             first_word = new_first_word
@@ -1539,13 +1598,13 @@ def corr_item_13(s):
         if is_adjective(words[0]):
             print("13.1.1")
             gender = get_gender(words[-1])
-            new_word = gender_adjective_2(words[0], gender, nominative)
+            new_word = inflect_adjective_2(words[0], gender, nominative)
             s = s.replace(words[0], new_word)
-            new_word = gender_adjective_2(adjective, gender, nominative)
+            new_word = inflect_adjective_2(adjective, gender, nominative)
             s = s.replace(adjective, new_word)
     else:
         print(13.2)
-        new_word = gender_adjective(adjective, obj, nominative)
+        new_word = inflect_adjective(adjective, obj, nominative)
         if new_word:
             print("13.2.1")
             s = new_word + " " + obj
@@ -1590,7 +1649,7 @@ def corr_item_16(s):
         gender = gender_item[item]
         if item in accusative_case:
             item = accusative_case[item]
-        material = gender_adjective_2(make_adjective[hst.group(2)], gender, accusative)
+        material = inflect_adjective_2(make_adjective[hst.group(2)], gender, accusative)
         s = hst.group(1) + " " + material + " " + item
     elif hst_1.group(2) in make_adjective:
         item = hst_1.group(3)
@@ -1668,9 +1727,9 @@ def corr_settlement(s):
 
     gender = gender_item[settlement]
     if " " not in adjective:
-        adjective_2 = gender_adjective_2(adjective, gender)
+        adjective_2 = inflect_adjective_2(adjective, gender)
     else:
-        adjective_2 = " ".join(gender_adjective_2(word, gender) for word in adjective.split(" "))
+        adjective_2 = " ".join(inflect_adjective_2(word, gender) for word in adjective.split(" "))
 
     if adjective_2 is None:
         adjective_2 = adjective
@@ -1760,7 +1819,7 @@ def corr_clothiers_shop(s):
         verb = "Вить"
     product_accus = accusative_case[product]
     if material == "шёлк":
-        material_adj = gender_adjective("шёлковый", product, accusative)
+        material_adj = inflect_adjective("шёлковый", product, accusative, animated=False)
         return ' '.join([verb, material_adj, product_accus])
     else:
         return ' '.join([verb, product_accus, of_material])
@@ -1955,7 +2014,6 @@ def ChangeText(s):
         return None
     else:
         return output.encode("utf-16")[2:] + bytes(2)  # Truncate BOM marker and add b'\0\0' to the end
-    
 
 
 if __name__ == '__main__':
