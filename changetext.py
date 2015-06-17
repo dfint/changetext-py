@@ -1332,27 +1332,22 @@ re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+/?\s?\-?\w+?\b))")
 def corr_item_2(s):
     print(2)
     hst = re_2.search(s)
-    print(hst.group(1))
-    print(hst.group(2))
-    print(hst.group(3))
-
+    initial_string = hst.group(1)
+    of_material = hst.group(2)
     obj = hst.group(3)
+    hst = None
     if " " in obj:
+        # 'из висмутовой бронзы кольчужный рейтузы' -> 'кольчужные рейтузы из висмутовой бронзы'
         words = obj.split()
         obj = words[-1]
-        gender = get_gender(words[-1])
-        adjs = []
-        for adj in words[:-1]:
-            new_adj = inflect_adjective_2(adj, gender)
-            if new_adj is None:
-                new_adj = adj
-            adjs.append(new_adj)
-
+        gender = get_gender(obj)
+        adjs = (inflect_adjective_2(adj, gender) or adj for adj in words[:-1])
         first_part = "%s %s" % (" ".join(adjs), obj)
     else:
+        # 'из висмутовой бронзы кирка' -> 'кирка из висмутовой бронзы'
         first_part = obj
 
-    s = s.replace(hst.group(1), first_part + " " + hst.group(2))
+    s = s.replace(initial_string, first_part + " " + of_material)
     return s
 
 
@@ -1945,7 +1940,8 @@ def _ChangeText(s):
 
         if re_1.search(s):
             if re_1.search(s).group(0) in make_adjective:
-                result = re_1.search(s).group(0)
+                # result = re_1.search(s).group(0)
+                pass
             elif re_1.search(s).group(3) in make_adjective:
                 result = corr_item_1(s)
             elif re_2.search(s).group(2) in make_adjective:
