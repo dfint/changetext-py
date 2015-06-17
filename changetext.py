@@ -1290,49 +1290,38 @@ body_parts = {"панцирь", "скелет", "искалеченный тру
 re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+/?[\s\-]?\w+?)")
 
 def corr_item_1(s):
-    print(1)
+    print('corr_item_1')
     start_sym = ""
     end_sym = ""
     hst = re_1.search(s)
-    s_temp = hst.group(3) + " " + hst.group(4)
-    if hst.group(2):
+    p_symbol = hst.group(2)
+    of_material = hst.group(3)
+    item = hst.group(4)
+    initial_string = p_symbol + of_material + " " + item
+    if p_symbol:
         start_sym = "≡"
-        if s_temp[-1] == 'р':
-            s_temp = s_temp[:-1]
+        if item[-1] == 'р':
+            item = item[:-1]
             end_sym = start_sym
-        
-    words = s_temp.split()
-    new_word = ' '.join(words[2:])
-    # gender = masculine # по-умолчанию мужской род - включить в окончательной версии
-    if new_word in phrases:
-        new_word = phrases[new_word]
-
-    if new_word == "индив выбор":  # вынести в gender_item ?
-        gender = neuter
-    elif " " in new_word:
-        new_words = new_word.split(" ")
+    
+    if " " in item:
+        new_words = item.split(" ")
         gender = get_gender(new_words[1])
         if not gender:
             gender = get_gender(new_words[0])
     else:
-        gender = get_gender(new_word)
+        gender = get_gender(item)
 
-    of_mat = hst.group(3)
-
-    if hst.group(3) in make_adjective:
-        if type(make_adjective[of_mat]) is tuple:
-            print("make_adjective['%s'] is tuple" % of_mat)
-            material = make_adjective[of_mat][gender]
-        else:
-            material = inflect_adjective_2(make_adjective[of_mat], gender)
-        s_temp = material + " " + new_word
+    if of_material in make_adjective:
+        adjective = make_adjective[of_material]
+        adjective = inflect_adjective_2(adjective, gender)
+        s_temp = adjective + " " + item
     else:
-        s_temp = new_word + " " + hst.group(3)
+        s_temp = item + " " + of_material
 
     if start_sym:
         s_temp = start_sym + s_temp + end_sym
-    s = s.replace(hst.group(2) + hst.group(3) + " " + hst.group(4), s_temp)
-    # s=s.replace("кольчужный","кольчужные")
+    s = s.replace(initial_string, s_temp)
 
     return s
 
