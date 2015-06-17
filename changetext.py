@@ -2023,17 +2023,20 @@ def _ChangeText(s):
 
 
 def ChangeText(s):
-    output = _ChangeText(s.decode("utf-16"))
-    if output is None:
-        return None
+    if type(s) is bytes:
+        output = _ChangeText(s.decode("utf-16"))
+        if output is None:
+            return None
+        else:
+            return output.encode("utf-16")[2:] + bytes(2)  # Truncate BOM marker and add b'\0\0' to the end
     else:
-        return output.encode("utf-16")[2:] + bytes(2)  # Truncate BOM marker and add b'\0\0' to the end
+        return _ChangeText(s)
 
 
 if __name__ == '__main__':
     if test_strings:
         for key in test_strings:
-            result = _ChangeText(key)
+            result = ChangeText(key)
             try:
                 assert (result == test_strings[key])
             except AssertionError:
