@@ -1285,17 +1285,22 @@ body_parts = {"панцирь", "скелет", "искалеченный тру
               " хвост"}
 
 # выражения типа (из меди кирки [3])
-re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+/?\s?\-?\w+?\b)")
-
+# Начало строки или один или несколько символов, потом возможно р (которая потом заменяется на символ "три черты"),
+# потом определение "из <материал одним словом>", потом подлежащее из одного или двух слов
+re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+/?[\s\-]?\w+?)")
 
 def corr_item_1(s):
     print(1)
-    symbol = ""
+    start_sym = ""
+    end_sym = ""
     hst = re_1.search(s)
-    s_temp = hst.group(2) + hst.group(3) + " " + hst.group(4)
-    if s_temp[0] == "р" and s_temp[-1] == "р":
-        s_temp = s_temp[1:-1]
-        symbol = "≡"
+    s_temp = hst.group(3) + " " + hst.group(4)
+    if hst.group(2):
+        start_sym = "≡"
+        if s_temp[-1] == 'р':
+            s_temp = s_temp[:-1]
+            end_sym = start_sym
+        
     words = s_temp.split()
     new_word = ' '.join(words[2:])
     # gender = masculine # по-умолчанию мужской род - включить в окончательной версии
@@ -1324,8 +1329,8 @@ def corr_item_1(s):
     else:
         s_temp = new_word + " " + hst.group(3)
 
-    if symbol:
-        s_temp = symbol + s_temp + symbol
+    if start_sym:
+        s_temp = start_sym + s_temp + end_sym
     s = s.replace(hst.group(2) + hst.group(3) + " " + hst.group(4), s_temp)
     # s=s.replace("кольчужный","кольчужные")
 
