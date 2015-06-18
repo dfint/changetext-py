@@ -1308,7 +1308,6 @@ def corr_item_01(s):
     elif (words[2] not in corr_item_01_except and
         any({'NOUN', 'gent'} in p.tag for p in morph.parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
-        print("Complex case")
         of_material = " ".join(words[:3])
         words = words[3:]
         assert(len(words)>0)
@@ -1322,7 +1321,6 @@ def corr_item_01(s):
         replacement_string = first_part + " " + of_material
     else:
         # Simple case, eg. "из бронзы"
-        print("Simple case")
         of_material = " ".join(words[:2])
         words = words[2:]
         item = words[-1]
