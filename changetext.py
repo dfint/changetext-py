@@ -1087,9 +1087,6 @@ def get_gender(obj):
 
     print("get_gender('%s')" % obj)
     parse = morph.parse(obj)
-    print('pymorphy2 parse:')
-    for p in parse:
-        print(p)
     if obj not in gender_exceptions and is_suitable(parse):
         print('pymorphy2 method')
         return pm_gender(parse[0])
@@ -1106,6 +1103,7 @@ adj_except = {
 
 
 def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
+    print('inflect_adjective_2')
     if adjective.lower() in adj_except:
         ending3 = adjective[-3:]
         ending2 = adjective[-2:]
@@ -1118,8 +1116,6 @@ def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
         return None
     else:
         parse = morph.parse(adjective)[0]
-        print('inflect_adjective_2:')
-        print(parse)
         assert(gender is not None)
         form_set = {gender_names[gender], case_names[case]}
         print('animated=%s'%animated)
@@ -1224,9 +1220,7 @@ def genitive_case_single_noun(word):
         elif word[-1] in {"к", "т", "н"}:
             return word + "а"
     else:
-        print(parse)
         genitive = parse[0].inflect({'gent'})
-        print(genitive)
         return genitive.word
 
 def is_adjective(word):
@@ -1284,70 +1278,70 @@ animals_female = {"собака", "самка", "крольчиха", "гусы�
 body_parts = {"панцирь", "скелет", "искалеченный труп", "останки", "кость", "кожа", "шёлк", "волокна", "шерсть", "мех",
               " хвост"}
 
-# выражения типа (из меди кирки [3])
-# Начало строки или один или несколько символов, потом возможно р (которая потом заменяется на символ "три черты"),
-# потом определение "из <материал одним словом>", потом подлежащее из одного или двух слов
-re_1 = re.compile(r"(^[(+*-«☼]*?)(р?)(из\s\w+)\s(\w+/?[\s\-]?\w+?)")
 
-def corr_item_1(s):
-    print('corr_item_1')
+re_01 = re.compile(r"^[(+*-«☼]*((p?)(из\s[\w\s\-/]+\b))")
+
+corr_item_01_except = {
+    "боевой",  # Avoid translation "из меди боевой топор" to "топор из меди боевой"
+    "кирки",  # Avoid recognition "кирки" as a noun in genitive
+}
+
+
+def corr_item_01(s):
+    print('corr_item_01("%s")' % s)
+    hst = re_01.search(s)
+    initial_string = hst.group(1)
+    p_symbol = hst.group(2)
+    words = hst.group(3).split()
     start_sym = ""
     end_sym = ""
-    hst = re_1.search(s)
-    p_symbol = hst.group(2)
-    of_material = hst.group(3)
-    item = hst.group(4)
-    initial_string = p_symbol + of_material + " " + item
     if p_symbol:
         start_sym = "≡"
-        if item[-1] == 'р':
-            item = item[:-1]
+        if word[-1][-1] == 'р':
+            word[-1] = word[-1][:-1]
             end_sym = start_sym
     
-    if " " in item:
-        new_words = item.split(" ")
-        gender = get_gender(new_words[1])
-        if not gender:
-            gender = get_gender(new_words[0])
+    if len(words)==2:
+        parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(words[1])))
+        assert(len(parse)==1)
+        replacement_string = parse[0].normal_form
+    elif (words[2] not in corr_item_01_except and
+        any({'NOUN', 'gent'} in p.tag for p in morph.parse(words[2]))):  # The third word is a noun in genitive
+        # Complex case, eg. "из висмутовой бронзы"
+        print("Complex case")
+        of_material = " ".join(words[:3])
+        words = words[3:]
+        assert(len(words)>0)
+        if len(words)==1:
+            first_part = words[0]
+        else:
+            obj = words[-1]
+            gender = get_gender(obj)
+            adjs = (inflect_adjective_2(adj, gender) or adj for adj in words[:-1])
+            first_part = "%s %s" % (" ".join(adjs), obj)
+        replacement_string = first_part + " " + of_material
     else:
-        gender = get_gender(item)
-
-    if of_material in make_adjective:
-        adjective = make_adjective[of_material]
-        adjective = inflect_adjective_2(adjective, gender)
-        s_temp = adjective + " " + item
-    else:
-        s_temp = item + " " + of_material
-
+        # Simple case, eg. "из бронзы"
+        print("Simple case")
+        of_material = " ".join(words[:2])
+        words = words[2:]
+        item = words[-1]
+        if of_material in make_adjective:
+            gender = get_gender(item)
+            if gender is None:
+                for item in reversed(words[:-2]):
+                    gender = get_gender(item)
+                    if gender is not None:
+                        break
+            adjective = make_adjective[of_material]
+            adjective = inflect_adjective_2(adjective, gender)
+            replacement_string = adjective + " " + " ".join(words)
+        else:
+            replacement_string = " ".join(words) + " " + of_material
+    
     if start_sym:
-        s_temp = start_sym + s_temp + end_sym
-    s = s.replace(initial_string, s_temp)
-
-    return s
-
-# выражения типа "(из висмутовой бронзы кирка [3])"
-re_2 = re.compile(r"\(?((из\s\w+\s\w+)\s(\w+/?\s?\-?\w+?\b))")
-
-
-def corr_item_2(s):
-    print(2)
-    hst = re_2.search(s)
-    initial_string = hst.group(1)
-    of_material = hst.group(2)
-    obj = hst.group(3)
-    hst = None
-    if " " in obj:
-        # 'из висмутовой бронзы кольчужный рейтузы' -> 'кольчужные рейтузы из висмутовой бронзы'
-        words = obj.split()
-        obj = words[-1]
-        gender = get_gender(obj)
-        adjs = (inflect_adjective_2(adj, gender) or adj for adj in words[:-1])
-        first_part = "%s %s" % (" ".join(adjs), obj)
-    else:
-        # 'из висмутовой бронзы кирка' -> 'кирка из висмутовой бронзы'
-        first_part = obj
-
-    s = s.replace(initial_string, first_part + " " + of_material)
+        replacement_string = start_sym + replacement_string + end_sym
+    s = s.replace(initial_string, replacement_string)
     return s
 
 
@@ -1937,15 +1931,9 @@ def _ChangeText(s):
             if 'чувствую' in s and 'чувствую себя' not in s:
                 s = s.replace('чувствую', 'чувствую себя')
             result = s
-
-        if re_1.search(s):
-            if re_1.search(s).group(0) in make_adjective:
-                # result = re_1.search(s).group(0)
-                pass
-            elif re_1.search(s).group(3) in make_adjective:
-                result = corr_item_1(s)
-            elif re_2.search(s).group(2) in make_adjective:
-                result = corr_item_2(s)
+        
+        if re_01.search(s):
+            result = corr_item_01(s)
         elif re_6.search(s):
             result = corr_item_6(s)
         elif re_4.search(s):
