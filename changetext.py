@@ -1511,6 +1511,8 @@ def corr_container(s):
     if s[0]=='р' and s[-1]=='р':
         s = '≡' + s[1:-1] + '≡'
         # s = '*' + s[1:-1] + '*'
+    elif s[0]=='р' and s[1].isupper():
+        s = '≡' + s[1:]
     hst = re_container.search(s)
     initial_string = hst.group(1)
     print('initial_string:', initial_string)
