@@ -582,21 +582,12 @@ make_adjective = {
     'из сосны': 'сосновый',
     'из кедра': 'кедровый',
     'из дуба': 'дубовый',
-    # 'из акации': 'акациевый',  # не очень благозвучно
+    'дуб': 'дубовый',
     'из клёна': 'кленовый',
+    'клён': 'кленовый',
     'из ивы': 'ивовый',
-    #'из башнегриба': 'башнегрибовый',
-    #'из черношляпника': 'черношляпниковый',
-    #'из нижнешляпника': 'нижнешляпниковый',
-    #'из гоблошляпника': 'гоблошляпниковый',
-    # 'из древогриба': 'древогрибовый',
-    # 'из кривошипника': 'кривошипниковый',
-    # 'из глампронга': 'глампронговый',
-    # 'из цереуса': 'цереусный',
     'из мангров': 'мангровый',
     'из пальмы': 'пальмовый',
-    # 'из гевеи': 'гевейный',
-    # 'из вышедрева': 'вышедревный',
     'из лиственницы': 'лиственничный',
     'из каштана': 'каштановый',
     'из ольхи': 'ольховый',
@@ -1505,34 +1496,38 @@ def corr_item_10(s):
 
     return s
 
-posessive = {
+posessive_adjectives = {
     'жаба': 'жабий',
     'корова': 'коровий',
     'медведь': 'медвежий'
 }
 
-re_container = re.compile(r'\(\{?((.+)\s(бочка|мешок)\s\((.+)\)).*\)')
+re_container = re.compile(r'((\b.+)\s(бочка|мешок)\s\((.+?)(\)|$))')
 re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
 def corr_container(s):
     print("corr_container")
+    if s[0]=='р' and s[-1]=='р':
+        s = '≡' + s[1:-1] + '≡'
+        # s = '*' + s[1:-1] + '*'
     hst = re_container.search(s)
     initial_string = hst.group(1)
     print('initial_string:', initial_string)
     containment = hst.group(2)
     if containment == "Семя": containment = "семена"
     if 'кровь' in containment:
-        print('blood in containment')
         words = containment.split()
         for i, word in enumerate(words):
-            if word in posessive:
-                words[i] = posessive[word]
+            if word in posessive_adjectives:
+                words[i] = posessive_adjectives[word]
         containment = " ".join(words)
     containment = genitive_case(containment)
     container = hst.group(3)
     of_material = hst.group(4)
-    if of_material in make_adjective:
+    if of_material in make_adjective or of_material[3:] in make_adjective:
+        if of_material[3:] in make_adjective:
+            of_material = of_material[3:]
         gender = get_gender(container)
         adjective = inflect_adjective_2(make_adjective[of_material], gender)
         s = s.replace(initial_string, adjective + " " + container + " " + containment)
@@ -1547,7 +1542,10 @@ def corr_container(s):
                 material = of_material
             else:
                 material = 'из ' + genitive_case(of_material)
-        s = s.replace(initial_string, "%s %s (%s)" % (container, containment, material))
+        replacement_string = "%s %s (%s" % (container, containment, material)
+        if initial_string[-1] == ')':
+            replacement_string += ')'
+        s = s.replace(initial_string, replacement_string)
     return s.capitalize()
 
 # Элементы рельефа, крепости и т.п.
