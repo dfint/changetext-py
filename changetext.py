@@ -582,26 +582,26 @@ make_adjective = {
     'из сосны': 'сосновый',
     'из кедра': 'кедровый',
     'из дуба': 'дубовый',
-    'из акации': 'акациевый',  # не очень благозвучно
+    # 'из акации': 'акациевый',  # не очень благозвучно
     'из клёна': 'кленовый',
     'из ивы': 'ивовый',
-    'из башнегриба': 'башнегрибовый',
-    'из черношляпника': 'черношляпниковый',
-    'из нижнешляпника': 'нижнешляпниковый',
-    'из гоблошляпника': 'гоблошляпниковый',
-    'из древогриба': 'древогрибовый',
-    'из кривошипника': 'кривошипниковый',
-    'из глампронга': 'глампронговый',
-    'из цереуса': 'цереусный',
+    #'из башнегриба': 'башнегрибовый',
+    #'из черношляпника': 'черношляпниковый',
+    #'из нижнешляпника': 'нижнешляпниковый',
+    #'из гоблошляпника': 'гоблошляпниковый',
+    # 'из древогриба': 'древогрибовый',
+    # 'из кривошипника': 'кривошипниковый',
+    # 'из глампронга': 'глампронговый',
+    # 'из цереуса': 'цереусный',
     'из мангров': 'мангровый',
     'из пальмы': 'пальмовый',
-    'из гевеи': 'гевейный',
-    'из вышедрева': 'вышедревный',
+    # 'из гевеи': 'гевейный',
+    # 'из вышедрева': 'вышедревный',
     'из лиственницы': 'лиственничный',
     'из каштана': 'каштановый',
     'из ольхи': 'ольховый',
     'из берёзы': 'берёзовый',  #
-    'из ясеня': 'ясеневый',
+    # 'из ясеня': 'ясеневый',
     'из лумбанга': 'лумбанговый',
 
     # неорганическое
@@ -1120,7 +1120,6 @@ def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
             return adjective[:-3] + adjective_cases[ending3][case][gender]
         elif ending2 in adjective_cases:
             return adjective[:-2] + adjective_cases[ending2][case][gender]
-        print("gender_adjective_2:")
         print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case - 1]))
         return None
     else:
@@ -1506,19 +1505,31 @@ def corr_item_10(s):
 
     return s
 
+re_container = re.compile(r'\(\{?((.+)\s(бочка|мешок)\s\((.+)\)).*\)')
+re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
-def corr_item_11(s):
-    print(11)
+def corr_container(s):
+    print("corr_container")
     hst = re_container.search(s)
-    if hst.group(3) in make_adjective:
-        s = s.replace(hst.group(1) + " " + hst.group(2), hst.group(2) + " " + genitive_case(hst.group(1)))
+    initial_string = hst.group(1)
+    print('initial_string:', initial_string)
+    containment = hst.group(2)
+    container = hst.group(3)
+    of_material = hst.group(4)
+    if of_material in make_adjective:
+        gender = get_gender(container)
+        adjective = inflect_adjective_2(make_adjective[of_material], gender)
+        s = s.replace(initial_string, adjective + " " + container + " " + genitive_case(containment))
     else:
-        hst_1 = re_12_1.search(hst.group(3))
-        genitive_case_group1 = genitive_case(hst_1.group(1))
-        new_word = hst_1.group(2) + " " + genitive_case_group1
-        s = s.replace(hst.group(1) + " " + hst.group(2), hst.group(2) + " " + genitive_case_group1)
-        s = s.replace(hst.group(3), new_word)
+        hst_1 = re_12_1.search(of_material)
+        if hst_1:
+            material_source = genitive_case(hst_1.group(1))
+            material = hst_1.group(2)
+            material = material + " " + material_source
+        else:
+            material = of_material
+        s = s.replace(initial_string, "%s %s (%s)" % (container, genitive_case(containment), material))
     return s.capitalize()
 
 # Элементы рельефа, крепости и т.п.
@@ -1867,8 +1878,6 @@ re_3 = re.compile(
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 re_skin = re.compile(r'(\(?)(.+)\s(из кожи)')
 re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
-re_container = re.compile(r'\((.+)\s(бочка|мешок)\s\((.+)\)(.+)?\)')
-re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
 re_14 = re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(зелёное стекло|прозрачное стекло|хрусталь)\s(\w+)')
 re_16 = re.compile(
@@ -1954,7 +1963,7 @@ def _ChangeText(s):
         elif re_11.search(s):
             result = corr_item_10(s)
         elif re_container.search(s):
-            result = corr_item_11(s)
+            result = corr_container(s)
         elif re_stopped_construction.search(s):
             result = corr_stopped_construction(s)
         elif re_13.search(s):
