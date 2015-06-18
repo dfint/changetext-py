@@ -1534,7 +1534,7 @@ def corr_container(s):
             of_material = of_material[3:]
         gender = get_gender(container)
         adjective = inflect_adjective_2(make_adjective[of_material], gender)
-        s = s.replace(initial_string, adjective + " " + container + " " + containment)
+        replacement_string = adjective + " " + container + " " + containment
     else:
         hst_1 = re_12_1.search(of_material)
         if hst_1:
@@ -1549,8 +1549,8 @@ def corr_container(s):
         replacement_string = "%s %s (%s" % (container, containment, material)
         if initial_string[-1] == ')':
             replacement_string += ')'
-        s = s.replace(initial_string, replacement_string)
-    return s.capitalize()
+    s = s.replace(initial_string, replacement_string.capitalize())
+    return s
 
 # Элементы рельефа, крепости и т.п.
 re_13 = re.compile(
