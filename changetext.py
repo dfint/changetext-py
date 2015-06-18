@@ -1918,6 +1918,10 @@ def _ChangeText(s):
                 s = s.replace('чувствую', 'чувствую себя')
             result = s
         
+        if 'Ремесленникство' in s:
+            s = s.replace('Ремесленникство', 'мастерство')
+            result = s
+        
         if re_01.search(s):
             print('re_01 passed')
             result = corr_item_01(s)
