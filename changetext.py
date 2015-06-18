@@ -1529,7 +1529,10 @@ def corr_container(s):
             material = hst_1.group(2)
             material = material + " " + material_source
         else:
-            material = of_material
+            if of_material.startswith('из '):
+                material = of_material
+            else:
+                material = 'из ' + genitive_case(of_material)
         s = s.replace(initial_string, "%s %s (%s)" % (container, genitive_case(containment), material))
     return s.capitalize()
 
