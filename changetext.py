@@ -1279,7 +1279,7 @@ body_parts = {"панцирь", "скелет", "искалеченный тру
               " хвост"}
 
 
-re_01 = re.compile(r"^[(+*-«☼]*((p?)(из\s[\w\s\-/]+\b))")
+re_01 = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
 
 corr_item_01_except = {
     "боевой",  # Avoid translation "из меди боевой топор" to "топор из меди боевой"
@@ -1297,8 +1297,8 @@ def corr_item_01(s):
     end_sym = ""
     if p_symbol:
         start_sym = "≡"
-        if word[-1][-1] == 'р':
-            word[-1] = word[-1][:-1]
+        if words[-1][-1] == 'р':
+            words[-1] = words[-1][:-1]
             end_sym = start_sym
     
     if len(words)==2:
@@ -1931,6 +1931,7 @@ def _ChangeText(s):
             result = s
         
         if re_01.search(s):
+            print('re_01 passed')
             result = corr_item_01(s)
         elif re_6.search(s):
             result = corr_item_6(s)
@@ -2024,4 +2025,5 @@ if __name__ == '__main__':
     input()
 else:  # if runned not as a script
     if log:
-        sys.stdout = log_file  # redirect standard output to the log file
+        # sys.stdout = log_file  # redirect standard output to the log file
+        pass
