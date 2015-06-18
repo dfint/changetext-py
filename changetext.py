@@ -1502,7 +1502,7 @@ posessive_adjectives = {
     'медведь': 'медвежий'
 }
 
-re_container = re.compile(r'((\b.+)\s(бочка|мешок)\s\((.+?)(\)|$))')
+re_container = re.compile(r'((\b.+)\s(бочка|мешок)\s\((.*?)(\)|$))')
 re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
@@ -1518,11 +1518,13 @@ def corr_container(s):
     print('initial_string:', initial_string)
     containment = hst.group(2)
     if containment == "Семя": containment = "семена"
-    if 'кровь' in containment:
+    if containment.endswith('кровь'):
         words = containment.split()
-        for i, word in enumerate(words):
-            if word in posessive_adjectives:
-                words[i] = posessive_adjectives[word]
+        assert(len(words)==2)
+        if words[0] in posessive_adjectives:
+            words[0] = posessive_adjectives[words[0]]
+        else:
+            words.reverse()
         containment = " ".join(words)
     containment = genitive_case(containment)
     container = hst.group(3)
@@ -1540,7 +1542,7 @@ def corr_container(s):
             material = hst_1.group(2)
             material = material + " " + material_source
         else:
-            if of_material.startswith('из '):
+            if of_material.startswith('из ') or not of_material:
                 material = of_material
             else:
                 material = 'из ' + genitive_case(of_material)
