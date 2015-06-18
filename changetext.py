@@ -1515,6 +1515,7 @@ def corr_container(s):
     initial_string = hst.group(1)
     print('initial_string:', initial_string)
     containment = hst.group(2)
+    if containment == "Семя": containment = "семена"
     container = hst.group(3)
     of_material = hst.group(4)
     if of_material in make_adjective:
