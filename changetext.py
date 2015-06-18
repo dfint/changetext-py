@@ -1505,6 +1505,12 @@ def corr_item_10(s):
 
     return s
 
+posessive = {
+    'жаба': 'жабий',
+    'корова': 'коровий',
+    'медведь': 'медвежий'
+}
+
 re_container = re.compile(r'\(\{?((.+)\s(бочка|мешок)\s\((.+)\)).*\)')
 re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 
@@ -1516,12 +1522,20 @@ def corr_container(s):
     print('initial_string:', initial_string)
     containment = hst.group(2)
     if containment == "Семя": containment = "семена"
+    if 'кровь' in containment:
+        print('blood in containment')
+        words = containment.split()
+        for i, word in enumerate(words):
+            if word in posessive:
+                words[i] = posessive[word]
+        containment = " ".join(words)
+    containment = genitive_case(containment)
     container = hst.group(3)
     of_material = hst.group(4)
     if of_material in make_adjective:
         gender = get_gender(container)
         adjective = inflect_adjective_2(make_adjective[of_material], gender)
-        s = s.replace(initial_string, adjective + " " + container + " " + genitive_case(containment))
+        s = s.replace(initial_string, adjective + " " + container + " " + containment)
     else:
         hst_1 = re_12_1.search(of_material)
         if hst_1:
@@ -1533,7 +1547,7 @@ def corr_container(s):
                 material = of_material
             else:
                 material = 'из ' + genitive_case(of_material)
-        s = s.replace(initial_string, "%s %s (%s)" % (container, genitive_case(containment), material))
+        s = s.replace(initial_string, "%s %s (%s)" % (container, containment, material))
     return s.capitalize()
 
 # Элементы рельефа, крепости и т.п.
@@ -1956,6 +1970,8 @@ def _ChangeText(s):
             result = corr_item_4(s)
         elif re_skin.search(s):
             result = corr_item_skin(s)
+        elif re_container.search(s):
+            result = corr_container(s)
         elif re_3.search(s):
             result = corr_item_3(s)
         elif re_7.search(s):
@@ -1966,8 +1982,6 @@ def _ChangeText(s):
             result = corr_item_8(s)
         elif re_11.search(s):
             result = corr_item_10(s)
-        elif re_container.search(s):
-            result = corr_container(s)
         elif re_stopped_construction.search(s):
             result = corr_stopped_construction(s)
         elif re_13.search(s):
