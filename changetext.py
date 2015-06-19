@@ -1096,8 +1096,6 @@ def get_gender(obj):
 
 
 adj_except = {
-    'шёлковый',  # склоняет как одушевлённое - "шёлкового", нужно - "шёлковый"
-    'медный',  # склоняет как одушевлённое - "медного"
     'заснеженный',  # склоняет как разговорное - "заснежённый", нужно - "заснеженный"
 }
 
@@ -1117,11 +1115,14 @@ def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
         parse = morph.parse(adjective)[0]
         assert(gender is not None)
         form_set = {gender_names[gender], case_names[case]}
-        print('animated=%s'%animated)
-        if animated is not None:
+        if animated is not None and gender in {masculine, plural}:
             form_set.add('anim' if animated else 'inan')
         print(form_set)
         new_form = parse.inflect(form_set)
+        print(new_form)
+        if new_form is None:
+            form_set = {gender_names[gender], case_names[case]}
+            new_form = parse.inflect(form_set)
         print(new_form)
         ret = new_form.word
         print('%s -> %s' % (adjective, ret))
@@ -1679,7 +1680,7 @@ def corr_item_16(s):
         gender = gender_item[item]
         if item in accusative_case:
             item = accusative_case[item]
-        material = inflect_adjective_2(make_adjective[hst.group(2)], gender, accusative)
+        material = inflect_adjective_2(make_adjective[hst.group(2)], gender, accusative, animated=False)
         s = hst.group(1) + " " + material + " " + item
     elif hst_1.group(2) in make_adjective:
         item = hst_1.group(3)
