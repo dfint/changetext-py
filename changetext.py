@@ -1246,7 +1246,7 @@ def is_adjective(word):
 
 
 def genitive_case_list(words):
-    print("genitive_case_list")
+    print("genitive_case_list(%s)" % repr(words))
     print(words)
     gender = get_gender(words[-1])
     if gender is None:
@@ -1287,7 +1287,7 @@ corr_item_01_except = {
 
 
 def corr_item_01(s):
-    print('corr_item_01("%s")' % s)
+    print('corr_item_01')
     hst = re_01.search(s)
     initial_string = hst.group(1)
     p_symbol = hst.group(2)
@@ -1335,7 +1335,6 @@ def corr_item_01(s):
             replacement_string = adjective + " " + " ".join(words)
         else:
             replacement_string = " ".join(words) + " " + of_material
-    
     if start_sym:
         replacement_string = start_sym + replacement_string + end_sym
     s = s.replace(initial_string, replacement_string)
