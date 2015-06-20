@@ -1034,10 +1034,12 @@ pm_genders = {'masc': masculine, 'femn': feminine, 'neut': neuter, 'plur': plura
 
 def pm_gender(parse):
     tag = parse.tag
+    print(tag)
     if tag.number == 'plur':
         gender = tag.number
     else:
         gender = tag.gender
+    print(gender)
     return pm_genders[gender]
 
 
@@ -1072,7 +1074,7 @@ def most_probable(parse, score=None):
 gender_exceptions = {'шпинель'}
 
 
-def get_gender(obj):
+def get_gender(obj, case=None):
     def is_suitable(parse):
         if len(parse) >= 2 and parse[0].score > parse[1].score:
             return True
@@ -1082,9 +1084,11 @@ def get_gender(obj):
             if pm_gender(p) != gender:
                 return False
         return True
-
+    
     print("get_gender('%s')" % obj)
     parse = morph.parse(obj)
+    if case is not None:
+        parse = list(filter(lambda x: case_names[case] in x.tag, parse))
     if obj not in gender_exceptions and is_suitable(parse):
         print('pymorphy2 method')
         return pm_gender(parse[0])
@@ -1280,9 +1284,13 @@ re_01 = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
 
 corr_item_01_except = {
     "боевой",  # Avoid recognition "боевой" as a female surname in genitive
-    "кирки",  # Avoid recognition "кирки" as a noun in genitive
-    "бочка",  # Avoid recognition "бочка" as "бочок" in genitive
+    # "кирки",  # Avoid recognition "кирки" as a noun in genitive
+    # "бочка",  # Avoid recognition "бочка" as "бочок" in genitive
 }
+
+
+def in_any_tag(gram, parse):
+    return any(gram in p.tag for p in parse)
 
 
 def corr_item_01(s):
@@ -1303,13 +1311,13 @@ def corr_item_01(s):
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(words[1])))
         assert(len(parse)==1)
         replacement_string = parse[0].normal_form
-    elif (words[2] not in corr_item_01_except and
-          any({'NOUN', 'gent'} in p.tag for p in morph.parse(words[2]))):  # The third word is a noun in genitive
+    elif (words[2] not in corr_item_01_except and len(words) > 3 and
+          in_any_tag({'gent'}, morph.parse(words[1])) and  # The second word is an adj in genitive
+          in_any_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
         print('Complex case')
         of_material = " ".join(words[:3])
         words = words[3:]
-        assert(len(words)>0)
         if len(words)==1:
             first_part = words[0]
         else:
@@ -1319,6 +1327,7 @@ def corr_item_01(s):
             first_part = "%s %s" % (" ".join(adjs), obj)
         replacement_string = first_part + " " + of_material
     else:
+        assert(in_any_tag({'NOUN', 'gent'}, morph.parse(words[1])))
         # Simple case, eg. "из бронзы"
         print('Simple case')
         of_material = " ".join(words[:2])
@@ -1671,29 +1680,58 @@ def corr_item_15(s):
     return s.capitalize()
 
 
-re_15 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+)\s(\w+\s?\w+?\b)")
-re_15_1 = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить)\s(из\s\w+\s\w+)\s(\w+\s?\w+?\b)")
+re_forge = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить|^Кузница)\s(из\s[\w\s?]+\b)")
 
 
 # кузница
-def corr_item_16(s):
-    print(16)
-    hst = re_15.search(s)
-    hst_1 = re_15_1.search(s)
-    if hst.group(2) in make_adjective:
-        item = hst.group(3)
-        gender = gender_item[item]
-        if item in accusative_case:
-            item = accusative_case[item]
-        material = inflect_adjective_2(make_adjective[hst.group(2)], gender, accusative, animated=False)
-        s = hst.group(1) + " " + material + " " + item
-    elif hst_1.group(2) in make_adjective:
-        item = hst_1.group(3)
-        if item in accusative_case:
-            item = accusative_case[item]
-        s = hst_1.group(1) + " " + item + " " + hst_1.group(2)
-    s = s.replace("Кузница", "Ковать")
-    s = s.replace("Наконечники стрел", "наконечники стрел баллисты")
+def corr_forge(s):
+    print('corr_forge')
+    hst = re_forge.search(s)
+    # hst_1 = re_forge_1.search(s)
+    verb = hst.group(1)
+    words = hst.group(2).split()
+    assert(len(words)>=3)
+    if (in_any_tag({'ADJF', 'gent'}, morph.parse(words[1])) and  # The second word is an adj in gent
+        in_any_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in gent
+        print('Complex case')
+        of_material = words[:3]
+        obj = words[3:]
+    else:
+        assert(in_any_tag({'NOUN', 'gent'}, morph.parse(words[1])))
+        print('Simple case')
+        of_material = words[:2]
+        obj = words[2:]
+    
+    of_material = ' '.join(of_material)
+    print(obj)
+    item_index = None
+    for i, x in enumerate(obj):
+        parse = morph.parse(x)
+        p = list(filter(lambda x: {'NOUN', 'nomn'} in x.tag and 'Surn' not in x.tag, parse))
+        if p and item_index is None:
+            item_index = i
+            gender = get_gender(obj[item_index], case=nominative)
+            obj[i] = p[0].inflect({'accs'}).word
+        elif not in_any_tag('accs', parse) and item_index is None:  # Words after 'item' must be leaved in genitive case
+            obj[i] = parse[0].inflect({'accs'}).word
+    
+    print(obj)
+    print(obj[item_index])
+    
+    if not in_any_tag('accs', parse):
+        obj[item_index] = parse[0].inflect({'accs'}).word
+    
+    if verb == 'Кузница':
+        verb = 'Ковать'
+    
+    if of_material in make_adjective:
+        print('gender of "%s" is %s' % (obj[item_index], gender_names[gender]))
+        material = inflect_adjective_2(make_adjective[of_material], gender, accusative, animated=False)
+        s = verb + " " + material + " " + ' '.join(obj)
+    else:
+        s = verb + " " + ' '.join(obj) + " " + of_material
+    
+    # s = s.replace("Наконечники стрел", "наконечники стрел баллисты")
     return s.capitalize()
 
 
@@ -1982,6 +2020,8 @@ def _ChangeText(s):
             result = corr_container(s)
         elif re_skin.search(s):
             result = corr_item_skin(s)
+        elif re_forge.search(s):
+            result = corr_forge(s)
         elif re_3.search(s):
             result = corr_item_3(s)
         elif re_7.search(s):
@@ -2000,8 +2040,6 @@ def _ChangeText(s):
             result = corr_item_13(s)
         elif re_14.search(s):
             result = corr_item_15(s)
-        elif re_15.search(s):
-            result = corr_item_16(s)
         elif re_16.search(s):
             result = corr_item_17(s)
         elif re_settlement.search(s):
