@@ -1040,7 +1040,6 @@ def pm_gender(parse):
         gender = tag.number
     else:
         gender = tag.gender
-    print("pm_gender() is %s" % gender)
     return pm_genders[gender]
 
 
@@ -1299,7 +1298,7 @@ def corr_item_01(s):
         if words[-1][-1] == 'р':
             words[-1] = words[-1][:-1]
             end_sym = start_sym
-    
+    print(words)
     if len(words)==2:
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(words[1])))
         assert(len(parse)==1)
@@ -1307,6 +1306,7 @@ def corr_item_01(s):
     elif (words[2] not in corr_item_01_except and
         any({'NOUN', 'gent'} in p.tag for p in morph.parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
+        print('Complex case')
         of_material = " ".join(words[:3])
         words = words[3:]
         assert(len(words)>0)
@@ -1320,6 +1320,7 @@ def corr_item_01(s):
         replacement_string = first_part + " " + of_material
     else:
         # Simple case, eg. "из бронзы"
+        print('Simple case')
         of_material = " ".join(words[:2])
         words = words[2:]
         item = words[-1]
@@ -1332,6 +1333,11 @@ def corr_item_01(s):
                         break
             adjective = make_adjective[of_material]
             adjective = inflect_adjective_2(adjective, gender)
+            # If there are another adjectives, ensure that they are in the correct gender:
+            for i, word in enumerate(words):
+                if is_adjective(word) and get_gender(word) != gender:
+                    word = inflect_adjective_2(word, gender)
+                    words[i] = word
             replacement_string = adjective + " " + " ".join(words)
         else:
             replacement_string = " ".join(words) + " " + of_material
