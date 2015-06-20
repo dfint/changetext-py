@@ -1650,18 +1650,19 @@ def corr_item_13(s):
 
 # "Скелет, останки и тп"
 re_body_parts = re.compile(
-    r'^[{]?(\w+\s?\w+?|)\s(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп|голень)\}?\b')
+    r'^[{]?((\w+\s?\w+?|)\s(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп|голень))\}?\b')
 
 
 def corr_item_body_parts(s):
-    print(14)
+    print('corr_item_body_parts')
     hst = re_body_parts.search(s)
-    words = hst.group(1).split()
+    initial_string = hst.group(1)
+    words = hst.group(2).split()
     if words[-1] in {"частичный", "искалеченный"}:
-        s = "%s %s %s" % (words[-1], hst.group(2), " ".join(genitive_case_list(words[:-1])))
+        replacement_string = "%s %s %s" % (words[-1], hst.group(3), " ".join(genitive_case_list(words[:-1])))
     else:
-        s = s.replace(hst.group(1) + " " + hst.group(2), hst.group(2) + " " + " ".join(genitive_case_list(words)))
-    return s.capitalize()
+        replacement_string = hst.group(3) + " " + " ".join(genitive_case_list(words))
+    return s.replace(initial_string, replacement_string.capitalize())
 
 
 # "Изделия из стекла"
