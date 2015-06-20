@@ -1797,11 +1797,14 @@ def corr_item_21(s):
     s = hst.group(2) + " " + genitive_case(hst.group(1))
     return s
 
+re_stopped_construction = re.compile(r'(\w+) приостановили строительство (\w+).')
 
 def corr_stopped_construction(s):
     print("corr_stopped_construction")
     hst = re_stopped_construction.search(s)
-    return ("Дварфы приостановили строительство %s." % genitive_case(hst.group(1))).capitalize()
+    subj = hst.group(1)
+    obj = hst.group(2)
+    return ("%s приостановили строительство %s." % (subj, genitive_case(obj))).capitalize()
 
 # Корректировка для окончания s - перевод существительного во множественное число или глагола в 3-е лицо ед.ч.
 re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*e?s\b)')
@@ -1912,7 +1915,6 @@ re_16 = re.compile(
     r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
 re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
 re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
-re_stopped_construction = re.compile(r' дварфы приостановили строительство (\w+).')
 
 verbs = {
     "промахивается", "контракует", "punches", "атакует", "нападает", "хватает", "повален", "выпускает",
