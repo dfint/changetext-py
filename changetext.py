@@ -1202,6 +1202,7 @@ gent_case_except = {
     'шпинель',  # определяет как сущ. м.р.
     'стена',  # определяет как сущ. м.р.
     'лиса',  # определяет как сущ. м.р.
+    'споры',  # в родительный падеж ставит как "споров"
 }
 
 def genitive_case_single_noun(word):
@@ -1304,7 +1305,7 @@ def corr_item_01(s):
         assert(len(parse)==1)
         replacement_string = parse[0].normal_form
     elif (words[2] not in corr_item_01_except and
-        any({'NOUN', 'gent'} in p.tag for p in morph.parse(words[2]))):  # The third word is a noun in genitive
+          any({'NOUN', 'gent'} in p.tag for p in morph.parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
         print('Complex case')
         of_material = " ".join(words[:3])
@@ -1975,10 +1976,10 @@ def _ChangeText(s):
             result = corr_item_6(s)
         elif re_4.search(s):
             result = corr_item_4(s)
-        elif re_skin.search(s):
-            result = corr_item_skin(s)
         elif re_container.search(s):
             result = corr_container(s)
+        elif re_skin.search(s):
+            result = corr_item_skin(s)
         elif re_3.search(s):
             result = corr_item_3(s)
         elif re_7.search(s):
