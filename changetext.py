@@ -1281,8 +1281,9 @@ body_parts = {"панцирь", "скелет", "искалеченный тру
 re_01 = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
 
 corr_item_01_except = {
-    "боевой",  # Avoid translation "из меди боевой топор" to "топор из меди боевой"
+    "боевой",  # Avoid recognition "боевой" as a female surname in genitive
     "кирки",  # Avoid recognition "кирки" as a noun in genitive
+    "бочка",  # Avoid recognition "бочка" as "бочок" in genitive
 }
 
 
