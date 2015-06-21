@@ -1669,7 +1669,8 @@ def corr_forge(s):
             item_index = i
             gender = get_gender(obj[item_index], case=nominative)
             obj[i] = p[0].inflect({'accs'}).word
-        elif not in_any_tag('accs', parse) and item_index is None:  # Words after 'item' must be leaved in genitive case
+            break  # Words after the 'item' must be leaved in genitive case
+        elif not in_any_tag('accs', parse):
             obj[i] = parse[0].inflect({'accs'}).word
     
     print(obj)
