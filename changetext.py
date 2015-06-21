@@ -870,7 +870,7 @@ incrustation_item = {
     'Инкрустировать Снаряды с': "Инкрустировать снаряды ",
 }
 
-gem_okonch_tv = {
+gem_ending_instrumental = {
     'ный': 'ным', 'вая': 'вой', 'нка': 'нкой', 'юда': 'юдой',
     'кло': 'клом', 'ное': 'ным', 'тра': 'трой', 'ень': 'нем',
     'аль': 'алем', 'тый': 'тым', 'ура': 'урой', 'вый': 'вым',
@@ -896,7 +896,7 @@ ending_masc = {
 ending_neut = {}
 
 ending_plur = {"ны", "лы", "ы"}
-gem_okonch_vn = {
+gem_ending_accusative = {
     'ая': 'ую', 'ма': 'му', 'ка': 'ку', 'да': 'ду', 'ра': 'рой', 'на': 'ну',
     'за': 'зу', 'ла': 'лу', 'ой': 'ую', 'ны': 'ну', 'ди': 'дь', 'ри': 'рь',
     'са': 'с', 'ки': 'ку',
@@ -1644,7 +1644,6 @@ re_forge = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изго
 def corr_forge(s):
     print('corr_forge')
     hst = re_forge.search(s)
-    # hst_1 = re_forge_1.search(s)
     verb = hst.group(1)
     words = hst.group(2).split()
     assert(len(words)>=3)
@@ -1665,7 +1664,7 @@ def corr_forge(s):
     for i, x in enumerate(obj):
         parse = morph.parse(x)
         p = list(filter(lambda x: {'NOUN', 'nomn'} in x.tag and 'Surn' not in x.tag, parse))
-        if p and item_index is None:
+        if p:
             item_index = i
             gender = get_gender(obj[item_index], case=nominative)
             obj[i] = p[0].inflect({'accs'}).word
@@ -1689,7 +1688,6 @@ def corr_forge(s):
     else:
         s = verb + " " + ' '.join(obj) + " " + of_material
     
-    # s = s.replace("Наконечники стрел", "наконечники стрел баллисты")
     return s.capitalize()
 
 
@@ -1708,8 +1706,8 @@ def corr_item_17(s):
     gem = ""
     if hst.group(1) == "Огранить":
         for word in hst.group(2).split(" "):
-            if word[-2:] in gem_okonch_vn:
-                word = word[:-2] + gem_okonch_vn[word[-2:]]
+            if word[-2:] in gem_ending_accusative:
+                word = word[:-2] + gem_ending_accusative[word[-2:]]
             if word == "из":
                 word = ""
             gem = (gem + " " + word).strip()
@@ -1717,8 +1715,8 @@ def corr_item_17(s):
         return s.capitalize()
 
     for word in hst.group(2).split(" "):
-        if word[-3:] in gem_okonch_tv:
-            word = word[:-3] + gem_okonch_tv[word[-3:]]
+        if word[-3:] in gem_ending_instrumental:
+            word = word[:-3] + gem_ending_instrumental[word[-3:]]
         else:
             word += "ом"
         if word == "изом":
@@ -1754,7 +1752,7 @@ def corr_settlement(s):
     if adjective in {'Покинуть', 'Разрушить'}:
         return
     
-    gender = gender_item[settlement]
+    gender = get_gender(settlement)
     if " " not in adjective:
         adjective_2 = inflect_adjective_2(adjective, gender)
     else:
