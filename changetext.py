@@ -1068,6 +1068,7 @@ def custom_inflect(form, required_grammemes):
                             if required_grammemes <= f[1].grammemes]
 
     grammemes = form[1].updated_grammemes(required_grammemes)
+
     def similarity(frm):
         tag = frm[1]
         return len(grammemes & tag.grammemes) - len(grammemes ^ tag.grammemes) * 0.1  # The more extra tags, the less the similarity
@@ -1675,7 +1676,7 @@ def corr_forge(s):
     print('words:', words)
     assert(len(words)>=3)
     if (in_any_tag({'ADJF', 'gent'}, morph.parse(words[1])) and  # The second word is an adj in gent
-        in_any_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in gent
+       in_any_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in gent
         print('Complex case')
         of_material = words[:3]
         obj = words[3:]
@@ -1828,6 +1829,7 @@ def corr_item_21(s):
 
 re_stopped_construction = re.compile(r'(\w+) приостановили строительство (\w+).')
 
+
 def corr_stopped_construction(s):
     print("corr_stopped_construction")
     hst = re_stopped_construction.search(s)
@@ -1973,7 +1975,7 @@ logged = set()
 def _ChangeText(s):
     def ChangeText_internal(s):
         result = None
-        # prepocessing:
+        # preprocessing:
         if s in phrases:
             result = phrases[s]
 
