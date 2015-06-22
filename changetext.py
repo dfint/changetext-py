@@ -1030,7 +1030,7 @@ def most_probable(parse, score=None):
 gender_exceptions = {'шпинель'}
 
 
-def get_gender(obj, case=None):
+def get_gender(obj, cases=None):
     def is_suitable(parse):
         if len(parse) >= 2 and parse[0].score > parse[1].score:
             return True
@@ -1043,8 +1043,8 @@ def get_gender(obj, case=None):
     
     print("get_gender('%s')" % obj)
     parse = morph.parse(obj)
-    if case is not None:
-        parse = list(filter(lambda x: case_names[case] in x.tag, parse))
+    if cases is not None:
+        parse = list(filter(lambda x: any(case_names[case] in x.tag for case in cases), parse))
     if obj not in gender_exceptions and is_suitable(parse):
         print('pymorphy2 method')
         return pm_gender(parse[0])
@@ -1695,7 +1695,7 @@ def corr_forge(s):
         item_index = 0
         parse = morph.parse(obj[item_index])
         p = list(filter(lambda x: {'NOUN'} in x.tag and 'Surn' not in x.tag, parse))
-        gender = get_gender(obj[item_index], case=nominative)
+        gender = get_gender(obj[item_index], cases={nominative})
         if not in_any_tag({'accs'}, p):
             obj[0] = p[0].inflect({'accs'}).word
     else:
