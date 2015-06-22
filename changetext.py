@@ -1054,8 +1054,8 @@ adj_except = {
 }
 
 
-def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
-    print('inflect_adjective_2')
+def inflect_adjective(adjective, gender, case=nominative, animated=None):
+    print('inflect_adjective')
     if adjective.lower() in adj_except:
         ending3 = adjective[-3:]
         ending2 = adjective[-2:]
@@ -1082,13 +1082,6 @@ def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
         print('%s -> %s' % (adjective, ret))
         return ret
 
-
-def inflect_adjective(adjective, obj, case, **pargs):
-    gender = get_gender(obj)
-    if gender is None:
-        return None
-    else:
-        return inflect_adjective_2(adjective, gender, case, **pargs)
 
 # существительные+ прилаг
 endings_to_genitive = {
@@ -1211,7 +1204,7 @@ def genitive_case_list(words):
             parse = morph.parse(word)[0]
             if parse.tag.gender != 'masc':
                 word = parse.normal_form
-            word = inflect_adjective_2(word, gender, genitive)
+            word = inflect_adjective(word, gender, genitive)
         else:
             print(word, "isn't adj")
             word = genitive_case_single_noun(word)
@@ -1274,7 +1267,7 @@ def corr_item_01(s):
         else:
             obj = words[-1]
             gender = get_gender(obj)
-            adjs = (inflect_adjective_2(adj, gender) or adj for adj in words[:-1])
+            adjs = (inflect_adjective(adj, gender) or adj for adj in words[:-1])
             first_part = "%s %s" % (" ".join(adjs), obj)
         replacement_string = first_part + " " + of_material
     elif in_any_tag({'NOUN', 'gent'}, morph.parse(words[1])):
@@ -1291,11 +1284,11 @@ def corr_item_01(s):
                     if gender is not None:
                         break
             adjective = make_adjective[of_material]
-            adjective = inflect_adjective_2(adjective, gender)
+            adjective = inflect_adjective(adjective, gender)
             # If there are another adjectives, ensure that they are in the correct gender:
             for i, word in enumerate(words):
                 if is_adjective(word) and get_gender(word) != gender:
-                    word = inflect_adjective_2(word, gender)
+                    word = inflect_adjective(word, gender)
                     words[i] = word
             replacement_string = adjective + " " + " ".join(words)
         else:
@@ -1310,7 +1303,7 @@ def corr_item_01(s):
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(material)))
         material = parse[0].normal_form
         adjs = words[1:-1]
-        adjs = [inflect_adjective_2(adj, gender, case=nominative) for adj in adjs]
+        adjs = [inflect_adjective(adj, gender, case=nominative) for adj in adjs]
         replacement_string = ' '.join(adjs) + ' ' + material
     
     if start_sym:
@@ -1383,7 +1376,7 @@ def corr_item_7(s):
     hst = re_7.search(s)
     of_wood = "из " + hst.group(2)
     if of_wood in make_adjective:
-        adj = inflect_adjective_2(make_adjective[of_wood], plural)
+        adj = inflect_adjective(make_adjective[of_wood], plural)
         s = s.replace(hst.group(0), adj + " " + hst.group(3))  # берёзовые брёвна
     else:
         s = s.replace(hst.group(0), hst.group(1) + " " + hst.group(2))  # древесина акации
@@ -1409,7 +1402,7 @@ def corr_item_8(s):
     for word in words[:-1]:
         if word in make_adjective:
             adj = make_adjective[word]
-            word = inflect_adjective_2(adj, gender)
+            word = inflect_adjective(adj, gender)
         new_list.append(word)
 
     new_list.append(words[-1])
@@ -1435,12 +1428,12 @@ def corr_weapon_trap_parts(s):
         print("object gender:", gender)
         if adj not in make_adjective and " " in adj:
             adj_words = adj.split()
-            new_words = [inflect_adjective_2(make_adjective[word], gender) for word in adj_words]
+            new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
             new_adj = " ".join(new_words)
         else:
-            new_adj = inflect_adjective_2(make_adjective[adj], gender)
+            new_adj = inflect_adjective(make_adjective[adj], gender)
         print(adj, ":", new_adj)
-        new_word_2 = inflect_adjective_2(make_adjective[material], gender)
+        new_word_2 = inflect_adjective(make_adjective[material], gender)
         print(material, ":", new_word_2)
         s = s.replace(hst.group(0), "%s %s %s" % (new_adj, new_word_2, obj))
     else:
@@ -1452,10 +1445,10 @@ def corr_weapon_trap_parts(s):
         gender = gender_item[obj]
         if adj not in make_adjective and " " in adj:
             adj_words = adj.split()
-            new_words = [inflect_adjective_2(make_adjective[word], gender) for word in adj_words]
+            new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
             new_adj = " ".join(new_words)
         else:
-            new_adj = inflect_adjective_2(make_adjective[adj], gender)
+            new_adj = inflect_adjective(make_adjective[adj], gender)
         print(adj, ":", new_adj)
         s = s.replace(hst.group(0), "%s %s %s" % (new_adj, obj, material))
     return s
@@ -1510,7 +1503,7 @@ def corr_container(s):
         if of_material[3:] in make_adjective:
             of_material = of_material[3:]
         gender = get_gender(container)
-        adjective = inflect_adjective_2(make_adjective[of_material], gender)
+        adjective = inflect_adjective(make_adjective[of_material], gender)
         replacement_string = adjective + " " + container + " " + containment
     else:
         hst_1 = re_12_1.search(of_material)
@@ -1556,7 +1549,7 @@ def corr_item_12(s):
         for word in words:
             if word in {"Заснеженный", "Неотесанный", "Влажный"}:
                 if gender is not None:
-                    new_word = inflect_adjective_2(word, gender)
+                    new_word = inflect_adjective(word, gender)
                     if not new_word:
                         new_word = word
                 else:
@@ -1580,12 +1573,8 @@ def corr_item_12(s):
             s = "%s %s из %s" % (" ".join(first_words), obj, " ".join(words))
     else:
         print(12.2)
-        first_word = group1
-        new_first_word = inflect_adjective(first_word, group1, genitive)
-
-        if new_first_word:
-            first_word = new_first_word
-        s = "%s из %s" % (obj, genitive_case(first_word))
+        material = group1
+        s = "%s из %s" % (obj, genitive_case(material))
 
     if "иза" in s:
         s = s.replace(" иза", "")
@@ -1605,13 +1594,14 @@ def corr_item_13(s):
         if is_adjective(words[0]):
             print("13.1.1")
             gender = get_gender(words[-1])
-            new_word = inflect_adjective_2(words[0], gender, nominative)
+            new_word = inflect_adjective(words[0], gender, nominative)
             s = s.replace(words[0], new_word)
-            new_word = inflect_adjective_2(adjective, gender, nominative)
+            new_word = inflect_adjective(adjective, gender, nominative)
             s = s.replace(adjective, new_word)
     else:
         print(13.2)
-        new_word = inflect_adjective(adjective, obj, nominative)
+        gender = get_gender(obj)
+        new_word = inflect_adjective(adjective, gender, nominative)
         if new_word:
             print("13.2.1")
             s = new_word + " " + obj
@@ -1701,7 +1691,7 @@ def corr_forge(s):
     
     if of_material in make_adjective:
         print('gender of "%s" is %s' % (obj[item_index], gender_names[gender]))
-        material = inflect_adjective_2(make_adjective[of_material], gender, accusative, animated=False)
+        material = inflect_adjective(make_adjective[of_material], gender, accusative, animated=False)
         s = verb + " " + material + " " + ' '.join(obj)
     else:
         s = verb + " " + ' '.join(obj) + " " + of_material
@@ -1772,9 +1762,9 @@ def corr_settlement(s):
     
     gender = get_gender(settlement)
     if " " not in adjective:
-        adjective_2 = inflect_adjective_2(adjective, gender)
+        adjective_2 = inflect_adjective(adjective, gender)
     else:
-        adjective_2 = " ".join(inflect_adjective_2(word, gender) for word in adjective.split(" "))
+        adjective_2 = " ".join(inflect_adjective(word, gender) for word in adjective.split(" "))
 
     if adjective_2 is None:
         adjective_2 = adjective
@@ -1891,7 +1881,7 @@ def corr_clothiers_shop(s):
             product_accus = product
         
         if material in make_adjective:
-            material_adj = inflect_adjective_2(make_adjective[material], gender, accusative, animated=False)
+            material_adj = inflect_adjective(make_adjective[material], gender, accusative, animated=False)
             return ' '.join([verb, material_adj, product_accus])
         else:
             return ' '.join([verb, product_accus, of_material])
