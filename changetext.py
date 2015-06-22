@@ -1437,12 +1437,12 @@ def corr_item_8(s):
     return s.replace(hst.group(0), " ".join(new_list))
 
 # выражения типа "гигантский из ясеня лезвия топоров"
-re_9 = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s[\w\s]+\b)')
+re_weapon_trap_parts = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s[\w\s]+\b)')
 
 
-def corr_item_9(s):
+def corr_weapon_trap_parts(s):
     print(9)
-    hst = re_9.search(s)
+    hst = re_weapon_trap_parts.search(s)
     adj = hst.group(1)
     words = hst.group(2).split()
     if " ".join(words[:2]) in make_adjective:
@@ -2016,12 +2016,12 @@ def _ChangeText(s):
             result = corr_item_skin(s)
         elif re_forge.search(s):
             result = corr_forge(s)
+        elif re_weapon_trap_parts.search(s):
+            result = corr_weapon_trap_parts(s)
         elif re_3.search(s):
             result = corr_item_3(s)
         elif re_7.search(s):
             result = corr_item_7(s)
-        elif re_9.search(s):
-            result = corr_item_9(s)
         elif re_gem_cutting.search(s):
             result = corr_item_8(s)
         elif re_11.search(s):
