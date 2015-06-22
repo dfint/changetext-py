@@ -47,14 +47,12 @@ phrases = {
 
     'Кучка ил': 'Кучка ила',
     'Пыль ил': 'Остатки ила',
-    'из самородного алюминия': 'самородный алюминий',
-    'из необработанного адаманита': 'необработанный адаманит',
-    'повозка дерево': 'дерево повозки',
-    'из гипса': 'гипс',
+    
+    # 'повозка дерево': 'дерево повозки',
     'колония муравьи': 'Колония муравьёв',
     'бирюзового цвета грубый кость': 'Грубая кость бирюзового цвета',
     'бирюзового цвета грубый кожа': 'Грубая кожа бирюзового цвета',
-    'кожа кожа доспехи': 'доспехи из кожи',
+    # 'кожа кожа доспехи': 'доспехи из кожи',
     'Ничего не ловится в центре  болотах.': 'Ничего не ловится в центральных болотах.',
     'Ничего не ловится в востоке болотах.': 'Ничего не ловится в восточных болотах.',
 
@@ -1070,7 +1068,6 @@ def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
     else:
         parse = morph.parse(adjective)
         assert(gender is not None)
-        print(parse)
         assert(len(parse) > 0)
         parse = parse[0]
         form_set = {gender_names[gender], case_names[case]}
@@ -1078,11 +1075,9 @@ def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
             form_set.add('anim' if animated else 'inan')
         print(form_set)
         new_form = custom_inflect(parse, form_set)
-        print(new_form)
         if new_form is None:
             form_set = {gender_names[gender], case_names[case]}
             new_form = custom_inflect(parse, form_set)
-        print(new_form)
         ret = new_form.word
         print('%s -> %s' % (adjective, ret))
         return ret
@@ -1168,7 +1163,6 @@ def genitive_case_single_noun(word):
     print('genitive_case_single_noun')
     print(word)
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
-    # parse = morph.parse(word)
     if word.lower() in gent_case_except or not parse:
         if word in iskl:
             return iskl[word]
@@ -1269,7 +1263,7 @@ def corr_item_01(s):
         assert(len(parse)==1)
         replacement_string = parse[0].normal_form
     elif (words[2] not in corr_item_01_except and len(words) > 3 and
-          in_any_tag({'gent'}, morph.parse(words[1])) and  # The second word is an adj in genitive
+          in_any_tag({'gent'}, morph.parse(words[1])) and  # The second word is in genitive
           in_any_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
         print('Complex case')
@@ -1283,8 +1277,7 @@ def corr_item_01(s):
             adjs = (inflect_adjective_2(adj, gender) or adj for adj in words[:-1])
             first_part = "%s %s" % (" ".join(adjs), obj)
         replacement_string = first_part + " " + of_material
-    else:
-        assert(in_any_tag({'NOUN', 'gent'}, morph.parse(words[1])))
+    elif in_any_tag({'NOUN', 'gent'}, morph.parse(words[1])):
         # Simple case, eg. "из бронзы"
         print('Simple case')
         of_material = " ".join(words[:2])
@@ -1307,6 +1300,19 @@ def corr_item_01(s):
             replacement_string = adjective + " " + " ".join(words)
         else:
             replacement_string = " ".join(words) + " " + of_material
+    else:
+        # All words after 'из' except the last word are adjectives in genitive:
+        assert(all(in_any_tag({'ADJF', 'gent'}, morph.parse(adj)) for adj in words[1:-1]))  
+        # The last is a noun in genitive:
+        assert(in_any_tag({'NOUN', 'gent'}, morph.parse(words[-1])))
+        material = words[-1]
+        gender = get_gender(material, cases={genitive})
+        parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(material)))
+        material = parse[0].normal_form
+        adjs = words[1:-1]
+        adjs = [inflect_adjective_2(adj, gender, case=nominative) for adj in adjs]
+        replacement_string = ' '.join(adjs) + ' ' + material
+    
     if start_sym:
         replacement_string = start_sym + replacement_string + end_sym
     s = s.replace(initial_string, replacement_string)
@@ -1870,10 +1876,10 @@ def corr_clothiers_shop(s):
             material = custom_inflect(parse, {'loct'}).word
             return '%s %s на %s' % (verb, product, material)
     else:
-        if product not in {'щит', 'баклер'}:
-            verb, of_material = cloth_subst[material]
-        else:
+        if product in {'щит', 'баклер'}:
             of_material = cloth_subst[material][1]  # Leave 'Делать'/'Изготовить' verb
+        else:
+            verb, of_material = cloth_subst[material]
         
         if product == "верёвка":
             verb = "Вить"
