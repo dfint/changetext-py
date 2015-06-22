@@ -1933,6 +1933,42 @@ def corr_crafts(s):
     description = hst.group(1)
     return s.replace(hst.group(0), "%s из %s" % (obj, genitive_case(description)))
 
+
+# Title eg. "Histories of Greed and Avarice" for the Linux version
+histories_adjs = {
+    'Greed': ' жадности',
+    'Avarice': 'б алчности',
+    'Jealousy': ' зависти',
+    'Cupidity': ' скупости',
+    'Gluttony': 'б обжорстве',
+    'Industry': 'производстве',
+    'Enterprise': 'предприимчивости',
+    'Resourcefulness': 'находчивости',
+    'Determination': 'решительности',
+    'Mettle': 'отваге',
+    'Dynamism': 'стремительности',
+    'Labor': 'работе',
+    'Toil': 'труде',
+    'Diligence': 'усердии',
+    'Exertion': 'напряжении',
+    'Tenacity': 'стойкости',
+    'Perseverance': 'упорстве',
+    'Labor': 'работе',
+    'Toil': 'труде',
+    'Diligence': 'усердии',
+    'Exertion': 'напряжении',
+    'Tenacity': 'стойкости',
+    'Perseverance': 'упорстве',
+}
+
+re_histories_of = re.compile(r"Histories of (\w+) and (\w+)")
+
+
+def corr_histories_of(s):
+    hst = re_histories_of.search(s)
+    return 'Истории о' + histories_adjs[hst.group(1)] + ' и ' + histories_adjs[hst.group(2)]
+
+
 ############################################################################
 # компилированные регулярные выражения
 re_3 = re.compile(
@@ -2004,7 +2040,9 @@ def _ChangeText(s):
                 s = s.replace(item, replaced_parts[item])
                 result = s
         
-        if re_01.search(s):
+        if re_histories_of.search(s):
+            result = corr_histories_of(s)
+        elif re_01.search(s):
             print('re_01 passed')
             result = corr_item_01(s)
         elif re_6.search(s):
