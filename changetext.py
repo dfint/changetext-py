@@ -204,30 +204,7 @@ phrases = {
     'свежий PRESS_LIQUID_MAT-образующий семена': 'Свежие семена',
 
     # кожевня
-    'Делать кожа доспех': 'Делать кожаный доспех',
-    'Делать кожа роба': 'Делать кожаную роба',
-    'Делать кожа одежда': 'Делать кожаную одежду',
-    'Делать кожа рубаха': 'Делать кожаную рубаху',
-    'Делать кожа мундир': 'Делать кожаный мундир',
-    'Делать кожа жилет': 'Делать кожаный жилет',
-    'Делать кожа плащ': 'Делать кожаный плащ',
-    'Делать кожа рейтузы': 'Делать кожаные рейтузы',
-    'Делать кожа штаны': 'Делать кожаные штаны',
-    'Делать кожа шлем': 'Делать кожаный шлем',
-    'Делать кожа шапка': 'Делать кожаную шапку',
-    'Делать кожа капюшон': 'Делать кожаный капюшон',
-    'Делать кожа перчатка': 'Делать кожаную перчатку',
-    'Делать кожа варежка': 'Делать кожаную варежку',
-    'Делать кожа сапог': 'Делать кожаный сапог',
-    'Делать кожа ботинок': 'Делать кожаный ботинок',
-    'Делать кожа башмак': 'Делать кожаный башмак',
-    'Делать кожа щит': 'Делать кожаный щит',
-    'Делать кожа баклер': 'Делать кожаный баклер',
-    'Изготовить кожа мешок': 'Изготовить кожаный мешок',
-    'Делать кожа бурдюк': 'Делать кожаный бурдюк',
-    'Делать кожа рюкзак': 'Делать кожаный рюкзак',
-    'Делать кожа колчан': 'Делать кожаный колчан',
-    'Вышивать кожа изображение': 'Вышивать изображение на коже',
+
 
     # осадная мастерская
     'Собирать из железа стрела баллисты': 'Собирать железную стрелу баллисты',
@@ -268,10 +245,7 @@ phrases = {
     'HONEYCOMB_PRESS_MAT жидкость': 'Мед',
 
     # Лавка портного
-    'Ткать шёлк': 'Ткать шёлк',
-    'Вышивать ткань изображение': 'Вышивать изображение на ткани',
-    'Вышивать шёлк изображение': 'Вышивать изображение на шёлке',
-    'Вышивать пряжа изображение': 'Вязать изображение из пряжи',
+
 
     # Кузница
     # todo: Вынести в отдельное правило
@@ -1858,12 +1832,13 @@ def corr_ending_s(s):
 
 # Clothier's shop
 
-re_clothiers_shop = re.compile(r'(Делать|Изготовить) (ткань|шёлк|пряжа) (\w+)')
+re_clothiers_shop = re.compile(r'(Делать|Изготовить|Вышивать) (ткань|шёлк|пряжа|кожа) (\w+)')
 
 cloth_subst = {
     "ткань": ("Шить", "из ткани"),
     "шёлк": ("Шить", "шёлковый"),
-    "пряжа": ("Вязать", "из пряжи")
+    "пряжа": ("Вязать", "из пряжи"),
+    "кожа": ("Шить", "из кожи"),
 }
 
 accusative_case["носок"] = "носок"
@@ -1879,19 +1854,41 @@ accusative_case["рубаха"] = "рубаху"
 
 
 def corr_clothiers_shop(s):
-    print("Corr clothier's shop")
+    print("Corr clothier's/leather shop")
     hst = re_clothiers_shop.search(s)
+    verb = hst.group(1)
     material = hst.group(2)
     product = hst.group(3)
-    verb, of_material = cloth_subst[material]
-    if product == "верёвка":
-        verb = "Вить"
-    product_accus = accusative_case[product]
-    if material in make_adjective:
-        material_adj = inflect_adjective(make_adjective[material], product, accusative, animated=False)
-        return ' '.join([verb, material_adj, product_accus])
+    
+    if verb == 'Вышивать':
+        parse = morph.parse(material)[0]
+        if material == 'пряжа':
+            verb = 'Вязать'
+            material = custom_inflect(parse, {'gent'}).word
+            return '%s %s из %s' % (verb, product, material)
+        else:
+            material = custom_inflect(parse, {'loct'}).word
+            return '%s %s на %s' % (verb, product, material)
     else:
-        return ' '.join([verb, product_accus, of_material])
+        if product not in {'щит', 'баклер'}:
+            verb, of_material = cloth_subst[material]
+        else:
+            of_material = cloth_subst[material][1]  # Leave 'Делать'/'Изготовить' verb
+        
+        if product == "верёвка":
+            verb = "Вить"
+        
+        gender = get_gender(product, {nominative})
+        if gender == feminine:
+            product_accus = accusative_case[product]
+        else:
+            product_accus = product
+        
+        if material in make_adjective:
+            material_adj = inflect_adjective_2(make_adjective[material], gender, accusative, animated=False)
+            return ' '.join([verb, material_adj, product_accus])
+        else:
+            return ' '.join([verb, product_accus, of_material])
 
 
 re_werebeast = re.compile(r"были(\w+)")
