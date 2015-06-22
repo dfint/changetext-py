@@ -1054,8 +1054,31 @@ def get_gender(obj, case=None):
         return legacy_gender(obj)
 
 
+import heapq
+
+
+# Cut'n'paste from pymorphy2 with some modifications to ignore forms with extra tags
+def custom_inflect(form, required_grammemes):
+    self = form._morph
+    possible_results = [f for f in self.get_lexeme(form)
+                        if required_grammemes <= f[1].grammemes]
+
+    if not possible_results:
+        required_grammemes = self.TagClass.fix_rare_cases(required_grammemes)
+        possible_results = [f for f in self.get_lexeme(form)
+                            if required_grammemes <= f[1].grammemes]
+
+    grammemes = form[1].updated_grammemes(required_grammemes)
+    def similarity(frm):
+        tag = frm[1]
+        return len(grammemes & tag.grammemes) - len(grammemes ^ tag.grammemes) * 0.1  # The more extra tags, the less the similarity
+    res = heapq.nlargest(1, possible_results, key=similarity)
+    return None if not res else res[0]
+
+
 adj_except = {
-    'заснеженный',  # склоняет как разговорное - "заснежённый", нужно - "заснеженный"
+    # 'заснеженный',  # склоняет как разговорное - "заснежённый", нужно - "заснеженный"
+    # 'заточенный',  # склоняет как разговорное - "заточённый"
 }
 
 
@@ -1071,17 +1094,20 @@ def inflect_adjective_2(adjective, gender, case=nominative, animated=None):
         print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case - 1]))
         return None
     else:
-        parse = morph.parse(adjective)[0]
+        parse = morph.parse(adjective)
         assert(gender is not None)
+        print(parse)
+        assert(len(parse) > 0)
+        parse = parse[0]
         form_set = {gender_names[gender], case_names[case]}
         if animated is not None and gender in {masculine, plural}:
             form_set.add('anim' if animated else 'inan')
         print(form_set)
-        new_form = parse.inflect(form_set)
+        new_form = custom_inflect(parse, form_set)
         print(new_form)
         if new_form is None:
             form_set = {gender_names[gender], case_names[case]}
-            new_form = parse.inflect(form_set)
+            new_form = custom_inflect(parse, form_set)
         print(new_form)
         ret = new_form.word
         print('%s -> %s' % (adjective, ret))
@@ -1646,6 +1672,8 @@ def corr_forge(s):
     hst = re_forge.search(s)
     verb = hst.group(1)
     words = hst.group(2).split()
+    print('Verb:', verb)
+    print('words:', words)
     assert(len(words)>=3)
     if (in_any_tag({'ADJF', 'gent'}, morph.parse(words[1])) and  # The second word is an adj in gent
         in_any_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in gent
@@ -1657,20 +1685,30 @@ def corr_forge(s):
         print('Simple case')
         of_material = words[:2]
         obj = words[2:]
+        print('of_material:', of_material)
+        print('obj:', obj)
     
     of_material = ' '.join(of_material)
     print(obj)
     item_index = None
-    for i, x in enumerate(obj):
-        parse = morph.parse(x)
-        p = list(filter(lambda x: {'NOUN', 'nomn'} in x.tag and 'Surn' not in x.tag, parse))
-        if p:
-            item_index = i
-            gender = get_gender(obj[item_index], case=nominative)
-            obj[i] = p[0].inflect({'accs'}).word
-            break  # Words after the 'item' must be leaved in genitive case
-        elif not in_any_tag('accs', parse):
-            obj[i] = parse[0].inflect({'accs'}).word
+    if len(obj) == 1:
+        item_index = 0
+        parse = morph.parse(obj[item_index])
+        p = list(filter(lambda x: {'NOUN'} in x.tag and 'Surn' not in x.tag, parse))
+        gender = get_gender(obj[item_index], case=nominative)
+        if not in_any_tag({'accs'}, p):
+            obj[0] = p[0].inflect({'accs'}).word
+    else:
+        for i, x in enumerate(obj):
+            parse = morph.parse(x)
+            p = list(filter(lambda x: {'NOUN'} in x.tag and 'Surn' not in x.tag, parse))
+            if p:
+                item_index = i
+                gender = get_gender(obj[item_index])
+                obj[i] = p[0].inflect({'accs'}).word
+                break  # Words after the 'item' must be leaved in genitive case
+            elif not in_any_tag('accs', parse):
+                obj[i] = parse[0].inflect({'accs'}).word
     
     print(obj)
     print(obj[item_index])
