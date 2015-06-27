@@ -1745,6 +1745,8 @@ def _ChangeText(s):
             s = s.replace('колодец', 'хорошо')
             if 'чувствую' in s and 'чувствую себя' not in s:
                 s = s.replace('чувствую', 'чувствую себя')
+            elif 'делаю хорошо' in s:
+                s = s.replace('делаю хорошо', 'в порядке')
             result = s
         
         for item in replaced_parts:
