@@ -554,26 +554,6 @@ accusative_case = {
     'шину': "шину",
 }
 
-incrustation_item = {
-    'Инкрустировать Готовые товары с': "Инкрустировать готовые товары ",
-    'Инкрустировать Предметы обстановки с': "Инкрустировать предметы обстановки ",
-    'Инкрустировать Снаряды с': "Инкрустировать снаряды ",
-}
-
-gem_ending_instrumental = {
-    'ный': 'ным', 'вая': 'вой', 'нка': 'нкой', 'юда': 'юдой',
-    'кло': 'клом', 'ное': 'ным', 'тра': 'трой', 'ень': 'нем',
-    'аль': 'алем', 'тый': 'тым', 'ура': 'урой', 'вый': 'вым',
-    'лая': 'лой', 'ина': 'иной', 'ера': 'ерой', 'арь': 'рью',
-    'вое': 'вым', 'бро': 'бром', 'оль': 'лем', 'рый': 'рым',
-    'ото': 'отом', 'нец': 'нцем', 'ная': 'ной', 'ний': 'ним',
-    'йся': 'мся', 'лый': 'лым', 'кий': 'ким', 'чий': 'чим',
-    'ель': 'елью', 'арц': 'арцем', 'юза': 'юзой', 'ной': 'ным',
-    'тая': 'той', 'шма': 'шмой', 'вой': 'вым', 'лла': 'ллой',
-    'ния': 'нием', 'ого': 'ым', 'еди': 'едью', 'пса': 'псом',
-    'ики': 'икой', 'ора': 'ором',
-}
-
 ending_fem = {
     "ва", "ца", "ма", "ия", "на", "ха", "ка", "ба", "да",
     "шь", "чь", "жь"
@@ -586,11 +566,6 @@ ending_masc = {
 ending_neut = {}
 
 ending_plur = {"ны", "лы", "ы"}
-gem_ending_accusative = {
-    'ая': 'ую', 'ма': 'му', 'ка': 'ку', 'да': 'ду', 'ра': 'рой', 'на': 'ну',
-    'за': 'зу', 'ла': 'лу', 'ой': 'ую', 'ны': 'ну', 'ди': 'дь', 'ри': 'рь',
-    'са': 'с', 'ки': 'ку',
-}
 
 dict_ending_s = {
     'готовая еда': 'готовая еда',
@@ -1426,30 +1401,40 @@ def instrumental_case(word):
         return word + "ой"
 
 
-# Ювелирная мастерская
-def corr_item_17(s):
-    print(17)
-    hst = re_16.search(s)
-    gem = ""
-    if hst.group(1) == "Огранить":
-        for word in hst.group(2).split(" "):
-            if word[-2:] in gem_ending_accusative:
-                word = word[:-2] + gem_ending_accusative[word[-2:]]
-            if word == "из":
-                word = ""
-            gem = (gem + " " + word).strip()
-        s = hst.group(1) + " " + gem
-        return s.capitalize()
+re_jewelers_shop = re.compile(
+    r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
 
-    for word in hst.group(2).split(" "):
-        if word[-3:] in gem_ending_instrumental:
-            word = word[:-3] + gem_ending_instrumental[word[-3:]]
+
+# Ювелирная мастерская
+def corr_jewelers_shop(s):
+    print('corr_jewelers_shop')
+    hst = re_jewelers_shop.search(s)
+    gem = ""
+    first_part = hst.group(1)
+    words = hst.group(2).split()
+    if first_part == "Огранить":
+        # accusative case
+        cases = None
+        if words[0] == 'из':
+            words = words[1:]
+            cases = {genitive}
+        item = words[-1]
+        gender = get_gender(item, cases=cases)
+        print(':', gender_names[gender])
+        words = [inflect_adjective(word, gender, accusative, animated=False) for word in words[:-1]]
+        parse = list(filter(lambda x: {gender_names[gender], 'inan'} in x.tag, morph.parse(item)))
+        if item=='адамантина':
+            item = 'адамантин'
         else:
-            word += "ом"
-        if word == "изом":
-            word = ""
-        gem = (gem + " " + word).strip()
-    s = incrustation_item[hst.group(1)] + gem
+            item = custom_inflect(parse[0], {'accs'}).word
+        words.append(item)
+    else:
+        # instrumental/ablative case ('incrust with smth')
+        words = [custom_inflect(morph.parse(word)[0], {'ablt'}).word for word in words if word!='из']
+    print(words)
+    if first_part.endswith(' с'):
+        first_part = first_part[:-2]
+    s = first_part + ' ' + ' '.join(words)
     return s.capitalize()
 
 
