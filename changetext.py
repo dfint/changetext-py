@@ -749,7 +749,7 @@ adj_except = {
 
 
 def inflect_adjective(adjective, gender, case=nominative, animated=None):
-    print('inflect_adjective')
+    print('inflect_adjective(%s)' % adjective)
     if adjective.lower() in adj_except:
         ending3 = adjective[-3:]
         ending2 = adjective[-2:]
@@ -760,17 +760,19 @@ def inflect_adjective(adjective, gender, case=nominative, animated=None):
         print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case - 1]))
         return None
     else:
-        parse = morph.parse(adjective)
         assert(gender is not None)
+        parse = morph.parse(adjective)
+        parse = [p for p in parse if 'ADJF' in p.tag or 'PRTF' in p.tag]
         assert(len(parse) > 0)
         parse = parse[0]
         form_set = {gender_names[gender], case_names[case]}
         if animated is not None and gender in {masculine, plural}:
             form_set.add('anim' if animated else 'inan')
-        print(form_set)
+        print('form_set:', form_set)
         new_form = custom_inflect(parse, form_set)
         if new_form is None:
             form_set = {gender_names[gender], case_names[case]}
+            print('form_set:', form_set)
             new_form = custom_inflect(parse, form_set)
         ret = new_form.word
         print('%s -> %s' % (adjective, ret))
@@ -863,26 +865,15 @@ def genitive_case_single_noun(word):
         genitive = parse[0].inflect({'gent'})
         return genitive.word
 
-def is_adjective(word):
-    def POS_of_all(parse):
-        POS = None
-        for p in parse:
-            if POS is None:
-                POS = p.tag.POS
-            elif p.tag.POS != POS:
-                return None
-        return POS
 
-    parse = most_probable(morph.parse(word))
-    POS = POS_of_all(parse)
-    print(POS)
-    if POS:
-        return POS == 'ADJF'
+def is_adjective(word):
+    parse = morph.parse(word)
+    is_adj = in_any_tag({'ADJF'}, parse) or in_any_tag({'PRTF'}, parse)
+    if is_adj:
+        print(word, 'is adj')
     else:
-        is_adj = len(word) >= 2 and word[-2:] in adjective_endings_masculine
-        if not is_adj:
-            print("'%s' not recognized as an adjective" % word)
-        return is_adj
+        print(word, "isn't adj")
+    return is_adj
 
 
 def genitive_case_list(words):
@@ -894,13 +885,8 @@ def genitive_case_list(words):
         gender = masculine
     for word in words:
         if is_adjective(word):
-            print(word, "is adj")
-            parse = morph.parse(word)[0]
-            if parse.tag.gender != 'masc':
-                word = parse.normal_form
             word = inflect_adjective(word, gender, genitive)
         else:
-            print(word, "isn't adj")
             word = genitive_case_single_noun(word)
         yield word
 
@@ -949,6 +935,20 @@ def corr_item_01(s):
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(words[1])))
         assert(len(parse)==1)
         replacement_string = parse[0].normal_form
+    elif words[1]=='древесины' and words[-1] in {'бочка', 'ящик'}:
+        # Ultra simple case
+        replacement_string = words[-1] + ' ' + ' '.join(words[:-1])
+    elif (all(in_any_tag({'ADJF', 'gent'}, morph.parse(adj)) for adj in words[1:-1]) and
+         in_any_tag({'NOUN', 'gent'}, morph.parse(words[-1]))):
+        # All words after 'из' except the last word are adjectives in genitive
+        # The last is a noun in genitive
+        material = words[-1]
+        gender = get_gender(material, cases={genitive})
+        parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(material)))
+        material = parse[0].normal_form
+        adjs = words[1:-1]
+        adjs = [inflect_adjective(adj, gender, case=nominative) for adj in adjs]
+        replacement_string = ' '.join(adjs) + ' ' + material
     elif (words[2] not in corr_item_01_except and len(words) > 3 and
           in_any_tag({'gent'}, morph.parse(words[1])) and  # The second word is in genitive
           in_any_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in genitive
@@ -964,7 +964,7 @@ def corr_item_01(s):
             adjs = (inflect_adjective(adj, gender) or adj for adj in words[:-1])
             first_part = "%s %s" % (" ".join(adjs), obj)
         replacement_string = first_part + " " + of_material
-    elif in_any_tag({'NOUN', 'gent'}, morph.parse(words[1])):
+    elif in_any_tag({'NOUN', 'gent'}, morph.parse(words[1])) and words[1] != 'древесины':
         # Simple case, eg. "из бронзы"
         print('Simple case')
         of_material = " ".join(words[:2])
@@ -988,20 +988,11 @@ def corr_item_01(s):
         else:
             replacement_string = " ".join(words) + " " + of_material
     else:
-        # All words after 'из' except the last word are adjectives in genitive:
-        assert(all(in_any_tag({'ADJF', 'gent'}, morph.parse(adj)) for adj in words[1:-1]))  
-        # The last is a noun in genitive:
-        assert(in_any_tag({'NOUN', 'gent'}, morph.parse(words[-1])))
-        material = words[-1]
-        gender = get_gender(material, cases={genitive})
-        parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(material)))
-        material = parse[0].normal_form
-        adjs = words[1:-1]
-        adjs = [inflect_adjective(adj, gender, case=nominative) for adj in adjs]
-        replacement_string = ' '.join(adjs) + ' ' + material
+        assert(False)
     
     if start_sym:
         replacement_string = start_sym + replacement_string + end_sym
+    
     s = s.replace(initial_string, replacement_string)
     return s
 
@@ -1166,7 +1157,7 @@ posessive_adjectives = {
     'медведь': 'медвежий'
 }
 
-re_container = re.compile(r'((\b.+)\s(бочка|мешок)\s\((.*?)(\)|$))')
+re_container = re.compile(r'((\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$))')
 re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
@@ -1182,6 +1173,7 @@ def corr_container(s):
     print('initial_string:', initial_string)
     containment = hst.group(2)
     if containment == "Семя": containment = "семена"
+    if containment == "Специи": containment = "специй"
     if containment.endswith('кровь'):
         words = containment.split()
         assert(len(words)==2)
@@ -1193,11 +1185,16 @@ def corr_container(s):
     containment = genitive_case(containment)
     container = hst.group(3)
     of_material = hst.group(4)
-    if of_material in make_adjective or of_material[3:] in make_adjective:
-        if of_material[3:] in make_adjective:
-            of_material = of_material[3:]
+    if (' ' not in of_material and is_adjective(of_material) or
+       of_material in make_adjective or of_material[3:] in make_adjective):
+        if ' ' not in of_material and is_adjective(of_material):
+            adjective = of_material
+        elif of_material in make_adjective:
+            adjective = make_adjective[of_material]
+        elif of_material[3:] in make_adjective:
+            adjective = make_adjective[of_material[3:]]
         gender = get_gender(container)
-        adjective = inflect_adjective(make_adjective[of_material], gender)
+        adjective = inflect_adjective(adjective, gender)
         replacement_string = adjective + " " + container + " " + containment
     else:
         hst_1 = re_12_1.search(of_material)
@@ -1691,6 +1688,8 @@ Init()
 log = True
 if log:
     log_file = open('changetext.log', 'a', 1, encoding='utf-8')
+    from datetime import datetime
+    print('\n', datetime.today(), '\n', file=log_file)
 else:
     log_file = None
 
