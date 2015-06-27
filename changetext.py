@@ -1665,12 +1665,6 @@ histories_adjs = {
     'Exertion': 'напряжении',
     'Tenacity': 'стойкости',
     'Perseverance': 'упорстве',
-    'Labor': 'работе',
-    'Toil': 'труде',
-    'Diligence': 'усердии',
-    'Exertion': 'напряжении',
-    'Tenacity': 'стойкости',
-    'Perseverance': 'упорстве',
 }
 
 re_histories_of = re.compile(r"Histories of (\w+) and (\w+)")
@@ -1690,8 +1684,6 @@ re_skin = re.compile(r'(\(?)(.+)\s(из кожи)')
 re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
 re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
 re_14 = re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(зелёное стекло|прозрачное стекло|хрусталь)\s(\w+)')
-re_16 = re.compile(
-    r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
 re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
 re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
 
@@ -1787,8 +1779,8 @@ def _ChangeText(s):
             result = corr_item_13(s)
         elif re_14.search(s):
             result = corr_item_15(s)
-        elif re_16.search(s):
-            result = corr_item_17(s)
+        elif re_jewelers_shop.search(s):
+            result = corr_jewelers_shop(s)
         elif re_settlement.search(s):
             result = corr_settlement(s)
             # elif re_19.search(s): # Отключено: дает ложные срабатывания в логе
