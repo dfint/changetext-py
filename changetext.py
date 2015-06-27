@@ -1158,7 +1158,6 @@ posessive_adjectives = {
 }
 
 re_container = re.compile(r'((\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$))')
-re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 
 
 replace_containment = {
@@ -1172,11 +1171,11 @@ replace_containment = {
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
 def corr_container(s):
     print("corr_container")
-    if s[0]=='р' and s[-1]=='р':
-        s = '≡' + s[1:-1] + '≡'
-        # s = '*' + s[1:-1] + '*'
-    elif s[0]=='р' and s[1].isupper():
-        s = '≡' + s[1:]
+    if s[0]=='р':
+        if s[-1]=='р':
+            s = '≡' + s[1:-1] + '≡'
+        elif s[1].isupper():
+            s = '≡' + s[1:]
     hst = re_container.search(s)
     initial_string = hst.group(1)
     print('initial_string:', initial_string)
@@ -1206,13 +1205,15 @@ def corr_container(s):
         adjective = inflect_adjective(adjective, gender)
         replacement_string = adjective + " " + container + " " + containment
     else:
-        hst_1 = re_12_1.search(of_material)
-        if hst_1:
-            material_source = genitive_case(hst_1.group(1))
-            material = hst_1.group(2)
-            material = material + " " + material_source
+        if not of_material:
+            material = of_material
         else:
-            if of_material.startswith('из ') or not of_material:
+            words = of_material.split()
+            if len(words)>=2 and words[-2]=='из' and words[-1] in {'волокон', 'шёлка', 'шерсти', 'кожи'}:
+                material_source = ' '.join(genitive_case_list(words[:-2]))
+                material = ' '.join(words[-2:])
+                material = material + " " + material_source
+            elif of_material.startswith('из '):
                 material = of_material
             else:
                 material = 'из ' + genitive_case(of_material)
