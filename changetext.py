@@ -1160,6 +1160,15 @@ posessive_adjectives = {
 re_container = re.compile(r'((\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$))')
 re_12_1 = re.compile(r'(.+)\s(из волокон|из шёлка|из шерсти|из кожи)')
 
+
+replace_containment = {
+    "Семя": "семена",
+    "Специи": "специй",
+    "Самоцвет": "самоцветы",
+    "Слиток/Блок": "слитков/блоков",
+}
+
+
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
 def corr_container(s):
     print("corr_container")
@@ -1172,8 +1181,8 @@ def corr_container(s):
     initial_string = hst.group(1)
     print('initial_string:', initial_string)
     containment = hst.group(2)
-    if containment == "Семя": containment = "семена"
-    if containment == "Специи": containment = "специй"
+    if containment in replace_containment:
+        containment = replace_containment[containment]
     if containment.endswith('кровь'):
         words = containment.split()
         assert(len(words)==2)
