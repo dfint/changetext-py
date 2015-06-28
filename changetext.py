@@ -232,6 +232,7 @@ make_adjective = {
     'из кедра': 'кедровый',
     'из дуба': 'дубовый',
     'дуб': 'дубовый',
+    'из ореха': 'ореховый',
     'из клёна': 'кленовый',
     'клён': 'кленовый',
     'из ивы': 'ивовый',
@@ -937,7 +938,11 @@ def corr_item_01(s):
         replacement_string = parse[0].normal_form
     elif words[1]=='древесины':
         # Ultra simple case
-        replacement_string = words[-1] + ' ' + ' '.join(words[:-1])
+        if 'дерева' in words:
+            cut_index = words.index('дерева') + 1
+        else:
+            cut_index = -1
+        replacement_string = ' '.join(words[cut_index:] + words[:cut_index])
     elif (all(in_any_tag({'ADJF', 'gent'}, morph.parse(adj)) for adj in words[1:-1]) and
          in_any_tag({'NOUN', 'gent'}, morph.parse(words[-1]))):
         # All words after 'из' except the last word are adjectives in genitive
