@@ -1055,13 +1055,14 @@ def corr_item_skin(s):
 
 # выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
 re_clothes = re.compile(
-    r'^([x\(+*-«☼]*)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+?\b)')
+    r'^[Xx\(+*-«☼]*((.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+))')
 
 
 def corr_clothes(s):
     print('corr_clothes')
     hst = re_clothes.search(s)
-    s = s.replace(hst.group(0), hst.group(1) + hst.group(4) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
+    print(hst.group(1))
+    s = s.replace(hst.group(1), hst.group(4) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
     s = s.replace("левый", "левая")
     s = s.replace("правый", "правая")
     return s
