@@ -869,7 +869,7 @@ def genitive_case_single_noun(word):
 
 def is_adjective(word):
     parse = morph.parse(word)
-    is_adj = in_any_tag({'ADJF'}, parse) or in_any_tag({'PRTF'}, parse)
+    is_adj = any_in_tag({'ADJF'}, parse) or any_in_tag({'PRTF'}, parse)
     if is_adj:
         print(word, 'is adj')
     else:
@@ -914,7 +914,7 @@ corr_item_01_except = {
 }
 
 
-def in_any_tag(gram, parse):
+def any_in_tag(gram, parse):
     return any(gram in p.tag for p in parse)
 
 
@@ -942,13 +942,13 @@ def corr_item_01(s):
             cut_index = words.index('дерева') + 1
         elif 'пекан' in words:  # 'из древесины ореха пекан'
             cut_index = words.index('пекан') + 1
-        elif in_any_tag({'NOUN', 'gent'}, morph.parse(words[2])):  # 'из древесины яблони'
+        elif any_in_tag({'NOUN', 'gent'}, morph.parse(words[2])):  # 'из древесины яблони'
             cut_index = 3
         else:
             cut_index = -1
         replacement_string = ' '.join(words[cut_index:] + words[:cut_index])
-    elif (all(in_any_tag({'ADJF', 'gent'}, morph.parse(adj)) for adj in words[1:-1]) and
-         in_any_tag({'NOUN', 'gent'}, morph.parse(words[-1]))):
+    elif (all(any_in_tag({'ADJF', 'gent'}, morph.parse(adj)) for adj in words[1:-1]) and
+         any_in_tag({'NOUN', 'gent'}, morph.parse(words[-1]))):
         # All words after 'из' except the last word are adjectives in genitive
         # The last is a noun in genitive
         material = words[-1]
@@ -959,8 +959,8 @@ def corr_item_01(s):
         adjs = [inflect_adjective(adj, gender, case=nominative) for adj in adjs]
         replacement_string = ' '.join(adjs) + ' ' + material
     elif (words[2] not in corr_item_01_except and len(words) > 3 and
-          in_any_tag({'gent'}, morph.parse(words[1])) and  # The second word is in genitive
-          in_any_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in genitive
+          any_in_tag({'gent'}, morph.parse(words[1])) and  # The second word is in genitive
+          any_in_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
         print('Complex case')
         of_material = " ".join(words[:3])
@@ -973,7 +973,7 @@ def corr_item_01(s):
             adjs = (inflect_adjective(adj, gender) or adj for adj in words[:-1])
             first_part = "%s %s" % (" ".join(adjs), obj)
         replacement_string = first_part + " " + of_material
-    elif in_any_tag({'NOUN', 'gent'}, morph.parse(words[1])) and words[1] != 'древесины':
+    elif any_in_tag({'NOUN', 'gent'}, morph.parse(words[1])) and words[1] != 'древесины':
         # Simple case, eg. "из бронзы"
         print('Simple case')
         of_material = " ".join(words[:2])
@@ -1355,13 +1355,13 @@ def corr_forge(s):
     print('Verb:', verb)
     print('words:', words)
     assert(len(words)>=3)
-    if (in_any_tag({'ADJF', 'gent'}, morph.parse(words[1])) and  # The second word is an adj in gent
-       in_any_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in gent
+    if (any_in_tag({'ADJF', 'gent'}, morph.parse(words[1])) and  # The second word is an adj in gent
+       any_in_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in gent
         print('Complex case')
         of_material = words[:3]
         obj = words[3:]
     else:
-        assert(in_any_tag({'NOUN', 'gent'}, morph.parse(words[1])))
+        assert(any_in_tag({'NOUN', 'gent'}, morph.parse(words[1])))
         print('Simple case')
         of_material = words[:2]
         obj = words[2:]
@@ -1376,7 +1376,7 @@ def corr_forge(s):
         parse = morph.parse(obj[item_index])
         p = list(filter(lambda x: {'NOUN'} in x.tag and 'Surn' not in x.tag, parse))
         gender = get_gender(obj[item_index], cases={nominative})
-        if not in_any_tag({'accs'}, p):
+        if not any_in_tag({'accs'}, p):
             obj[0] = p[0].inflect({'accs'}).word
     else:
         for i, x in enumerate(obj):
@@ -1387,13 +1387,13 @@ def corr_forge(s):
                 gender = get_gender(obj[item_index])
                 obj[i] = p[0].inflect({'accs'}).word
                 break  # Words after the 'item' must be leaved in genitive case
-            elif not in_any_tag('accs', parse):
+            elif not any_in_tag('accs', parse):
                 obj[i] = parse[0].inflect({'accs'}).word
     
     print(obj)
     print(obj[item_index])
     
-    if not in_any_tag('accs', parse):
+    if not any_in_tag('accs', parse):
         obj[item_index] = parse[0].inflect({'accs'}).word
     
     if verb == 'Кузница':
