@@ -1205,7 +1205,9 @@ def corr_container(s):
     containment = genitive_case(containment)
     container = hst.group(3)
     of_material = hst.group(4)
-    if (' ' not in of_material and is_adjective(of_material) or
+    if not of_material:
+        replacement_string = container + ' ' + containment
+    elif (' ' not in of_material and is_adjective(of_material) or
        of_material in make_adjective or of_material[3:] in make_adjective):
         if ' ' not in of_material and is_adjective(of_material):
             adjective = of_material
@@ -1217,22 +1219,19 @@ def corr_container(s):
         adjective = inflect_adjective(adjective, gender)
         replacement_string = adjective + " " + container + " " + containment
     else:
-        if not of_material:
+        words = of_material.split()
+        if len(words)>=2 and words[-2]=='из' and words[-1] in {'волокон', 'шёлка', 'шерсти', 'кожи'}:
+            material_source = ' '.join(genitive_case_list(words[:-2]))
+            material = ' '.join(words[-2:])
+            material = material + " " + material_source
+        elif of_material.startswith('из '):
             material = of_material
         else:
-            words = of_material.split()
-            if len(words)>=2 and words[-2]=='из' and words[-1] in {'волокон', 'шёлка', 'шерсти', 'кожи'}:
-                material_source = ' '.join(genitive_case_list(words[:-2]))
-                material = ' '.join(words[-2:])
-                material = material + " " + material_source
-            elif of_material.startswith('из '):
-                material = of_material
+            gen_case = list(genitive_case_list(of_material.split()))
+            if None not in gen_case:
+                material = 'из ' + ' '.join(gen_case)
             else:
-                gen_case = list(genitive_case_list(of_material.split()))
-                if None not in gen_case:
-                    material = 'из ' + ' '.join(gen_case)
-                else:
-                    material = of_material
+                material = of_material
         replacement_string = "%s %s (%s" % (container, containment, material)
         if initial_string[-1] == ')':
             replacement_string += ')'
