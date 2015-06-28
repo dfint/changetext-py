@@ -1202,13 +1202,18 @@ def corr_container(s):
         else:
             words.reverse()
         containment = " ".join(words)
-    containment = genitive_case(containment)
+    if containment.startswith('из '):
+        containment = containment[3:]  # Already in genitive case
+    else:
+        containment = genitive_case(containment)
     container = hst.group(3)
     of_material = hst.group(4)
     if not of_material:
+        print('Void material')
         replacement_string = container + ' ' + containment
     elif (' ' not in of_material and is_adjective(of_material) or
        of_material in make_adjective or of_material[3:] in make_adjective):
+        print('Case 1')
         if ' ' not in of_material and is_adjective(of_material):
             adjective = of_material
         elif of_material in make_adjective:
@@ -1219,9 +1224,14 @@ def corr_container(s):
         adjective = inflect_adjective(adjective, gender)
         replacement_string = adjective + " " + container + " " + containment
     else:
+        print('Case 2')
         words = of_material.split()
-        if len(words)>=2 and words[-2]=='из' and words[-1] in {'волокон', 'шёлка', 'шерсти', 'кожи'}:
+        if len(words)>=2 and words[-2]=='из' and words[-1] in {'волокон', 'шёлка', 'шёлк', 'шерсти', 'кожи'}:
             material_source = ' '.join(genitive_case_list(words[:-2]))
+            parse = morph.parse(words[-1])
+            if not any_in_tag({'gent'}, parse):
+                parse = [p for p in parse if {'NOUN', 'nomn'} in p.tag][0]
+                words[-1] = custom_inflect(parse, {'gent'}).word
             material = ' '.join(words[-2:])
             material = material + " " + material_source
         elif of_material.startswith('из '):
@@ -1756,6 +1766,8 @@ def _ChangeText(s):
         
         if re_histories_of.search(s):
             result = corr_histories_of(s)
+        elif re_container.search(s):
+            result = corr_container(s)
         elif re_01.search(s):
             print('re_01 passed')
             result = corr_item_01(s)
@@ -1763,8 +1775,6 @@ def _ChangeText(s):
             result = corr_clothes(s)
         elif re_prepared.search(s):
             result = corr_prepared(s)
-        elif re_container.search(s):
-            result = corr_container(s)
         elif re_skin.search(s):
             result = corr_item_skin(s)
         elif re_forge.search(s):
