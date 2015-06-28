@@ -935,7 +935,7 @@ def corr_item_01(s):
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(words[1])))
         assert(len(parse)==1)
         replacement_string = parse[0].normal_form
-    elif words[1]=='древесины' and words[-1] in {'бочка', 'ящик'}:
+    elif words[1]=='древесины':
         # Ultra simple case
         replacement_string = words[-1] + ' ' + ' '.join(words[:-1])
     elif (all(in_any_tag({'ADJF', 'gent'}, morph.parse(adj)) for adj in words[1:-1]) and
