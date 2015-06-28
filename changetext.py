@@ -1228,7 +1228,11 @@ def corr_container(s):
             elif of_material.startswith('из '):
                 material = of_material
             else:
-                material = 'из ' + genitive_case(of_material)
+                gen_case = list(genitive_case_list(of_material.split()))
+                if None not in gen_case:
+                    material = 'из ' + ' '.join(gen_case)
+                else:
+                    material = of_material
         replacement_string = "%s %s (%s" % (container, containment, material)
         if initial_string[-1] == ')':
             replacement_string += ')'
