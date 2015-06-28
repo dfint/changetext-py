@@ -1031,43 +1031,46 @@ def corr_item_3(s):
     return s
 
 # выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
-re_4 = re.compile(r"(приготовленные|рубленная)\s(.+)\s(\w+)")
+re_prepared = re.compile(r"(приготовленные|рубленная)\s(.+)\s(\w+)")
 
 
-def corr_item_4(s):
-    print(4)
-    hst = re_4.search(s)
+def corr_prepared(s):
+    print('corr_prepared')
+    hst = re_prepared.search(s)
     s = s.replace(hst.group(0), hst.group(1) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
     return s
 
 
+re_skin = re.compile(r'(\(?)(.+)\s(из кожи)')
+
+
 # выражения типа "горный козёл из кожи"
 def corr_item_skin(s):
-    print(5)
+    print('corr_item_skin')
     hst = re_skin.search(s)
     s = s.replace(hst.group(0), hst.group(1) + "кожа " + genitive_case(hst.group(2)))
     return s
 
 # выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
-re_6 = re.compile(
+re_clothes = re.compile(
     r'^([x\(+*-«☼]*)(.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+?\b)')
 
 
-def corr_item_6(s):
-    print(6)
-    hst = re_6.search(s)
+def corr_clothes(s):
+    print('corr_clothes')
+    hst = re_clothes.search(s)
     s = s.replace(hst.group(0), hst.group(1) + hst.group(4) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
     s = s.replace("левый", "левая")
     s = s.replace("правый", "правая")
     return s
 
 # выражения типа "древесина дуба брёвна"
-re_7 = re.compile(r'(древесина)\s(\w+)\s(брёвна)')
+re_wooden_logs = re.compile(r'(древесина)\s(\w+)\s(брёвна)')
 
 
-def corr_item_7(s):
+def corr_wooden_logs(s):
     print(7)
-    hst = re_7.search(s)
+    hst = re_wooden_logs.search(s)
     of_wood = "из " + hst.group(2)
     if of_wood in make_adjective:
         adj = inflect_adjective(make_adjective[of_wood], plural)
@@ -1080,12 +1083,12 @@ def corr_item_7(s):
 re_gem_cutting = re.compile(r'((бриолетовый|большой|огранённый|огранённый|грубый)\s[\w\s-]+)')
 
 
-def corr_item_8(s):
-    print(8)
+def corr_gem_cutting(s):
+    print('corr_gem_cutting')
     hst = re_gem_cutting.search(s)
     words = hst.group(1).split()
     if words[-1] in body_parts:
-        print(8.1)
+        print('Redirect to corr_item_body_parts')
         return corr_item_body_parts(s)
 
     print(words)
@@ -1108,7 +1111,7 @@ re_weapon_trap_parts = re.compile(r'(шипованный|огромный|бо�
 
 
 def corr_weapon_trap_parts(s):
-    print(9)
+    print('corr_weapon_trap_parts')
     hst = re_weapon_trap_parts.search(s)
     adj = hst.group(1)
     words = hst.group(2).split()
@@ -1681,7 +1684,6 @@ def corr_histories_of(s):
 re_3 = re.compile(
     r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольца|серьги|амулеты|браслеты|скипетры|коронаы|статуэтки\b)')
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
-re_skin = re.compile(r'(\(?)(.+)\s(из кожи)')
 re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
 re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
 re_14 = re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(зелёное стекло|прозрачное стекло|хрусталь)\s(\w+)')
@@ -1754,10 +1756,10 @@ def _ChangeText(s):
         elif re_01.search(s):
             print('re_01 passed')
             result = corr_item_01(s)
-        elif re_6.search(s):
-            result = corr_item_6(s)
-        elif re_4.search(s):
-            result = corr_item_4(s)
+        elif re_clothes.search(s):
+            result = corr_clothes(s)
+        elif re_prepared.search(s):
+            result = corr_prepared(s)
         elif re_container.search(s):
             result = corr_container(s)
         elif re_skin.search(s):
@@ -1768,10 +1770,10 @@ def _ChangeText(s):
             result = corr_weapon_trap_parts(s)
         elif re_3.search(s):
             result = corr_item_3(s)
-        elif re_7.search(s):
-            result = corr_item_7(s)
+        elif re_wooden_logs.search(s):
+            result = corr_wooden_logs(s)
         elif re_gem_cutting.search(s):
-            result = corr_item_8(s)
+            result = corr_gem_cutting(s)
         elif re_11.search(s):
             result = corr_item_10(s)
         elif re_stopped_construction.search(s):
