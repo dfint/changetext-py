@@ -938,8 +938,12 @@ def corr_item_01(s):
         replacement_string = parse[0].normal_form
     elif words[1]=='древесины':
         # Ultra simple case
-        if 'дерева' in words:
+        if 'дерева' in words:  # 'из древесины миндального дерева'
             cut_index = words.index('дерева') + 1
+        elif 'пекан' in words:  # 'из древесины ореха пекан'
+            cut_index = words.index('пекан') + 1
+        elif in_any_tag({'NOUN', 'gent'}, morph.parse(words[2])):  # 'из древесины яблони'
+            cut_index = 3
         else:
             cut_index = -1
         replacement_string = ' '.join(words[cut_index:] + words[:cut_index])
