@@ -750,7 +750,7 @@ adj_except = {
 
 
 def inflect_adjective(adjective, gender, case=nominative, animated=None):
-    print('inflect_adjective(%s)' % adjective)
+    print('inflect_adjective(%s, %s)' % (adjective, case_names[case]))
     if adjective.lower() in adj_except:
         ending3 = adjective[-3:]
         ending2 = adjective[-2:]
@@ -758,7 +758,7 @@ def inflect_adjective(adjective, gender, case=nominative, animated=None):
             return adjective[:-3] + adjective_cases[ending3][case][gender]
         elif ending2 in adjective_cases:
             return adjective[:-2] + adjective_cases[ending2][case][gender]
-        print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case - 1]))
+        print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case]))
         return None
     else:
         assert(gender is not None)
@@ -1001,6 +1001,8 @@ def corr_item_01(s):
     
     if start_sym:
         replacement_string = start_sym + replacement_string + end_sym
+    elif end_sym:
+        replacement_string += end_sym
     
     s = s.replace(initial_string, replacement_string)
     return s
