@@ -1695,6 +1695,17 @@ def corr_histories_of(s):
     return 'Истории о' + histories_adjs[hst.group(1)] + ' и ' + histories_adjs[hst.group(2)]
 
 
+def corr_well(s):
+    s = s.replace('колодец', 'хорошо')
+    if 'чувствую' in s and 'себя' not in s:
+        s = s.replace('чувствую', 'чувствую себя')
+    elif 'делаю хорошо' in s:
+        s = s.replace('делаю хорошо', 'в порядке')
+    elif 'был хорошо' in s:
+        s = s.replace('был хорошо', 'был в порядке')
+    return s
+
+
 ############################################################################
 # компилированные регулярные выражения
 re_3 = re.compile(
@@ -1755,11 +1766,7 @@ def _ChangeText(s):
             result = s
 
         if 'Я ' in s and 'колодец' in s:
-            s = s.replace('колодец', 'хорошо')
-            if 'чувствую' in s and 'чувствую себя' not in s:
-                s = s.replace('чувствую', 'чувствую себя')
-            elif 'делаю хорошо' in s:
-                s = s.replace('делаю хорошо', 'в порядке')
+            s = corr_well(s)
             result = s
         
         for item in replaced_parts:
