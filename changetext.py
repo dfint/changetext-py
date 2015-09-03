@@ -30,7 +30,7 @@ phrases = {
         'на нашем вебсайте bay12games.com.  Следите за обновлениями.',
     'You can also find an older yet more stable version of the game there.':
         'Там же вы можете найти более старые и стабильные версии игры.',
-    'As of June 2012, you can get help at the fan-created dwarffortresswiki.org.':
+    'As of June 2012, you can get help at the fan-created dwarffortresswiki.org.':  # TODO: make independent to the year number
         'Кроме того, вы можете получить помощь на dwarffortresswiki.org.',
     'Please make use of and contribute to this valuable resource.':
         'Пожалуйста, пользуйтесь и вносите свой вклад в этот ценный ресурс.',
