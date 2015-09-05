@@ -870,6 +870,13 @@ def genitive_case_single_noun(word):
         return genitive.word
 
 
+def inflect_noun(word, case):
+    parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
+    assert(parse is not None)
+    new_form = parse[0].inflect({case_names[case]})
+    return new_form.word
+
+
 def is_adjective(word):
     parse = morph.parse(word)
     is_adj = any_in_tag({'ADJF'}, parse) or any_in_tag({'PRTF'}, parse)
@@ -1432,11 +1439,19 @@ def corr_forge(s):
 
 
 def instrumental_case(word):
+    print("instrumental_case(%s)" % repr(word))
+    assert(' ' not in word)
     gender = get_gender(word)
-    if gender == masculine:
-        return word + "ом"
-    elif gender == feminine:
-        return word + "ой"
+    if gender is None:
+        print("Assuming gender of '%s' is masculine" % word)
+        gender = masculine
+    
+    if is_adjective(word):
+        word = inflect_adjective(word, gender, instrumental)
+    else:
+        word = inflect_noun(word, instrumental)
+    
+    return word
 
 
 re_jewelers_shop = re.compile(
@@ -1640,16 +1655,19 @@ def corr_werebeast(s):
     hst = re_werebeast.search(s)
     return s.replace(hst.group(0), hst.group(1) + "-оборотень")
 
-# re_become = re.compile(r"(.+)\s(вырос и стал|стал)\s(.+)\.")
+
 re_become = re.compile(r"(.+)\s(стал)\s(.+)\.")
 
 
 def corr_become(s):
     print("corr_become")
     hst = re_become.search(s)
+    subj = hst.group(1)
+    verb = hst.group(2)
+    print(verb)
     words = hst.group(3).split()
-    words[0] = instrumental_case(words[0])
-    return "%s %s %s." % (hst.group(1), hst.group(2), " ".join(words))
+    words = (instrumental_case(word) for word in words)
+    return "%s %s %s." % (subj, verb, ' '.join(words))
 
 
 re_with_his = re.compile(r'(.*) с (его|её)(.*)')
