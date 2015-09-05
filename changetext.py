@@ -50,6 +50,9 @@ phrases = {
 
     'Ничего не ловится в центре  болотах.': 'Ничего не ловится в центральных болотах.',
     'Ничего не ловится в востоке болотах.': 'Ничего не ловится в восточных болотах.',
+    
+    ' доверенное л ': ' доверенное лицо ',  # Temporary fix for 'hearthperson' cutting
+    'источника в.': 'источника воды.',  # Temporary fix for 'No water source.' cutting
 }
 
 from collections import OrderedDict
