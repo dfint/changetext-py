@@ -1702,7 +1702,7 @@ def corr_well(s):
     elif 'делаю хорошо' in s:
         s = s.replace('делаю хорошо', 'в порядке')
     elif 'был хорошо' in s:
-        s = s.replace('был хорошо', 'был в порядке')
+        s = s.replace('был хорошо', 'в порядке')
     return s
 
 
