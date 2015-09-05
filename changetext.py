@@ -1539,7 +1539,7 @@ def corr_item_21(s):
     s = hst.group(2) + " " + genitive_case(hst.group(1))
     return s
 
-re_stopped_construction = re.compile(r'(\w+) приостановили строительство (\w+).')
+re_stopped_construction = re.compile(r'(\w+) приостановили строительство (.*)\.')
 
 
 def corr_stopped_construction(s):
@@ -1547,7 +1547,11 @@ def corr_stopped_construction(s):
     hst = re_stopped_construction.search(s)
     subj = hst.group(1)
     obj = hst.group(2)
-    return ("%s приостановили строительство %s." % (subj, genitive_case(obj))).capitalize()
+    gen_case_obj = genitive_case(obj)
+    if gen_case_obj.endswith('мастерской'):
+        gen_case_obj = ' '.join(reversed(gen_case_obj.split()))
+    
+    return ("%s приостановили строительство %s." % (subj, gen_case_obj)).capitalize()
 
 # Корректировка для окончания s - перевод существительного во множественное число или глагола в 3-е лицо ед.ч.
 re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*e?s\b)')
