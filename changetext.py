@@ -1803,11 +1803,9 @@ def _ChangeText(s):
             s = corr_well(s)
             result = s
         
-        
         if 'рублены' in s and 'рубленый ' not in s:
             s = corr_minced(s)
             result = s
-        
         
         for item in replaced_parts:
             if item in s:
