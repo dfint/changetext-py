@@ -1731,6 +1731,15 @@ def corr_well(s):
     return s
 
 
+def corr_minced(s):
+    s1 = ''
+    while 'рублены' in s and 'рубленый' not in s:
+        x, _, s = s.partition('рублены')
+        s1 += x + 'рубленый '
+    
+    return s1 + s
+
+
 ############################################################################
 # компилированные регулярные выражения
 re_3 = re.compile(
@@ -1793,6 +1802,12 @@ def _ChangeText(s):
         if 'Я ' in s and 'колодец' in s:
             s = corr_well(s)
             result = s
+        
+        
+        if 'рублены' in s and 'рубленый ' not in s:
+            s = corr_minced(s)
+            result = s
+        
         
         for item in replaced_parts:
             if item in s:
