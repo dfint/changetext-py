@@ -1874,7 +1874,7 @@ def _ChangeText(s):
         output = None
 
     if log and s not in logged:
-        print('"%s" --> "%s"' % (s, output), file=log_file)
+        print('%r --> %r' % (s, output), file=log_file)
         log_file.flush()
         logged.add(s)
 
