@@ -59,6 +59,7 @@ from collections import OrderedDict
 
 replaced_parts = OrderedDict([
     ("Ремесленникство", "мастерство"),
+    ("предложить вашей мастерство", "предложить Вашей Мастеровитости"),
     ("FIRED_MAT-образующий", ""),
     ("FIRED_MAT", "обожжённый"),
     ("TALLOW SOAP_MAT-образующий", "мылообразующий"),
