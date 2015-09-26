@@ -1362,6 +1362,8 @@ def corr_item_body_parts(s):
     if words[-1] in {"частичный", "искалеченный"}:
         replacement_string = "%s %s %s" % (words[-1], hst.group(3), " ".join(genitive_case_list(words[:-1])))
     else:
+        if any('GRND' in morph.parse(word)[0].tag for word in words):  # Ignore participles
+            return None
         replacement_string = hst.group(3) + " " + " ".join(genitive_case_list(words))
     return s.replace(initial_string, replacement_string.capitalize())
 
