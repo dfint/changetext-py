@@ -1,8 +1,10 @@
 import sys
 import re
 import traceback
+from collections import OrderedDict
 
 import pymorphy2
+
 morph = pymorphy2.MorphAnalyzer()
 
 try:
@@ -50,12 +52,9 @@ phrases = {
 
     'Ничего не ловится в центре  болотах.': 'Ничего не ловится в центральных болотах.',
     'Ничего не ловится в востоке болотах.': 'Ничего не ловится в восточных болотах.',
-    
 
     'NEW': 'НОВОЕ',
 }
-
-from collections import OrderedDict
 
 replaced_parts = OrderedDict([
     ("Ремесленникство", "мастерство"),
@@ -160,7 +159,6 @@ gender_item = {
     "кровати": plural, "жернова": plural, "троны": plural, "стойки": plural, "сундуки": plural, "изделия": plural,
     "перчатки": plural, "брюки": plural, "доспехи": plural, "щиты/баклеры": plural, "плащи": plural,
     "рубахи": plural, "накидки": plural, "робы": plural, "жилеты": plural, "туники": plural, "тоги": plural,
-
 
     # самоцветы
     # masculine
@@ -453,7 +451,7 @@ make_adjective = {
     'из кожи': "кожаный",
     'из шёлка': "шёлковый",
     'шёлк': 'шёлковый',
-    
+
     # разные материалы
     'металл': "металлический",
     'кожа': "кожаный",
@@ -529,7 +527,6 @@ adjective_cases = {
         ("чем", "чей", "чем", "чих"),  # предложный  - prepositional
     ),
 }
-
 
 accusative_case = {
     'булава': "булаву",
@@ -694,7 +691,7 @@ def most_probable(parse, score=None):
     if score is None:
         score = parse[0].score
     for p in parse:
-        assert(score >= p.score)
+        assert score >= p.score
         if score - p.score > 1e-5:
             break
         yield p
@@ -713,7 +710,7 @@ def get_gender(obj, cases=None):
             if pm_gender(p) != gender:
                 return False
         return True
-    
+
     print("get_gender('%s')" % obj)
     parse = morph.parse(obj)
     if cases is not None:
@@ -767,10 +764,10 @@ def inflect_adjective(adjective, gender, case=nominative, animated=None):
         print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case]))
         return None
     else:
-        assert(gender is not None)
+        assert gender is not None
         parse = morph.parse(adjective)
         parse = [p for p in parse if 'ADJF' in p.tag or 'PRTF' in p.tag]
-        assert(len(parse) > 0)
+        assert len(parse) > 0
         parse = parse[0]
         form_set = {gender_names[gender], case_names[case]}
         if animated is not None and gender in {masculine, plural}:
@@ -855,6 +852,7 @@ gent_case_except = {
     'споры',  # в родительный падеж ставит как "споров"
 }
 
+
 def genitive_case_single_noun(word):
     print('genitive_case_single_noun')
     print(word)
@@ -875,7 +873,7 @@ def genitive_case_single_noun(word):
 
 def inflect_noun(word, case):
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
-    assert(parse is not None)
+    assert parse is not None
     new_form = parse[0].inflect({case_names[case]})
     return new_form.word
 
@@ -908,6 +906,7 @@ def genitive_case_list(words):
 def genitive_case(word):
     return ' '.join(genitive_case_list(word.split()))
 
+
 #############################################################################
 
 animals_female = {"собака", "самка", "крольчиха", "гусыня", "утка", "кошка", "ослица", "кобыла", "корова", "овца",
@@ -916,7 +915,6 @@ animals_female = {"собака", "самка", "крольчиха", "гусы�
 
 body_parts = {"панцирь", "скелет", "искалеченный труп", "останки", "кость", "кожа", "шёлк", "волокна", "шерсть", "мех",
               " хвост"}
-
 
 re_01 = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
 
@@ -945,11 +943,11 @@ def corr_item_01(s):
             words[-1] = words[-1][:-1]
             end_sym = start_sym
     print(words)
-    if len(words)==2:
+    if len(words) == 2:
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(words[1])))
-        assert(len(parse)==1)
+        assert len(parse) == 1
         replacement_string = parse[0].normal_form
-    elif words[1]=='древесины':
+    elif words[1] == 'древесины':
         # Ultra simple case
         if 'дерева' in words:  # 'из древесины миндального дерева'
             cut_index = words.index('дерева') + 1
@@ -978,7 +976,7 @@ def corr_item_01(s):
         print('Complex case')
         of_material = " ".join(words[:3])
         words = words[3:]
-        if len(words)==1:
+        if len(words) == 1:
             first_part = words[0]
         else:
             obj = words[-1]
@@ -1010,13 +1008,13 @@ def corr_item_01(s):
         else:
             replacement_string = " ".join(words) + " " + of_material
     else:
-        assert(False)
-    
+        assert False
+
     if start_sym:
         replacement_string = start_sym + replacement_string + end_sym
     elif end_sym:
         replacement_string += end_sym
-    
+
     s = s.replace(initial_string, replacement_string)
     return s
 
@@ -1045,6 +1043,7 @@ def corr_item_3(s):
     print(3.0)
     return s
 
+
 # выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
 re_prepared = re.compile(r"\W((приготовленные|рубленная)\s(.+)\s(\w+))")
 
@@ -1066,6 +1065,7 @@ def corr_item_skin(s):
     s = s.replace(hst.group(0), hst.group(1) + "кожа " + genitive_case(hst.group(2)))
     return s
 
+
 # выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
 re_clothes = re.compile(
     r'^[Xx\(+*-«☼]*((.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+))')
@@ -1079,6 +1079,7 @@ def corr_clothes(s):
     s = s.replace("левый", "левая")
     s = s.replace("правый", "правая")
     return s
+
 
 # выражения типа "древесина дуба брёвна"
 re_wooden_logs = re.compile(r'(древесина)\s(\w+)\s(брёвна)')
@@ -1094,6 +1095,7 @@ def corr_wooden_logs(s):
     else:
         s = s.replace(hst.group(0), hst.group(1) + " " + hst.group(2))  # древесина акации
     return s
+
 
 # выражения типа "(бриолетовый восковые опалы)"
 re_gem_cutting = re.compile(r'((бриолетовый|большой|огранённый|огранённый|грубый)\s[\w\s-]+)')
@@ -1122,8 +1124,10 @@ def corr_gem_cutting(s):
 
     return s.replace(hst.group(0), " ".join(new_list))
 
+
 # выражения типа "гигантский из ясеня лезвия топоров"
-re_weapon_trap_parts = re.compile(r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s[\w\s]+\b)')
+re_weapon_trap_parts = re.compile(
+    r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s[\w\s]+\b)')
 
 
 def corr_weapon_trap_parts(s):
@@ -1179,6 +1183,7 @@ def corr_item_10(s):
 
     return s
 
+
 posessive_adjectives = {
     'жаба': 'жабий',
     'корова': 'коровий',
@@ -1186,7 +1191,6 @@ posessive_adjectives = {
 }
 
 re_container = re.compile(r'((\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$))')
-
 
 replace_containment = {
     "Семя": "семена",
@@ -1199,8 +1203,8 @@ replace_containment = {
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
 def corr_container(s):
     print("corr_container")
-    if s[0]=='р':
-        if s[-1]=='р':
+    if s[0] == 'р':
+        if s[-1] == 'р':
             s = '≡' + s[1:-1] + '≡'
         elif s[1].isupper():
             s = '≡' + s[1:]
@@ -1212,7 +1216,7 @@ def corr_container(s):
         containment = replace_containment[containment]
     if containment.endswith('кровь'):
         words = containment.split()
-        assert(len(words)==2)
+        assert len(words) == 2
         if words[0] in posessive_adjectives:
             words[0] = posessive_adjectives[words[0]]
         else:
@@ -1228,7 +1232,7 @@ def corr_container(s):
         print('Void material')
         replacement_string = container + ' ' + containment
     elif (' ' not in of_material and is_adjective(of_material) or
-       of_material in make_adjective or of_material[3:] in make_adjective):
+          of_material in make_adjective or of_material[3:] in make_adjective):
         print('Case 1')
         if ' ' not in of_material and is_adjective(of_material):
             adjective = of_material
@@ -1236,13 +1240,15 @@ def corr_container(s):
             adjective = make_adjective[of_material]
         elif of_material[3:] in make_adjective:
             adjective = make_adjective[of_material[3:]]
+        else:
+            adjective = None
         gender = get_gender(container)
         adjective = inflect_adjective(adjective, gender)
         replacement_string = adjective + " " + container + " " + containment
     else:
         print('Case 2')
         words = of_material.split()
-        if len(words)>=2 and words[-2]=='из' and words[-1] in {'волокон', 'шёлка', 'шёлк', 'шерсти', 'кожи'}:
+        if len(words) >= 2 and words[-2] == 'из' and words[-1] in {'волокон', 'шёлка', 'шёлк', 'шерсти', 'кожи'}:
             material_source = ' '.join(genitive_case_list(words[:-2]))
             parse = morph.parse(words[-1])
             if not any_in_tag({'gent'}, parse):
@@ -1264,9 +1270,12 @@ def corr_container(s):
     s = s.replace(initial_string, replacement_string.capitalize())
     return s
 
+
 # Элементы рельефа, крепости и т.п.
 re_13 = re.compile(
     r'(.+)\s(Подъем|Стена|Кластер|валун|склон|Пол Пещеры|лестница вверх/вниз|пол пещеры|Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b')
+
+
 #    (прилагательное) (первое дополнение) (второе дополнение) =>
 # => (прилагательное) (второе дополнение) из (первое дополнение)
 
@@ -1350,6 +1359,7 @@ def corr_item_13(s):
 
     return s.capitalize()
 
+
 # "Скелет, останки и тп"
 re_body_parts = re.compile(
     r'^[{]?((\w+\s?\w+?|)\s(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп|голень))\}?\b')
@@ -1388,20 +1398,20 @@ def corr_forge(s):
     words = hst.group(2).split()
     print('Verb:', verb)
     print('words:', words)
-    assert(len(words)>=3)
+    assert len(words) >= 3
     if (any_in_tag({'ADJF', 'gent'}, morph.parse(words[1])) and  # The second word is an adj in gent
-       any_in_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in gent
+            any_in_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in gent
         print('Complex case')
         of_material = words[:3]
         obj = words[3:]
     else:
-        assert(any_in_tag({'NOUN', 'gent'}, morph.parse(words[1])))
+        assert any_in_tag({'NOUN', 'gent'}, morph.parse(words[1]))
         print('Simple case')
         of_material = words[:2]
         obj = words[2:]
         print('of_material:', of_material)
         print('obj:', obj)
-    
+
     of_material = ' '.join(of_material)
     print(obj)
     item_index = None
@@ -1423,39 +1433,39 @@ def corr_forge(s):
                 break  # Words after the 'item' must be leaved in genitive case
             elif not any_in_tag('accs', parse):
                 obj[i] = parse[0].inflect({'accs'}).word
-    
+
     print(obj)
     print(obj[item_index])
-    
+
     if not any_in_tag('accs', parse):
         obj[item_index] = parse[0].inflect({'accs'}).word
-    
+
     if verb == 'Кузница':
         verb = 'Ковать'
-    
+
     if of_material in make_adjective:
         print('gender of "%s" is %s' % (obj[item_index], gender_names[gender]))
         material = inflect_adjective(make_adjective[of_material], gender, accusative, animated=False)
         s = verb + " " + material + " " + ' '.join(obj)
     else:
         s = verb + " " + ' '.join(obj) + " " + of_material
-    
+
     return s.capitalize()
 
 
 def instrumental_case(word):
     print("instrumental_case(%s)" % repr(word))
-    assert(' ' not in word)
+    assert ' ' not in word
     gender = get_gender(word)
     if gender is None:
         print("Assuming gender of '%s' is masculine" % word)
         gender = masculine
-    
+
     if is_adjective(word):
         word = inflect_adjective(word, gender, instrumental)
     else:
         word = inflect_noun(word, instrumental)
-    
+
     return word
 
 
@@ -1481,14 +1491,14 @@ def corr_jewelers_shop(s):
         print(':', gender_names[gender])
         words = [inflect_adjective(word, gender, accusative, animated=False) for word in words[:-1]]
         parse = list(filter(lambda x: {gender_names[gender], 'inan'} in x.tag, morph.parse(item)))
-        if item=='адамантина':
+        if item == 'адамантина':
             item = 'адамантин'
         else:
             item = custom_inflect(parse[0], {'accs'}).word
         words.append(item)
     else:
         # instrumental/ablative case ('incrust with smth')
-        words = [custom_inflect(morph.parse(word)[0], {'ablt'}).word for word in words if word!='из']
+        words = [custom_inflect(morph.parse(word)[0], {'ablt'}).word for word in words if word != 'из']
     print(words)
     if first_part.endswith(' с'):
         first_part = first_part[:-2]
@@ -1504,7 +1514,6 @@ gender_item["городок"] = masculine
 gender_item["гробница"] = feminine
 gender_item["пригорки"] = plural
 
-
 re_settlement = re.compile(r'(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)')
 
 
@@ -1518,10 +1527,10 @@ def corr_settlement(s):
 
     if len(adjective) == 0:
         return "%s %s" % (settlement.capitalize(), name.capitalize())
-    
+
     if adjective in {'Покинуть', 'Разрушить'}:
         return
-    
+
     gender = get_gender(settlement)
     if " " not in adjective:
         adjective_2 = inflect_adjective(adjective, gender)
@@ -1559,6 +1568,7 @@ def corr_item_21(s):
     s = hst.group(2) + " " + genitive_case(hst.group(1))
     return s
 
+
 re_stopped_construction = re.compile(r'(\w+) приостановили строительство (.*)\.')
 
 
@@ -1570,8 +1580,9 @@ def corr_stopped_construction(s):
     gen_case_obj = genitive_case(obj)
     if gen_case_obj.endswith('мастерской'):
         gen_case_obj = ' '.join(reversed(gen_case_obj.split()))
-    
+
     return ("%s приостановили строительство %s." % (subj, gen_case_obj)).capitalize()
+
 
 # Корректировка для окончания s - перевод существительного во множественное число или глагола в 3-е лицо ед.ч.
 re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*e?s\b)')
@@ -1591,6 +1602,7 @@ def corr_ending_s(s):
             print("Couldn't find correct -s form for %s." % words[-1][:-1])
             return None
     return s
+
 
 # Clothier's shop
 
@@ -1621,7 +1633,7 @@ def corr_clothiers_shop(s):
     verb = hst.group(1)
     material = hst.group(2)
     product = hst.group(3)
-    
+
     if verb == 'Вышивать':
         parse = morph.parse(material)[0]
         if material == 'пряжа':
@@ -1636,16 +1648,16 @@ def corr_clothiers_shop(s):
             of_material = cloth_subst[material][1]  # Leave 'Делать'/'Изготовить' verb
         else:
             verb, of_material = cloth_subst[material]
-        
+
         if product == "верёвка":
             verb = "Вить"
-        
+
         gender = get_gender(product, {nominative})
         if gender == feminine:
             product_accus = accusative_case[product]
         else:
             product_accus = product
-        
+
         if material in make_adjective:
             material_adj = inflect_adjective(make_adjective[material], gender, accusative, animated=False)
             return ' '.join([verb, material_adj, product_accus])
@@ -1722,7 +1734,7 @@ re_histories_of = re.compile(r"Histories of (\w+) and (\w+)")
 
 def corr_histories_of(s):
     hst = re_histories_of.search(s)
-    return 'Истории о' + histories_adjs[hst.group(1)] + ' и ' + histories_adjs[hst.group(2)]
+    return 'Истории о%s и %s' % (histories_adjs[hst.group(1)], histories_adjs[hst.group(2)])
 
 
 def corr_well(s):
@@ -1741,7 +1753,7 @@ def corr_minced(s):
     while 'рублены' in s and 'рубленый' not in s:
         x, _, s = s.partition('рублены')
         s1 += x + 'рубленый '
-    
+
     return s1 + s
 
 
@@ -1776,6 +1788,7 @@ log = True
 if log:
     log_file = open('changetext.log', 'a', 1, encoding='utf-8')
     from datetime import datetime
+
     print('\n', datetime.today(), '\n', file=log_file)
 else:
     log_file = None
@@ -1807,16 +1820,16 @@ def _ChangeText(s):
         if 'Я ' in s and 'колодец' in s:
             s = corr_well(s)
             result = s
-        
+
         if 'рублены' in s and 'рубленый ' not in s:
             s = corr_minced(s)
             result = s
-        
+
         for item in replaced_parts:
             if item in s:
                 s = s.replace(item, replaced_parts[item])
                 result = s
-        
+
         if re_histories_of.search(s):
             result = corr_histories_of(s)
         elif re_container.search(s):
@@ -1897,12 +1910,12 @@ def ChangeText(s):
         return _ChangeText(s)
 
 
-if __name__ == '__main__':
+def main():
     if test_strings:
         for key in test_strings:
             result = ChangeText(key)
             try:
-                assert (result == test_strings[key])
+                assert result == test_strings[key]
             except AssertionError:
                 print("A test failed.")
                 print("Given '%s'" % key)
@@ -1911,7 +1924,6 @@ if __name__ == '__main__':
                 raise
         print('All tests are passed.')
     input()
-else:  # if runned not as a script
-    if log:
-        # sys.stdout = log_file  # redirect standard output to the log file
-        pass
+
+if __name__ == '__main__':
+    main()
