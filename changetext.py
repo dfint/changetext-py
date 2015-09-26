@@ -1,6 +1,7 @@
 import sys
 import re
 import traceback
+import heapq
 from collections import OrderedDict
 
 import pymorphy2
@@ -725,9 +726,6 @@ def get_gender(obj, cases=None):
         return legacy_gender(obj)
 
 
-import heapq
-
-
 # Cut'n'paste from pymorphy2 with some modifications to ignore forms with extra tags
 def custom_inflect(form, required_grammemes):
     self = form._morph
@@ -869,8 +867,8 @@ def genitive_case_single_noun(word):
         elif word[-1] in {"к", "т", "н"}:
             return word + "а"
     else:
-        genitive = parse[0].inflect({'gent'})
-        return genitive.word
+        word_genitive = parse[0].inflect({'gent'})
+        return word_genitive.word
 
 
 def inflect_noun(word, case):
@@ -961,7 +959,7 @@ def corr_item_01(s):
             cut_index = -1
         replacement_string = ' '.join(words[cut_index:] + words[:cut_index])
     elif (all(any_in_tag({'ADJF', 'gent'}, morph.parse(adj)) for adj in words[1:-1]) and
-         any_in_tag({'NOUN', 'gent'}, morph.parse(words[-1]))):
+              any_in_tag({'NOUN', 'gent'}, morph.parse(words[-1]))):
         # All words after 'из' except the last word are adjectives in genitive
         # The last is a noun in genitive
         material = words[-1]
@@ -1432,8 +1430,10 @@ def corr_forge(s):
         if not any_in_tag({'accs'}, p):
             obj[0] = p[0].inflect({'accs'}).word
     else:
-        for i, x in enumerate(obj):
-            parse = morph.parse(x)
+        parse = None
+        gender = None
+        for i, word in enumerate(obj):
+            parse = morph.parse(word)
             p = list(filter(lambda x: {'NOUN'} in x.tag and 'Surn' not in x.tag, parse))
             if p:
                 item_index = i
@@ -1894,7 +1894,7 @@ def _ChangeText(s):
         output = ChangeText_internal(s)
     except Exception:
         print('An error occured.', file=sys.stderr)
-        print('Initial string:', '"' + s + '"', file=sys.stderr)
+        print('Initial string: %r' % s, file=sys.stderr)
         print(traceback.format_exc(), file=sys.stderr)
         print("", file=sys.stderr)
         output = None
