@@ -1081,12 +1081,16 @@ re_clothes = re.compile(
 
 def corr_clothes(s):
     print('corr_clothes')
+    symbol = ''
+    if s[0] == s[-1] and s[0] == 'р':
+        symbol = '≡'
+        s = s[1:-1]
     hst = re_clothes.search(s)
     print(hst.group(1))
     s = s.replace(hst.group(1), hst.group(4) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
     s = s.replace("левый", "левая")
     s = s.replace("правый", "правая")
-    return s
+    return symbol + s + symbol
 
 
 # выражения типа "древесина дуба брёвна"
