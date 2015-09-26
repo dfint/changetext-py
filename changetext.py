@@ -1893,6 +1893,7 @@ def _ChangeText(s):
     try:
         output = ChangeText_internal(s)
     except Exception:
+        sys.stdout.flush()
         print('An error occured.', file=sys.stderr)
         print('Initial string: %r' % s, file=sys.stderr)
         print(traceback.format_exc(), file=sys.stderr)
