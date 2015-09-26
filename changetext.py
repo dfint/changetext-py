@@ -1081,6 +1081,7 @@ re_clothes = re.compile(
 
 def corr_clothes(s):
     print('corr_clothes')
+    print(s)
     symbol = ''
     if s[0] == s[-1] and s[0] == 'р':
         symbol = '≡'
@@ -1950,7 +1951,6 @@ def main():
                 print("Got %r" % result)
                 raise
         print('All tests are passed.')
-    input()
 
 if __name__ == '__main__':
     main()
