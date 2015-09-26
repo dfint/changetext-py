@@ -205,7 +205,9 @@ gender_item = {
 
     "червь": masculine,
     "коза": feminine,
-    "галька": feminine
+    "галька": feminine,
+
+    "пол": masculine,
 }
 
 make_adjective = {
@@ -697,7 +699,7 @@ def most_probable(parse, score=None):
         yield p
 
 
-gender_exceptions = {'шпинель'}
+gender_exceptions = {'шпинель', 'пол'}
 
 
 def get_gender(obj, cases=None):
@@ -990,8 +992,15 @@ def corr_item_01(s):
         of_material = " ".join(words[:2])
         words = words[2:]
         item = words[-1]
+
+        for word in words:
+            if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
+                item = word
+                break
+
         if of_material in make_adjective:
             gender = get_gender(item)
+
             if gender is None:
                 for item in reversed(words[:-2]):
                     gender = get_gender(item)
