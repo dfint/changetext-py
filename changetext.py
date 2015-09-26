@@ -1927,9 +1927,9 @@ def main():
                 assert result == test_strings[key]
             except AssertionError:
                 print("A test failed.")
-                print("Given '%s'" % key)
-                print("Expected '%s'" % test_strings[key])
-                print("Got '%s'" % result)
+                print("Given %r" % key)
+                print("Expected %r" % test_strings[key])
+                print("Got %r" % result)
                 raise
         print('All tests are passed.')
     input()
