@@ -1765,6 +1765,17 @@ def corr_minced(s):
     return s1 + s
 
 
+def corr_you_struck(s):
+    print('corr_you_struck')
+    i = s.find('из ')
+    you_struck = s[:i]
+    words = s[i:-1].split()
+    assert len(words) == 2
+    parse = morph.parse(words[1])
+    print(parse)
+    return you_struck + parse[0].normal_form + '!'
+
+
 ############################################################################
 # компилированные регулярные выражения
 re_3 = re.compile(
@@ -1887,6 +1898,8 @@ def _ChangeText(s):
             result = corr_become(s)
         elif re_crafts.search(s):
             result = corr_crafts(s)
+        elif s.startswith('Вы нашли из '):
+            result = corr_you_struck(s)
 
         return result
 
