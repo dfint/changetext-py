@@ -1098,7 +1098,7 @@ re_wooden_logs = re.compile(r'(древесина)\s(\w+)\s(брёвна)')
 
 
 def corr_wooden_logs(s):
-    print(7)
+    print('corr_wooden_logs')
     hst = re_wooden_logs.search(s)
     of_wood = "из " + hst.group(2)
     if of_wood in make_adjective:
