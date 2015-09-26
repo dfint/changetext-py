@@ -53,6 +53,7 @@ phrases = {
     
     ' доверенное л ': ' доверенное лицо ',  # Temporary fix for 'hearthperson' cutting
     'источника в.': 'источника воды.',  # Temporary fix for 'No water source.' cutting
+    'NEW': 'НОВОЕ',
 }
 
 from collections import OrderedDict
