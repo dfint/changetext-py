@@ -1486,7 +1486,6 @@ re_jewelers_shop = re.compile(
 def corr_jewelers_shop(s):
     print('corr_jewelers_shop')
     hst = re_jewelers_shop.search(s)
-    gem = ""
     first_part = hst.group(1)
     words = hst.group(2).split()
     if first_part == "Огранить":
@@ -1812,7 +1811,7 @@ def _ChangeText(s):
         if s in phrases:
             result = phrases[s]
 
-        while re_ending_s.search(s):  # убрать из trans.txt 686284|s|ы|
+        while re_ending_s.search(s):
             s1 = corr_ending_s(s)
             if s1 is None:
                 break
