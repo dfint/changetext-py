@@ -1281,7 +1281,7 @@ def corr_container(s):
 
 
 # Элементы рельефа, крепости и т.п.
-re_13 = re.compile(
+re_corr_relief = re.compile(
     r'(.+)\s(Подъем|Стена|Кластер|валун|склон|Пол Пещеры|лестница вверх/вниз|пол пещеры|Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b')
 
 
@@ -1289,9 +1289,9 @@ re_13 = re.compile(
 # => (прилагательное) (второе дополнение) из (первое дополнение)
 
 
-def corr_item_12(s):
-    print(12)
-    hst = re_13.search(s)
+def corr_relief(s):
+    print('corr_relief')
+    hst = re_corr_relief.search(s)
     group1 = hst.group(1)
     obj = hst.group(2)
     if obj == "деревце":
@@ -1302,7 +1302,7 @@ def corr_item_12(s):
         return s.capitalize()
 
     if " " in group1:
-        print(12.1)
+        print('several words')
         words = group1.split(" ")
         first_words = []
         gender = get_gender(obj)
@@ -1332,7 +1332,7 @@ def corr_item_12(s):
             print("12.1.2")
             s = "%s %s из %s" % (" ".join(first_words), obj, " ".join(words))
     else:
-        print(12.2)
+        print('one word')
         material = group1
         s = "%s из %s" % (obj, genitive_case(material))
 
@@ -1842,7 +1842,7 @@ def _ChangeText(s):
             result = corr_histories_of(s)
         elif re_container.search(s):
             result = corr_container(s)
-        elif re_01.search(s):
+        elif re_01.search(s) and 'пол' not in s:
             print('re_01 passed')
             result = corr_item_01(s)
         elif re_clothes.search(s):
@@ -1865,8 +1865,8 @@ def _ChangeText(s):
             result = corr_item_10(s)
         elif re_stopped_construction.search(s):
             result = corr_stopped_construction(s)
-        elif re_13.search(s):
-            result = corr_item_12(s)
+        elif re_corr_relief.search(s):
+            result = corr_relief(s)
         elif re_13_1.search(s):
             result = corr_item_13(s)
         elif re_14.search(s):
