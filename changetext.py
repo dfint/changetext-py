@@ -51,8 +51,7 @@ phrases = {
     'Ничего не ловится в центре  болотах.': 'Ничего не ловится в центральных болотах.',
     'Ничего не ловится в востоке болотах.': 'Ничего не ловится в восточных болотах.',
     
-    ' доверенное л ': ' доверенное лицо ',  # Temporary fix for 'hearthperson' cutting
-    'источника в.': 'источника воды.',  # Temporary fix for 'No water source.' cutting
+
     'NEW': 'НОВОЕ',
 }
 
@@ -77,6 +76,8 @@ replaced_parts = OrderedDict([
     ("RENDER_MAT", "вытапливаемый"),
     # ("PRESS_LIQUID_MAT", ""),
     # ("HONEYCOMB_PRESS_MAT", ""),
+    (' доверенное л ', ' доверенное лицо '),  # Temporary fix for 'hearthperson' cutting
+    ('источника в.', 'источника воды.'),  # Temporary fix for 'No water source.' cutting
 ])
 
 
