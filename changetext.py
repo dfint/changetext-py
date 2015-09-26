@@ -1045,13 +1045,13 @@ def corr_item_3(s):
     return s
 
 # выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
-re_prepared = re.compile(r"(приготовленные|рубленная)\s(.+)\s(\w+)")
+re_prepared = re.compile(r"\W((приготовленные|рубленная)\s(.+)\s(\w+))")
 
 
 def corr_prepared(s):
-    print('corr_prepared')
+    print('corr_prepared(%r)' % s)
     hst = re_prepared.search(s)
-    s = s.replace(hst.group(0), hst.group(1) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
+    s = s.replace(hst.group(1), hst.group(2) + " " + hst.group(4) + " " + genitive_case(hst.group(3)))
     return s
 
 
