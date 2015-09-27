@@ -79,6 +79,7 @@ replaced_parts = OrderedDict([
     # ("HONEYCOMB_PRESS_MAT", ""),
     (' доверенное л ', ' доверенное лицо '),  # Temporary fix for 'hearthperson' cutting
     ('источника в.', 'источника воды.'),  # Temporary fix for 'No water source.' cutting
+    ('большой, зазубренный', 'большой зазубренный'),
 ])
 
 
@@ -768,7 +769,7 @@ def inflect_adjective(adjective, gender, case=nominative, animated=None):
         assert gender is not None
         parse = morph.parse(adjective)
         parse = [p for p in parse if 'ADJF' in p.tag or 'PRTF' in p.tag]
-        assert len(parse) > 0
+        assert len(parse) > 0, 'parse: %r' % parse
         parse = parse[0]
         form_set = {gender_names[gender], case_names[case]}
         if animated is not None and gender in {masculine, plural}:
@@ -1140,7 +1141,7 @@ def corr_gem_cutting(s):
 
 # выражения типа "гигантский из ясеня лезвия топоров"
 re_weapon_trap_parts = re.compile(
-    r'(шипованный|огромный|большой|заточенный|гигантский|большой, зазубренный)\s(из\s[\w\s]+\b)')
+    r'(шипованный|огромный|большой|заточенный|гигантский|большой зазубренный)\s(из\s[\w\s]+\b)')
 
 
 def corr_weapon_trap_parts(s):
@@ -1392,12 +1393,48 @@ def corr_item_body_parts(s):
     return s.replace(initial_string, replacement_string.capitalize())
 
 
-# "Изделия из стекла"
-def corr_item_15(s):
-    print(15)
-    hst = re_14.search(s)
-    s = hst.group(1) + " " + hst.group(3) + " " + make_adjective[hst.group(2)]
-    return s.capitalize()
+re_craft_glass = re.compile(r'\b(Делать|Изготовить)\s([\w\s]*)(стекло|хрусталь)([\w\s]*)')
+
+
+def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
+    print('corr_craft_glass')
+    hst = re_craft_glass.search(s)
+    material = hst.group(3)
+    print('material: %r' % material)
+    material_gender = get_gender(material)
+    words = hst.group(2).split()
+    print('words: %r' % words)
+    product = hst.group(4).split()
+    print('product: %r' % product)
+    verb = hst.group(1)
+    if not product:
+        verb = 'Варить'
+        adjectives = (inflect_adjective(adj, material_gender, nominative, animated=False) for adj in words)
+        result = "%s %s %s" % (verb, ' '.join(adjectives), material)
+    else:
+        index = next((i for i, item in enumerate(words) if item in {'грубое', 'зелёное', 'прозрачное', 'грубый'}),
+                     len(words))
+        product_adjectives = words[:index]
+        if any_in_tag({'NOUN', 'nomn'}, morph.parse(product[0])):
+            product_gender = get_gender(product[0])
+            product[0] = inflect_noun(product[0], case=accusative)
+        else:
+            product_gender = get_gender(product[-1])
+            product_adjectives += product[:-1]
+            product = [inflect_noun(product[-1], case=accusative)]
+
+        product_adjectives = [inflect_adjective(adj, product_gender, case=accusative, animated=False)
+                              for adj in product_adjectives]
+        material_adjectives = [inflect_adjective(adj, material_gender, case=genitive, animated=False)
+                               for adj in words[index:]]
+
+        material = inflect_noun(material, case=genitive)
+        product_words = product_adjectives + product
+        material_words = material_adjectives + [material]
+        result = "%s %s из %s" % (verb, ' '.join(product_words), ' '.join(material_words))
+
+    print('result:', result)
+    return s.replace(hst.group(0), result)
 
 
 re_forge = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить|^Кузница)\s(из\s[\w\s?]+\b)")
@@ -1618,6 +1655,7 @@ def corr_ending_s(s):
     return s
 
 
+
 # Clothier's shop
 
 re_clothiers_shop = re.compile(r'(Делать|Изготовить|Вышивать) (ткань|шёлк|пряжа|кожа) (\w+)')
@@ -1711,12 +1749,12 @@ def corr_with_his(s):
     return "%s своим%s" % (hst.group(1), hst.group(3))  # пока хотя бы так
 
 
-re_crafts = re.compile(r"([\w\s]+) (кольцо|кольца)")
+re_rings = re.compile(r"([\w\s]+) (кольцо|кольца)")
 
 
 def corr_crafts(s):
     print("corr_crafts")
-    hst = re_crafts.search(s)
+    hst = re_rings.search(s)
     obj = hst.group(2)
     description = hst.group(1)
     return s.replace(hst.group(0), "%s из %s" % (obj, genitive_case(description)))
@@ -1789,7 +1827,6 @@ re_3 = re.compile(
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
 re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
-re_14 = re.compile(r'\b(Делать|Изготовить|Делать\s?\w+?)\s(зелёное стекло|прозрачное стекло|хрусталь)\s(\w+)')
 re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
 re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
 
@@ -1876,6 +1913,8 @@ def _ChangeText(s):
             result = corr_item_3(s)
         elif re_wooden_logs.search(s):
             result = corr_wooden_logs(s)
+        elif re_craft_glass.search(s):
+            result = corr_craft_glass(s)
         elif re_gem_cutting.search(s):
             result = corr_gem_cutting(s)
         elif re_11.search(s):
@@ -1886,8 +1925,6 @@ def _ChangeText(s):
             result = corr_relief(s)
         elif re_13_1.search(s):
             result = corr_item_13(s)
-        elif re_14.search(s):
-            result = corr_item_15(s)
         elif re_jewelers_shop.search(s):
             result = corr_jewelers_shop(s)
         elif re_settlement.search(s):
@@ -1902,7 +1939,7 @@ def _ChangeText(s):
             result = corr_item_21(s)
         elif re_become.search(s):
             result = corr_become(s)
-        elif re_crafts.search(s):
+        elif re_rings.search(s):
             result = corr_crafts(s)
         elif s.startswith('Вы нашли из '):
             result = corr_you_struck(s)
