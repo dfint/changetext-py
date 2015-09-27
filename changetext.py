@@ -874,7 +874,7 @@ def genitive_case_single_noun(word: str):
         return word_genitive.word
 
 
-def inflect_noun(word: str, case: int, original_case: int = None, plural=None, anim=None):
+def inflect_noun(word: str, case: int, original_case: int = None, plural=None, anim=None) -> str:
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
     orig_form = set()
     if anim is not None:
@@ -1459,15 +1459,22 @@ def corr_craft_general(s):
     product = hst.group(3)
     product_gender = get_gender(product, cases={nominative})
     print('gender:', gender_names[product_gender])
+    product = inflect_noun(product, accusative, plural=product_gender == plural, anim=False)
     words = hst.group(2).split()
     if words:
-        adjectives = [make_adjective[word] if word in make_adjective else word for word in words]
-        adjectives = [inflect_adjective(adj, product_gender, accusative, animated=False) for adj in adjectives]
-        result = ("%s %s %s" %
-                  (verb, ' '.join(adjectives), inflect_noun(product, accusative, plural=product_gender == plural,
-                                                            anim=False)))
+        if len(words) == 1 and words[0] not in make_adjective and not is_adjective(words[0]):
+            material = inflect_noun(words[0], genitive, original_case=nominative, anim=False)  # рог -> (из) рога
+            result = "%s %s из %s" % (verb, product, material)
+        else:
+            adjectives = [make_adjective[word] if word in make_adjective
+                          else word if is_adjective(word)
+                          else None
+                          for word in words]
+            assert all(adj is not None for adj in adjectives)
+            adjectives = [inflect_adjective(adj, product_gender, accusative, animated=False) for adj in adjectives]
+            result = ("%s %s %s" % (verb, ' '.join(adjectives), product))
     else:
-        result = "%s %s" % (verb, inflect_noun(product, accusative, plural=product_gender == plural, anim=False))
+        result = "%s %s" % (verb, product)
 
     return s.replace(hst.group(0), result).capitalize()
     
