@@ -873,8 +873,10 @@ def genitive_case_single_noun(word: str):
         return word_genitive.word
 
 
-def inflect_noun(word: str, case: int):
+def inflect_noun(word: str, case: int, original_case: int = None):
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
+    if original_case is not None:
+        parse = [p for p in parse if case_names[original_case] in p.tag]
     assert parse is not None
     new_form = parse[0].inflect({case_names[case]})
     return new_form.word
@@ -890,7 +892,7 @@ def is_adjective(word: str):
     return is_adj
 
 
-def genitive_case_list(words: list[str]):
+def genitive_case_list(words: list):
     print("genitive_case_list(%s)" % repr(words))
     print(words)
     gender = get_gender(words[-1])
