@@ -7,7 +7,7 @@ parser.add_argument('inputfile')
 parser.add_argument('outputfile')
 args = parser.parse_args(sys.argv[1:])
 
-f_out = open(args.outputfile, 'wb')
+f_out = open(args.outputfile, 'xb')
 with open(args.inputfile, 'rb') as file:
     file.seek(0, 2)  # Rewind to the end of file
     total_size = file.tell()
