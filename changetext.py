@@ -754,7 +754,7 @@ adj_except = {
 }
 
 
-def inflect_adjective(adjective, gender, case=nominative, animated=None):
+def inflect_adjective(adjective: str, gender: int, case=nominative, animated=None):
     print('inflect_adjective(%s, %s)' % (adjective, case_names[case]))
     if adjective.lower() in adj_except:
         ending3 = adjective[-3:]
@@ -855,7 +855,7 @@ gent_case_except = {
 }
 
 
-def genitive_case_single_noun(word):
+def genitive_case_single_noun(word: str):
     print('genitive_case_single_noun')
     print(word)
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
@@ -873,14 +873,14 @@ def genitive_case_single_noun(word):
         return word_genitive.word
 
 
-def inflect_noun(word, case):
+def inflect_noun(word: str, case: int):
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
     assert parse is not None
     new_form = parse[0].inflect({case_names[case]})
     return new_form.word
 
 
-def is_adjective(word):
+def is_adjective(word: str):
     parse = morph.parse(word)
     is_adj = any_in_tag({'ADJF'}, parse) or any_in_tag({'PRTF'}, parse)
     if is_adj:
@@ -890,7 +890,7 @@ def is_adjective(word):
     return is_adj
 
 
-def genitive_case_list(words):
+def genitive_case_list(words: list[str]):
     print("genitive_case_list(%s)" % repr(words))
     print(words)
     gender = get_gender(words[-1])
@@ -905,7 +905,7 @@ def genitive_case_list(words):
         yield word
 
 
-def genitive_case(word):
+def genitive_case(word: str):
     return ' '.join(genitive_case_list(word.split()))
 
 
