@@ -463,6 +463,7 @@ make_adjective = {
     'растительное волокно': 'из растительного волокна',
     'дерево': "деревянный",
     'кость': "костяной",
+    'камень': 'каменный',
 }
 
 adjective_endings_masculine = {"ый", "ой", "ий"}
@@ -873,12 +874,15 @@ def genitive_case_single_noun(word: str):
         return word_genitive.word
 
 
-def inflect_noun(word: str, case: int, original_case: int = None):
+def inflect_noun(word: str, case: int, original_case: int = None, plural=None):
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
     if original_case is not None:
         parse = [p for p in parse if case_names[original_case] in p.tag]
     assert parse is not None
-    new_form = parse[0].inflect({case_names[case]})
+    form = {case_names[case]}
+    if plural is not None:
+        form.add('plur' if plural else 'sing')
+    new_form = custom_inflect(parse[0], form)
     return new_form.word
 
 
@@ -1411,7 +1415,7 @@ def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
     verb = hst.group(1)
     if not product:
         verb = 'Варить'
-        adjectives = (inflect_adjective(adj, material_gender, nominative, animated=False) for adj in words)
+        adjectives = (inflect_adjective(adj, material_gender, accusative, animated=False) for adj in words)
         result = "%s %s %s" % (verb, ' '.join(adjectives), material)
     else:
         index = next((i for i, item in enumerate(words) if item in {'грубое', 'зелёное', 'прозрачное', 'грубый'}),
@@ -1438,6 +1442,28 @@ def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
     print('result:', result)
     return s.replace(hst.group(0), result)
 
+
+re_craft_general = re.compile(r'(Делать|Изготовить)([\w\s]*)\s(\w+)')
+
+
+def corr_craft_general(s):
+    print('corr_craft_general')
+    hst = re_craft_general.search(s)
+    verb = hst.group(1)
+    product = hst.group(3)
+    product_gender = get_gender(product, cases={nominative})
+    print('gender:', gender_names[product_gender])
+    words = hst.group(2).split()
+    if words:
+        adjectives = [make_adjective[word] if word in make_adjective else word for word in words]
+        adjectives = [inflect_adjective(adj, product_gender, accusative, animated=False) for adj in adjectives]
+        result = ("%s %s %s" %
+                  (verb, ' '.join(adjectives), inflect_noun(product, accusative, plural=product_gender == plural)))
+    else:
+        result = "%s %s" % (verb, inflect_noun(product, accusative, plural=product_gender == plural))
+
+    return s.replace(hst.group(0), result).capitalize()
+    
 
 re_forge = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить|^Кузница)\s(из\s[\w\s?]+\b)")
 
@@ -1754,8 +1780,8 @@ def corr_with_his(s):
 re_rings = re.compile(r"([\w\s]+) (кольцо|кольца)")
 
 
-def corr_crafts(s):
-    print("corr_crafts")
+def corr_rings(s):
+    print("corr_rings")
     hst = re_rings.search(s)
     obj = hst.group(2)
     description = hst.group(1)
@@ -1942,9 +1968,11 @@ def _ChangeText(s):
         elif re_become.search(s):
             result = corr_become(s)
         elif re_rings.search(s):
-            result = corr_crafts(s)
+            result = corr_rings(s)
         elif s.startswith('Вы нашли из '):
             result = corr_you_struck(s)
+        elif re_craft_general.search(s):
+            result = corr_craft_general(s)
 
         return result
 
