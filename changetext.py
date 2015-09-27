@@ -874,14 +874,20 @@ def genitive_case_single_noun(word: str):
         return word_genitive.word
 
 
-def inflect_noun(word: str, case: int, original_case: int = None, plural=None):
+def inflect_noun(word: str, case: int, original_case: int = None, plural=None, anim=None):
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
+    orig_form = set()
+    if anim is not None:
+        orig_form.add('anim' if anim else 'inan')
     if original_case is not None:
-        parse = [p for p in parse if case_names[original_case] in p.tag]
+        orig_form.add(case_names[original_case])
+    if orig_form:
+        parse = [p for p in parse if orig_form in p.tag]
     assert parse is not None
     form = {case_names[case]}
     if plural is not None:
         form.add('plur' if plural else 'sing')
+
     new_form = custom_inflect(parse[0], form)
     return new_form.word
 
@@ -1458,9 +1464,10 @@ def corr_craft_general(s):
         adjectives = [make_adjective[word] if word in make_adjective else word for word in words]
         adjectives = [inflect_adjective(adj, product_gender, accusative, animated=False) for adj in adjectives]
         result = ("%s %s %s" %
-                  (verb, ' '.join(adjectives), inflect_noun(product, accusative, plural=product_gender == plural)))
+                  (verb, ' '.join(adjectives), inflect_noun(product, accusative, plural=product_gender == plural,
+                                                            anim=False)))
     else:
-        result = "%s %s" % (verb, inflect_noun(product, accusative, plural=product_gender == plural))
+        result = "%s %s" % (verb, inflect_noun(product, accusative, plural=product_gender == plural, anim=False))
 
     return s.replace(hst.group(0), result).capitalize()
     
@@ -1961,6 +1968,8 @@ def _ChangeText(s):
             # result = corr_item_20(s) 
         elif re_clothiers_shop.search(s):
             result = corr_clothiers_shop(s)
+        elif re_craft_general.search(s):
+            result = corr_craft_general(s)
         elif re_body_parts.search(s):
             result = corr_item_body_parts(s)
         elif re_20.search(s):
@@ -1971,8 +1980,7 @@ def _ChangeText(s):
             result = corr_rings(s)
         elif s.startswith('Вы нашли из '):
             result = corr_you_struck(s)
-        elif re_craft_general.search(s):
-            result = corr_craft_general(s)
+
 
         return result
 
