@@ -930,6 +930,27 @@ animals_female = {"собака", "самка", "крольчиха", "гусы�
 body_parts = {"панцирь", "скелет", "искалеченный труп", "останки", "кость", "кожа", "шёлк", "волокна", "шерсть", "мех",
               " хвост"}
 
+opening = {'!', '(', '*', '+', '-', '[', '{', '«', 'р', '☼'}
+closing = {'«': '»', '[': ']', '(': ')', '{': '}'}
+
+
+def open_brackets(func):
+    def wrapper(s):
+        start_i = 0
+        end_i = len(s)
+        for i, c in enumerate(s):
+            if c not in opening or s[-1-i] != closing.get(c, c):
+                start_i = i
+                end_i = len(s)-i
+                break
+        
+        leading_symbols = s[:start_i].replace('р', '≡')
+        trailing_symbols = s[end_i:].replace('р', '≡')
+        
+        return leading_symbols + func(s[start_i:end_i]) + trailing_symbols
+    
+    return wrapper
+
 re_01 = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
 
 corr_item_01_except = {
@@ -1092,19 +1113,16 @@ re_clothes = re.compile(
     r'^[Xx\(+*-«☼]*((.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+))')
 
 
+@open_brackets
 def corr_clothes(s):
     print('corr_clothes')
-    print(s)
-    symbol = ''
-    if s[0] == s[-1] and s[0] == 'р':
-        symbol = '≡'
-        s = s[1:-1]
+    print(myrepr(s))
     hst = re_clothes.search(s)
     print(hst.group(1))
     s = s.replace(hst.group(1), hst.group(4) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
     s = s.replace("левый", "левая")
     s = s.replace("правый", "правая")
-    return symbol + s + symbol
+    return s
 
 
 # выражения типа "древесина дуба брёвна"
