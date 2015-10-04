@@ -2020,6 +2020,13 @@ def ChangeText(s):
         return _ChangeText(s)
 
 
+def myrepr(s):
+    text = repr(s)
+    bytes = text.encode(sys.stdout.encoding, 'backslashreplace')
+    text = bytes.decode(sys.stdout.encoding, 'strict')
+    return text
+
+
 def main():
     if test_strings:
         for key in test_strings:
@@ -2028,9 +2035,9 @@ def main():
                 assert result == test_strings[key]
             except AssertionError:
                 print("A test failed.")
-                print("Given %r" % key)
-                print("Expected %r" % test_strings[key])
-                print("Got %r" % result)
+                print("Given", myrepr(key))
+                print("Expected", myrepr(test_strings[key]))
+                print("Got", myrepr(result))
                 raise
         print('All tests are passed.')
 
