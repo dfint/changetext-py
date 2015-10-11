@@ -943,17 +943,23 @@ closing = {'«': '»', '[': ']', '(': ')', '{': '}'}
 def open_brackets(func):
     def wrapper(s):
         start_i = 0
-        end_i = len(s)
-        for i, c in enumerate(s):
-            if c not in opening or s[-1-i] != closing.get(c, c):
-                start_i = i
-                end_i = len(s)-i
+        end_i = len(s)-1
+        for c in s:
+            if c in opening:
+                start_i += 1
+                if s[end_i] == closing.get(c, c):
+                    end_i -= 1
+            else:
                 break
         
-        leading_symbols = s[:start_i].replace('р', '≡')
-        trailing_symbols = s[end_i:].replace('р', '≡')
+        if (start_i>0 and s[start_i-1] == 'р' and (end_i == len(s)-1 or s[end_i+1] != 'р') and
+                not s[start_i:].startswith('из')):
+            start_i -= 1
         
-        return leading_symbols + func(s[start_i:end_i]) + trailing_symbols
+        leading_symbols = s[:start_i].replace('р', '≡')
+        trailing_symbols = s[end_i+1:].replace('р', '≡')
+        
+        return leading_symbols + func(s[start_i:end_i+1]) + trailing_symbols
     
     return wrapper
 
@@ -970,19 +976,14 @@ def any_in_tag(gram, parse):
     return any(gram in p.tag for p in parse)
 
 
+@open_brackets
 def corr_item_general(s):
     print('corr_item_general')
     hst = re_item_general.search(s)
     initial_string = hst.group(1)
     p_symbol = hst.group(2)
     words = hst.group(3).split()
-    start_sym = ""
-    end_sym = ""
-    if p_symbol:
-        start_sym = "≡"
-        if words[-1][-1] == 'р':
-            words[-1] = words[-1][:-1]
-            end_sym = start_sym
+    
     print(words)
     if len(words) == 2:
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(words[1])))
@@ -1056,12 +1057,7 @@ def corr_item_general(s):
         else:
             replacement_string = " ".join(words) + " " + of_material
     else:
-        assert False
-
-    if start_sym:
-        replacement_string = start_sym + replacement_string + end_sym
-    elif end_sym:
-        replacement_string += end_sym
+        raise ValueError('Unknown case: %r' % s)
 
     s = s.replace(initial_string, replacement_string)
     return s
