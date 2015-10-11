@@ -504,19 +504,6 @@ accusative_case = {
     'шину': "шину",
 }
 
-ending_fem = {
-    "ва", "ца", "ма", "ия", "на", "ха", "ка", "ба", "да",
-    "шь", "чь", "жь"
-}
-
-ending_masc = {
-    "ск", "ой", "ал", "ат", "ик", "ир", "ут"
-}
-
-ending_neut = {}
-
-ending_plur = {"ны", "лы", "ы"}
-
 dict_ending_s = {
     'готовая еда': 'готовая еда',
     'питьё': 'питьё',
@@ -601,37 +588,6 @@ dict_ending_s = {
     'очко': 'очков'
 }
 
-pm_genders = {'masc': masculine, 'femn': feminine, 'neut': neuter, 'plur': plural, None: None}
-
-
-def pm_gender(parse):
-    tag = parse.tag
-    print(tag)
-    if tag.number == 'plur':
-        gender = tag.number
-    else:
-        gender = tag.gender
-    print(gender)
-    return pm_genders[gender]
-
-
-def legacy_gender(obj):
-    if obj in gender_item:
-        return gender_item[obj]
-    elif len(obj) >= 2:
-        ending2 = obj[-2:]
-        ending1 = obj[-1:]
-        if ending2 in ending_masc:
-            return masculine
-        elif ending2 in ending_fem:
-            return feminine
-        elif ending2 in ending_neut:
-            return neuter
-        elif ending2 in ending_plur or ending1 in ending_plur:
-            return plural
-    print("Gender not recognized for '%s'" % obj)
-    return None
-
 
 def most_probable(parse, score=None):
     if score is None:
@@ -643,31 +599,51 @@ def most_probable(parse, score=None):
         yield p
 
 
-gender_exceptions = {'шпинель', 'пол'}
+gender_ordinals = {'masc': masculine, 'femn': feminine, 'neut': neuter, 'plur': plural, None: None}
+
+gender_exceptions = {
+    'шпинель': feminine, 'пол': masculine, 'стена': feminine, 'гризли': masculine,
+    'боевой': masculine,
+}
 
 
-def get_gender(obj, cases=None):
-    def is_suitable(parse):
-        if len(parse) >= 2 and parse[0].score > parse[1].score:
-            return True
-        score = parse[0].score
-        gender = pm_gender(parse[0])
-        for p in most_probable(parse[1:], score):
-            if pm_gender(p) != gender:
-                return False
-        return True
+def get_gender(obj, known_tags=None):
+    def pm_gender(parse):
+        tag = parse.tag
+        print(tag)
+        if tag.number == 'plur':
+            gender = tag.number
+        else:
+            gender = tag.gender
+        print(gender)
+        return gender_ordinals[gender]
 
-    print("get_gender('%s')" % obj)
-    parse = morph.parse(obj)
-    if cases is not None:
-        parse = list(filter(lambda x: any(case_names[case] in x.tag for case in cases), parse))
+    print("get_gender(%r, known_tags=%r)" % (obj, known_tags))
+    assert ' ' not in obj, 'get_gender() is not suitable for word collocations'
     
-    if obj not in gender_exceptions and is_suitable(parse):
-        print('pymorphy2 method')
-        return pm_gender(parse[0])
+    if '-' in obj:
+        obj = obj.split('-')
+        if obj[0] in {'мини'}:
+            obj = obj[1]
+            print('Using the second part of the hyphen-compound: %r' % obj)
+        else:
+            obj = obj[0]
+            print('Using the first part of the hyphen-compound: %r' % obj)
+    
+    parse = morph.parse(obj)
+    if known_tags is not None:
+        parse = [p for p in parse if known_tags in p.tag]
+    
+    if obj.lower() in gender_exceptions:
+        return gender_exceptions[obj.lower()]
     else:
-        print('Using legacy method')
-        return legacy_gender(obj)
+        if len(parse) > 0:
+            gender = pm_gender(parse[0])
+            for p in parse:
+                if pm_gender(p) != gender:
+                    print("Gender cannot be recognized definitely for %r. Try to specify known tags (eg. case)" % obj)
+                    return None
+        return pm_gender(parse[0])
 
 
 # Cut'n'paste from pymorphy2 with some modifications to ignore forms with extra tags
@@ -691,8 +667,7 @@ def custom_inflect(form, required_grammemes):
 
 
 def inflect_adjective(adjective: str, gender: int, case=nominative, animated=None):
-    print('inflect_adjective(%s, %s)' % (adjective, case_names[case]))
-    
+    print('inflect_adjective(%s, %s)' % (adjective, None if case is None else case_names[case]))
     assert gender is not None
     parse = morph.parse(adjective)
     parse = [p for p in parse if 'ADJF' in p.tag or 'PRTF' in p.tag]
@@ -828,12 +803,17 @@ def is_adjective(word: str):
 
 
 def genitive_case_list(words: list):
-    print("genitive_case_list(%s)" % repr(words))
-    print(words)
-    gender = get_gender(words[-1])
-    if gender is None:
-        print("Assuming gender of '%s' is masculine" % words[-1])
-        gender = masculine
+    print("genitive_case_list(%r)" % words)
+    if len(words) == 1:
+        gender = get_gender(words[0], {'nomn'})
+    else:
+        gender = None
+        for word in words:
+            if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
+                gender = get_gender(word, {'NOUN', 'nomn'})
+                break
+        assert gender is not None
+    
     for word in words:
         if is_adjective(word):
             word = inflect_adjective(word, gender, genitive)
@@ -923,7 +903,7 @@ def corr_item_general(s):
         # All words after 'из' except the last word are adjectives in genitive
         # The last is a noun in genitive
         material = words[-1]
-        gender = get_gender(material, cases={genitive})
+        gender = get_gender(material, known_tags={'gent'})
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(material)))
         material = parse[0].normal_form
         adjs = words[1:-1]
@@ -940,7 +920,7 @@ def corr_item_general(s):
             first_part = words[0]
         else:
             obj = words[-1]
-            gender = get_gender(obj)
+            gender = get_gender(obj, 'NOUN')
             adjs = (inflect_adjective(adj, gender) or adj for adj in words[:-1])
             first_part = "%s %s" % (" ".join(adjs), obj)
         replacement_string = first_part + " " + of_material
@@ -957,7 +937,7 @@ def corr_item_general(s):
                 break
 
         if of_material in make_adjective:
-            gender = get_gender(item)
+            gender = get_gender(item, {'nomn'})
 
             if gender is None:
                 for item in reversed(words[:-2]):
@@ -1074,7 +1054,7 @@ def corr_gem_cutting(s):
         return corr_item_body_parts(s)
 
     print(words)
-    gender = get_gender(words[-1])
+    gender = get_gender(words[-1], {'NOUN', 'nomn'})
     print("gender:", gender)
 
     new_list = []
@@ -1105,7 +1085,14 @@ def corr_weapon_trap_parts(s):
         print("material:", material)
         obj = " ".join(words[2:])
         print("object:", obj)
-        gender = gender_item[obj]
+        if ' ' not in obj:
+            gender = get_gender(obj, known_tags={'nomn'})
+        else:
+            gender = None
+            for word in obj.split():
+                if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
+                    gender = get_gender(word, known_tags={'NOUN', 'nomn'})
+                    break
         print("object gender:", gender)
         if adj not in make_adjective and " " in adj:
             adj_words = adj.split()
@@ -1164,6 +1151,9 @@ replace_containment = {
 }
 
 
+materials = {'волокон', 'шёлка', 'шерсти', 'кожи'}
+
+
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
 @open_brackets
 def corr_container(s):
@@ -1183,7 +1173,13 @@ def corr_container(s):
             words.reverse()
         containment = " ".join(words)
     if containment.startswith('из '):
-        containment = containment[3:]  # Already in genitive case
+        containment = containment[3:]  # Words after 'из' are already in genitive case
+    elif containment in {'слитков/блоков', 'специй'}:
+        pass  # Already in genitive case
+    elif containment.startswith('семена'):
+        words = containment.split()
+        words[0] = genitive_case(words[0])
+        containment = ' '.join(words)
     else:
         containment = genitive_case(containment)
     container = hst.group(3)
@@ -1202,20 +1198,25 @@ def corr_container(s):
             adjective = make_adjective[of_material[3:]]
         else:
             adjective = None
-        gender = get_gender(container)
+        gender = get_gender(container, {'nomn'})
         adjective = inflect_adjective(adjective, gender)
-        replacement_string = adjective + " " + container + " " + containment
+        print([adjective, container, containment])
+        replacement_string = ' '.join([adjective, container, containment])
     else:
         print('Case 2')
         words = of_material.split()
-        if len(words) >= 2 and words[-2] == 'из' and words[-1] in {'волокон', 'шёлка', 'шёлк', 'шерсти', 'кожи'}:
-            material_source = ' '.join(genitive_case_list(words[:-2]))
-            parse = morph.parse(words[-1])
-            if not any_in_tag({'gent'}, parse):
-                parse = [p for p in parse if {'NOUN', 'nomn'} in p.tag][0]
-                words[-1] = custom_inflect(parse, {'gent'}).word
-            material = ' '.join(words[-2:])
-            material = material + " " + material_source
+        material = None
+        if (len(words) >= 2 and words[-2] == 'из' and words[-1] in materials or
+                any(mat.startswith(words[-1]) for mat in materials)):
+            if words[-1] not in materials:  # Fix partial material name eg. 'шерст', 'шёлк'
+                candidates = [mat for mat in materials if mat.startswith(words[-1])]
+                if len(candidates) == 1:
+                    words[-1] = candidates[0]
+                else:
+                    material = of_material  # Partial name is not recognized (too short)
+            
+            if not material:
+                material = ' '.join(words[-2:] + list(genitive_case_list(words[:-2])))
         elif of_material.startswith('из '):
             material = of_material
         else:
@@ -1256,7 +1257,16 @@ def corr_relief(s):
         print('several words')
         words = group1.split(" ")
         first_words = []
-        gender = get_gender(obj)
+        
+        if ' ' not in obj:
+            gender = get_gender(obj, {'NOUN', 'nomn'})
+        else:
+            gender = None
+            for word in obj.split():
+                if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
+                    gender = get_gender(word)
+                    break
+        
         for word in words:
             if word in {"Заснеженный", "Неотесанный", "Влажный"}:
                 if gender is not None:
@@ -1391,7 +1401,7 @@ def corr_craft_general(s):
     hst = re_craft_general.search(s)
     verb = hst.group(1)
     product = hst.group(3)
-    product_gender = get_gender(product, cases={nominative})
+    product_gender = get_gender(product, known_tags={'nomn'})
     print('gender:', gender_names[product_gender])
     product = inflect_noun(product, accusative, plural=product_gender == plural, anim=False)
     words = hst.group(2).split()
@@ -1445,7 +1455,7 @@ def corr_forge(s):
         item_index = 0
         parse = morph.parse(obj[item_index])
         p = list(filter(lambda x: {'NOUN'} in x.tag and 'Surn' not in x.tag, parse))
-        gender = get_gender(obj[item_index], cases={nominative})
+        gender = get_gender(obj[item_index], known_tags={'nomn'})
         if not any_in_tag({'accs'}, p):
             obj[0] = p[0].inflect({'accs'}).word
     else:
@@ -1509,12 +1519,12 @@ def corr_jewelers_shop(s):
     words = hst.group(2).split()
     if first_part == "Огранить":
         # accusative case
-        cases = None
+        tags = None
         if words[0] == 'из':
             words = words[1:]
-            cases = {genitive}
+            tags = {'gent'}
         item = words[-1]
-        gender = get_gender(item, cases=cases)
+        gender = get_gender(item, known_tags=tags)
         print(':', gender_names[gender])
         words = [inflect_adjective(word, gender, accusative, animated=False) for word in words[:-1]]
         parse = list(filter(lambda x: {gender_names[gender], 'inan'} in x.tag, morph.parse(item)))
@@ -1557,8 +1567,16 @@ def corr_settlement(s):
 
     if adjective in {'Покинуть', 'Разрушить'}:
         return
-
-    gender = get_gender(settlement)
+    
+    if ' ' not in settlement:
+        gender = get_gender(settlement)
+    else:
+        gender = None
+        for word in settlement.split():
+            if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
+                gender = get_gender(word)
+                break
+    
     if " " not in adjective:
         adjective_2 = inflect_adjective(adjective, gender)
     else:
@@ -1604,7 +1622,13 @@ def corr_stopped_construction(s):
     hst = re_stopped_construction.search(s)
     subj = hst.group(1)
     obj = hst.group(2)
-    gen_case_obj = genitive_case(obj)
+    print(obj)
+    
+    if 'мастерская' in obj:
+        gen_case_obj = ' '.join(genitive_case(word) for word in reversed(obj.split()))  # Put words into genitive case separately
+    else:
+        gen_case_obj = genitive_case(obj)
+    
     if gen_case_obj.endswith('мастерской'):
         gen_case_obj = ' '.join(reversed(gen_case_obj.split()))
 
@@ -1670,7 +1694,7 @@ def corr_clothiers_shop(s):
         if product == "верёвка":
             verb = "Вить"
 
-        gender = get_gender(product, {nominative})
+        gender = get_gender(product, {'nomn'})
         if gender == feminine:
             product_accus = accusative_case[product]
         else:
