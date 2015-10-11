@@ -102,7 +102,14 @@ ablative = instrumental
 prepositional = 5  # предложный
 locative = prepositional
 
-case_names = ("nomn", "gent", "datv", "accs", "ablt", "loct")
+case_names = (
+    "nomn",  # именительный
+    "gent",  # родительный
+    "datv",  # дательный
+    "accs",  # винительный
+    "ablt",  # творительный
+    "loct",  # предложный
+)
 
 gender_item = {
     # предметы
@@ -1880,6 +1887,81 @@ def corr_you_struck(s):
     return you_struck + parse[0].normal_form + '!'
 
 
+def parse_tags(s):
+    start = 0
+    for i, c in enumerate(s):
+        if c == '<':
+            if start < i:
+                yield s[start:i]
+            start = i
+        elif c == '>':
+            yield s[start:i+1]
+            start = i+1
+    
+    if start < len(s):
+        yield s[start:]
+
+
+def get_form(word):
+    p = morph.parse(word)[0]
+    return {tag for tag in ['sing', 'plur', 'masc', 'femn', 'neut'] if tag in p.tag}
+
+
+def corr_tags(s):
+    print('corr_tags(%r)' % s)
+    li = []
+    get_index = None
+    set_indices = set()
+    for i, item in enumerate(parse_tags(s)):
+        if item[0] == '<':
+            item = item.strip('<>').split(':')
+            if len(item) > 1:
+                word = item[-1]
+                tags = set(item[0].split(','))
+                print(tags)
+                
+                if 'get-form' in tags:
+                    if get_index is not None:
+                        raise ValueError('Duplicate <get-form> tag in %r' % s)
+                    get_index = i
+                    tags.remove('get-form')
+                elif 'set-form' in tags:
+                    set_indices.add(i)
+                    tags.remove('set-form')
+                
+                make_lower = 'make-lower' in tags
+                if make_lower:
+                    tags.remove('make-lower')
+                
+                if 'strip' in tags:
+                    word = word.strip()
+                    tags.remove('strip')
+                
+                if True or tags:
+                    p = morph.parse(word)[0]
+                    item = custom_inflect(p, tags).word
+                else:
+                    item = word
+                
+                if not make_lower and word[0].isupper():
+                    item = item.capitalize()
+            else:
+                continue
+        li.append(item)
+    
+    if get_index:
+        form = get_form(li[get_index])
+        for i in set_indices:
+            word = li[i]
+            p = morph.parse(word)[0]
+            item = custom_inflect(p, form).word
+            if word[0].isupper():
+                item = item.capitalize()
+            li[i] = item
+    
+    return ''.join(li)
+
+
 ############################################################################
 # компилированные регулярные выражения
 re_3 = re.compile(
@@ -2005,6 +2087,8 @@ def _ChangeText(s):
             result = corr_rings(s)
         elif s.startswith('Вы нашли из '):
             result = corr_you_struck(s)
+        elif '<' in s and '<no ' not in s:
+            result = corr_tags(s)
 
 
         return result
