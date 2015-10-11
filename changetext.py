@@ -728,6 +728,7 @@ def get_gender(obj, cases=None):
     parse = morph.parse(obj)
     if cases is not None:
         parse = list(filter(lambda x: any(case_names[case] in x.tag for case in cases), parse))
+    
     if obj not in gender_exceptions and is_suitable(parse):
         print('pymorphy2 method')
         return pm_gender(parse[0])
@@ -953,7 +954,7 @@ def open_brackets(func):
                 break
         
         if (start_i>0 and s[start_i-1] == 'р' and (end_i == len(s)-1 or s[end_i+1] != 'р') and
-                not s[start_i:].startswith('из')):
+                not s[start_i:].startswith('из')) and not s[start_i].isupper():
             start_i -= 1
         
         leading_symbols = s[:start_i].replace('р', '≡')
@@ -1247,13 +1248,9 @@ replace_containment = {
 
 
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
+@open_brackets
 def corr_container(s):
     print("corr_container")
-    if s[0] == 'р':
-        if s[-1] == 'р':
-            s = '≡' + s[1:-1] + '≡'
-        elif s[1].isupper():
-            s = '≡' + s[1:]
     hst = re_container.search(s)
     initial_string = hst.group(1)
     print('initial_string:', initial_string)
@@ -1729,15 +1726,15 @@ cloth_subst = {
     "кожа": ("Шить", "из кожи"),
 }
 
-accusative_case["носок"] = "носок"
-accusative_case["штаны"] = "штаны"
+# accusative_case["носок"] = "носок"
+# accusative_case["штаны"] = "штаны"
 accusative_case["верёвка"] = "верёвку"
-accusative_case["капюшон"] = "капюшон"
-accusative_case["башмак"] = "башмак"
-accusative_case["мундир"] = "мундир"
-accusative_case["плащ"] = "плащ"
-accusative_case["мешок"] = "мешок"
-accusative_case["жилет"] = "жилет"
+# accusative_case["капюшон"] = "капюшон"
+# accusative_case["башмак"] = "башмак"
+# accusative_case["мундир"] = "мундир"
+# accusative_case["плащ"] = "плащ"
+# accusative_case["мешок"] = "мешок"
+# accusative_case["жилет"] = "жилет"
 accusative_case["рубаха"] = "рубаху"
 
 
