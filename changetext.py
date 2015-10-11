@@ -957,9 +957,9 @@ def open_brackets(func):
     
     return wrapper
 
-re_01 = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
+re_item_general = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
 
-corr_item_01_except = {
+corr_item_general_except = {
     "боевой",  # Avoid recognition "боевой" as a female surname in genitive
     # "кирки",  # Avoid recognition "кирки" as a noun in genitive
     # "бочка",  # Avoid recognition "бочка" as "бочок" in genitive
@@ -970,9 +970,9 @@ def any_in_tag(gram, parse):
     return any(gram in p.tag for p in parse)
 
 
-def corr_item_01(s):
-    print('corr_item_01')
-    hst = re_01.search(s)
+def corr_item_general(s):
+    print('corr_item_general')
+    hst = re_item_general.search(s)
     initial_string = hst.group(1)
     p_symbol = hst.group(2)
     words = hst.group(3).split()
@@ -1010,7 +1010,7 @@ def corr_item_01(s):
         adjs = words[1:-1]
         adjs = [inflect_adjective(adj, gender, case=nominative) for adj in adjs]
         replacement_string = ' '.join(adjs) + ' ' + material
-    elif (words[2] not in corr_item_01_except and len(words) > 3 and
+    elif (words[2] not in corr_item_general_except and len(words) > 3 and
           any_in_tag({'gent'}, morph.parse(words[1])) and  # The second word is in genitive
           any_in_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
@@ -1222,8 +1222,8 @@ def corr_weapon_trap_parts(s):
 
 
 # "животные"
-def corr_item_10(s):
-    print(10)
+def corr_animal(s):
+    print('corr_animal')
     s = s.replace("сырой", "сырая")
     if any(s.find(item) != -1 for item in animals_female):
         s = s.replace("(Ручной)", "(Ручная)")
@@ -1983,7 +1983,7 @@ def corr_tags(s):
 re_3 = re.compile(
     r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольца|серьги|амулеты|браслеты|скипетры|коронаы|статуэтки\b)')
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
-re_11 = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
+re_animal = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
 re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
 re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
 re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
@@ -2054,9 +2054,9 @@ def _ChangeText(s):
             result = corr_histories_of(s)
         elif re_container.search(s):
             result = corr_container(s)
-        elif re_01.search(s) and 'пол' not in s:
-            print('re_01 passed')
-            result = corr_item_01(s)
+        elif re_item_general.search(s) and 'пол' not in s:
+            print('re_item_general passed')
+            result = corr_item_general(s)
         elif re_clothes.search(s):
             result = corr_clothes(s)
         elif re_prepared.search(s):
@@ -2075,8 +2075,8 @@ def _ChangeText(s):
             result = corr_craft_glass(s)
         elif re_gem_cutting.search(s):
             result = corr_gem_cutting(s)
-        elif re_11.search(s):
-            result = corr_item_10(s)
+        elif re_animal.search(s):
+            result = corr_animal(s)
         elif re_stopped_construction.search(s):
             result = corr_stopped_construction(s)
         elif re_corr_relief.search(s):
