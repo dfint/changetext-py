@@ -1933,24 +1933,21 @@ def corr_tags(s):
                 if make_lower:
                     tags.remove('make-lower')
                 
-                if 'strip' in tags:
-                    word = word.strip()
-                    tags.remove('strip')
-                
-                if True or tags:
+                if tags:
                     p = morph.parse(word)[0]
                     item = custom_inflect(p, tags).word
+                    if not make_lower and word[0].isupper():
+                        item = item.capitalize()
                 else:
-                    item = word
-                
-                if not make_lower and word[0].isupper():
-                    item = item.capitalize()
+                    item = word if not make_lower else word.lower()
             else:
                 continue
         li.append(item)
     
-    if get_index:
+    if get_index is not None:
+        print(get_index)
         form = get_form(li[get_index])
+        print(form)
         for i in set_indices:
             word = li[i]
             p = morph.parse(word)[0]
