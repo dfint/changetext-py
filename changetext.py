@@ -1907,6 +1907,18 @@ def get_form(word):
     return {tag for tag in ['sing', 'plur', 'masc', 'femn', 'neut'] if tag in p.tag}
 
 
+def inflect_collocation(s, tags):
+    print('inflect_collocation(%r, %r)' % (s, tags))
+    words = s.split(' ')
+    for i, word in enumerate(words):
+        parse = morph.parse(word)
+        if any_in_tag({'NOUN', 'nomn'}, parse):
+            p = next(p for p in parse if {'NOUN', 'nomn'} in p.tag)
+            p = custom_inflect(p, tags)
+            words[i] = p.word if word[0].islower() else p.word.capitalize()
+    return ' '.join(words)
+
+
 def corr_tags(s):
     print('corr_tags(%r)' % s)
     li = []
@@ -1916,7 +1928,7 @@ def corr_tags(s):
         if item[0] == '<':
             item = item.strip('<>').split(':')
             if len(item) > 1:
-                word = item[-1]
+                word = item[-1].strip()
                 tags = set(item[0].split(','))
                 print(tags)
                 
@@ -1929,17 +1941,22 @@ def corr_tags(s):
                     set_indices.add(i)
                     tags.remove('set-form')
                 
-                make_lower = 'make-lower' in tags
-                if make_lower:
-                    tags.remove('make-lower')
+                # make_lower = 'make-lower' in tags
+                # if make_lower:
+                    # tags.remove('make-lower')
                 
                 if tags:
-                    p = morph.parse(word)[0]
-                    item = custom_inflect(p, tags).word
-                    if not make_lower and word[0].isupper():
-                        item = item.capitalize()
+                    if ' ' in word:
+                        item = inflect_collocation(word, tags)
+                    else:
+                        p = morph.parse(word)[0]
+                        item = custom_inflect(p, tags).word
+                        # if not make_lower and word[0].isupper():
+                        if word[0].isupper():
+                            item = item.capitalize()
                 else:
-                    item = word if not make_lower else word.lower()
+                    # item = word if not make_lower else word.lower()
+                    item = word
             else:
                 continue
         li.append(item)
@@ -1950,10 +1967,13 @@ def corr_tags(s):
         print(form)
         for i in set_indices:
             word = li[i]
-            p = morph.parse(word)[0]
-            item = custom_inflect(p, form).word
-            if word[0].isupper():
-                item = item.capitalize()
+            if ' ' in word:
+                item = inflect_collocation(word, form)
+            else:
+                p = morph.parse(word)[0]
+                item = custom_inflect(p, form).word
+                if word[0].isupper():
+                    item = item.capitalize()
             li[i] = item
     
     return ''.join(li)
