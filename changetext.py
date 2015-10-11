@@ -10,6 +10,16 @@ import pymorphy2
 morph = pymorphy2.MorphAnalyzer()
 
 
+unwanted_tags = ('Name', 'Surn', 'Infr')
+
+
+def custom_parse(s):
+    if s.lower().startswith('адамантин'):
+        return morph.parse(s)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
+    else:
+        return [p for p in morph.parse(s) if all(tag not in p.tag for tag in unwanted_tags)]
+
+
 # Cut'n'paste from pymorphy2 with some modifications to ignore forms with extra tags
 def custom_inflect(form, required_grammemes):
     self = form._morph
@@ -542,7 +552,7 @@ def get_gender(obj, known_tags=None):
             obj = obj[0]
             print('Using the first part of the hyphen-compound: %r' % obj)
     
-    parse = morph.parse(obj)
+    parse = custom_parse(obj)
     if known_tags is not None:
         parse = [p for p in parse if known_tags in p.tag]
     
@@ -563,14 +573,14 @@ def get_main_word_gender(s):
         return get_gender(s, known_tags={'nomn'})
     else:
         for word in s.split():
-            if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
+            if any_in_tag({'NOUN', 'nomn'}, custom_parse(word)):
                 return get_gender(word, known_tags={'NOUN', 'nomn'})
 
 
 def inflect_adjective(adjective: str, gender: int, case=nominative, animated=None):
     print('inflect_adjective(%s, %s)' % (adjective, None if case is None else case_names[case]))
     assert gender is not None
-    parse = morph.parse(adjective)
+    parse = custom_parse(adjective)
     parse = [p for p in parse if 'ADJF' in p.tag or 'PRTF' in p.tag]
     assert len(parse) > 0, 'parse: %r' % parse
     parse = parse[0]
@@ -660,7 +670,7 @@ gent_case_except = {
 def genitive_case_single_noun(word: str):
     print('genitive_case_single_noun')
     print(word)
-    parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
+    parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(custom_parse(word))))
     if word.lower() in gent_case_except or not parse:
         if word in iskl:
             return iskl[word]
@@ -676,7 +686,7 @@ def genitive_case_single_noun(word: str):
 
 
 def inflect_noun(word: str, case: int, original_case: int = None, plural=None, anim=None) -> str:
-    parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(morph.parse(word))))
+    parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(custom_parse(word))))
     orig_form = set()
     if anim is not None:
         orig_form.add('anim' if anim else 'inan')
@@ -694,7 +704,7 @@ def inflect_noun(word: str, case: int, original_case: int = None, plural=None, a
 
 
 def is_adjective(word: str):
-    parse = morph.parse(word)
+    parse = custom_parse(word)
     is_adj = any_in_tag({'ADJF'}, parse) or any_in_tag({'PRTF'}, parse)
     if is_adj:
         print(word, 'is adj')
@@ -710,7 +720,7 @@ def genitive_case_list(words: list):
     else:
         gender = None
         for word in words:
-            if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
+            if any_in_tag({'NOUN', 'nomn'}, custom_parse(word)):
                 gender = get_gender(word, {'NOUN', 'nomn'})
                 break
         assert gender is not None
@@ -766,7 +776,7 @@ def open_brackets(func):
 re_item_general = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
 
 corr_item_general_except = {
-    "боевой",  # Avoid recognition "боевой" as a female surname in genitive
+    # "боевой",  # Avoid recognition "боевой" as a female surname in genitive
     # "кирки",  # Avoid recognition "кирки" as a noun in genitive
     # "бочка",  # Avoid recognition "бочка" as "бочок" in genitive
 }
@@ -785,7 +795,7 @@ def corr_item_general(s):
     
     print(words)
     if len(words) == 2:
-        parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(words[1])))
+        parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, custom_parse(words[1])))
         assert len(parse) == 1
         replacement_string = parse[0].normal_form
     elif words[1] == 'древесины':
@@ -794,25 +804,25 @@ def corr_item_general(s):
             cut_index = words.index('дерева') + 1
         elif 'пекан' in words:  # 'из древесины ореха пекан'
             cut_index = words.index('пекан') + 1
-        elif any_in_tag({'NOUN', 'gent'}, morph.parse(words[2])):  # 'из древесины яблони'
+        elif any_in_tag({'NOUN', 'gent'}, custom_parse(words[2])):  # 'из древесины яблони'
             cut_index = 3
         else:
             cut_index = -1
         replacement_string = ' '.join(words[cut_index:] + words[:cut_index])
-    elif (all(any_in_tag({'ADJF', 'gent'}, morph.parse(adj)) for adj in words[1:-1]) and
-              any_in_tag({'NOUN', 'gent'}, morph.parse(words[-1]))):
+    elif (all(any_in_tag({'ADJF', 'gent'}, custom_parse(adj)) for adj in words[1:-1]) and
+              any_in_tag({'NOUN', 'gent'}, custom_parse(words[-1]))):
         # All words after 'из' except the last word are adjectives in genitive
         # The last is a noun in genitive
         material = words[-1]
         gender = get_gender(material, known_tags={'gent'})
-        parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, morph.parse(material)))
+        parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, custom_parse(material)))
         material = parse[0].normal_form
         adjs = words[1:-1]
         adjs = [inflect_adjective(adj, gender, case=nominative) for adj in adjs]
         replacement_string = ' '.join(adjs) + ' ' + material
     elif (words[2] not in corr_item_general_except and len(words) > 3 and
-          any_in_tag({'gent'}, morph.parse(words[1])) and  # The second word is in genitive
-          any_in_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in genitive
+          any_in_tag({'gent'}, custom_parse(words[1])) and  # The second word is in genitive
+          any_in_tag({'NOUN', 'gent'}, custom_parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
         print('Complex case')
         of_material = " ".join(words[:3])
@@ -825,7 +835,7 @@ def corr_item_general(s):
             adjs = (inflect_adjective(adj, gender) or adj for adj in words[:-1])
             first_part = "%s %s" % (" ".join(adjs), obj)
         replacement_string = first_part + " " + of_material
-    elif any_in_tag({'NOUN', 'gent'}, morph.parse(words[1])) and words[1] != 'древесины':
+    elif any_in_tag({'NOUN', 'gent'}, custom_parse(words[1])) and words[1] != 'древесины':
         # Simple case, eg. "из бронзы"
         print('Simple case')
         of_material = " ".join(words[:2])
@@ -833,7 +843,7 @@ def corr_item_general(s):
         item = words[-1]
 
         for word in words:
-            if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
+            if any_in_tag({'NOUN', 'nomn'}, custom_parse(word)):
                 item = word
                 break
 
@@ -1229,7 +1239,7 @@ def corr_item_body_parts(s):
     if words[-1] in {"частичный", "искалеченный"}:
         replacement_string = "%s %s %s" % (words[-1], hst.group(3), " ".join(genitive_case_list(words[:-1])))
     else:
-        if any('GRND' in morph.parse(word)[0].tag for word in words):  # Ignore participles
+        if any('GRND' in custom_parse(word)[0].tag for word in words):  # Ignore participles
             return None
         replacement_string = hst.group(3) + " " + " ".join(genitive_case_list(words))
     return s.replace(initial_string, replacement_string.capitalize())
@@ -1257,7 +1267,7 @@ def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
         index = next((i for i, item in enumerate(words) if item in {'грубое', 'зелёное', 'прозрачное', 'грубый'}),
                      len(words))
         product_adjectives = words[:index]
-        if any_in_tag({'NOUN', 'nomn'}, morph.parse(product[0])):
+        if any_in_tag({'NOUN', 'nomn'}, custom_parse(product[0])):
             product_gender = get_gender(product[0])
             product[0] = inflect_noun(product[0], case=accusative)
         else:
@@ -1321,13 +1331,13 @@ def corr_forge(s):
     print('Verb:', verb)
     print('words:', words)
     assert len(words) >= 3
-    if (any_in_tag({'ADJF', 'gent'}, morph.parse(words[1])) and  # The second word is an adj in gent
-            any_in_tag({'NOUN', 'gent'}, morph.parse(words[2]))):  # The third word is a noun in gent
+    if (any_in_tag({'ADJF', 'gent'}, custom_parse(words[1])) and  # The second word is an adj in gent
+            any_in_tag({'NOUN', 'gent'}, custom_parse(words[2]))):  # The third word is a noun in gent
         print('Complex case')
         of_material = words[:3]
         obj = words[3:]
     else:
-        assert any_in_tag({'NOUN', 'gent'}, morph.parse(words[1]))
+        assert any_in_tag({'NOUN', 'gent'}, custom_parse(words[1]))
         print('Simple case')
         of_material = words[:2]
         obj = words[2:]
@@ -1339,7 +1349,7 @@ def corr_forge(s):
     item_index = None
     if len(obj) == 1:
         item_index = 0
-        parse = morph.parse(obj[item_index])
+        parse = custom_parse(obj[item_index])
         p = list(filter(lambda x: {'NOUN'} in x.tag and 'Surn' not in x.tag, parse))
         gender = get_gender(obj[item_index], known_tags={'nomn'})
         if not any_in_tag({'accs'}, p):
@@ -1348,7 +1358,7 @@ def corr_forge(s):
         parse = None
         gender = None
         for i, word in enumerate(obj):
-            parse = morph.parse(word)
+            parse = custom_parse(word)
             p = list(filter(lambda x: {'NOUN'} in x.tag and 'Surn' not in x.tag, parse))
             if p:
                 item_index = i
@@ -1413,7 +1423,7 @@ def corr_jewelers_shop(s):
         gender = get_gender(item, known_tags=tags)
         print(':', gender_names[gender])
         words = [inflect_adjective(word, gender, accusative, animated=False) for word in words[:-1]]
-        parse = list(filter(lambda x: {gender_names[gender], 'inan'} in x.tag, morph.parse(item)))
+        parse = list(filter(lambda x: {gender_names[gender], 'inan'} in x.tag, custom_parse(item)))
         if item == 'адамантина':
             item = 'адамантин'
         else:
@@ -1421,7 +1431,7 @@ def corr_jewelers_shop(s):
         words.append(item)
     else:
         # instrumental/ablative case ('incrust with smth')
-        words = [custom_inflect(morph.parse(word)[0], {'ablt'}).word for word in words if word != 'из']
+        words = [custom_inflect(custom_parse(word)[0], {'ablt'}).word for word in words if word != 'из']
     print(words)
     if first_part.endswith(' с'):
         first_part = first_part[:-2]
@@ -1548,7 +1558,7 @@ def corr_clothiers_shop(s):
     product = hst.group(3)
 
     if verb == 'Вышивать':
-        parse = morph.parse(material)[0]
+        parse = custom_parse(material)[0]
         if material == 'пряжа':
             verb = 'Вязать'
             material = custom_inflect(parse, {'gent'}).word
@@ -1676,7 +1686,7 @@ def corr_you_struck(s):
     you_struck = s[:i]
     words = s[i:-1].split()
     assert len(words) == 2
-    parse = morph.parse(words[1])
+    parse = custom_parse(words[1])
     print(parse)
     return you_struck + parse[0].normal_form + '!'
 
@@ -1697,7 +1707,7 @@ def parse_tags(s):
 
 
 def get_form(word):
-    p = morph.parse(word)[0]
+    p = custom_parse(word)[0]
     return {tag for tag in ['sing', 'plur', 'masc', 'femn', 'neut'] if tag in p.tag}
 
 
@@ -1705,7 +1715,7 @@ def inflect_collocation(s, tags):
     print('inflect_collocation(%r, %r)' % (s, tags))
     words = s.split(' ')
     for i, word in enumerate(words):
-        parse = morph.parse(word)
+        parse = custom_parse(word)
         if any_in_tag({'NOUN', 'nomn'}, parse):
             p = next(p for p in parse if {'NOUN', 'nomn'} in p.tag)
             p = custom_inflect(p, tags)
@@ -1743,7 +1753,7 @@ def corr_tags(s):
                     if ' ' in word:
                         item = inflect_collocation(word, tags)
                     else:
-                        p = morph.parse(word)[0]
+                        p = custom_parse(word)[0]
                         item = custom_inflect(p, tags).word
                         # if not make_lower and word[0].isupper():
                         if word[0].isupper():
@@ -1764,7 +1774,7 @@ def corr_tags(s):
             if ' ' in word:
                 item = inflect_collocation(word, form)
             else:
-                p = morph.parse(word)[0]
+                p = custom_parse(word)[0]
                 item = custom_inflect(p, form).word
                 if word[0].isupper():
                     item = item.capitalize()
