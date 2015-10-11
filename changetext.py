@@ -862,7 +862,7 @@ closing = {'«': '»', '[': ']', '(': ')', '{': '}'}
 def open_brackets(func):
     def wrapper(s):
         start_i = 0
-        end_i = len(s)-1
+        end_i = len(s) - 1
         for c in s:
             if c in opening:
                 start_i += 1
@@ -871,14 +871,14 @@ def open_brackets(func):
             else:
                 break
         
-        if (start_i>0 and s[start_i-1] == 'р' and (end_i == len(s)-1 or s[end_i+1] != 'р') and
+        if (start_i > 0 and s[start_i - 1] == 'р' and (end_i == len(s) - 1 or s[end_i + 1] != 'р') and
                 not s[start_i:].startswith('из')) and not s[start_i].isupper():
             start_i -= 1
         
         leading_symbols = s[:start_i].replace('р', '≡')
-        trailing_symbols = s[end_i+1:].replace('р', '≡')
+        trailing_symbols = s[end_i + 1:].replace('р', '≡')
         
-        return leading_symbols + func(s[start_i:end_i+1]) + trailing_symbols
+        return leading_symbols + func(s[start_i:end_i + 1]) + trailing_symbols
     
     return wrapper
 
@@ -1794,8 +1794,8 @@ def parse_tags(s):
                 yield s[start:i]
             start = i
         elif c == '>':
-            yield s[start:i+1]
-            start = i+1
+            yield s[start:i + 1]
+            start = i + 1
     
     if start < len(s):
         yield s[start:]
@@ -2006,7 +2006,6 @@ def _ChangeText(s):
         elif '<' in s and '<no ' not in s:
             result = corr_tags(s)
 
-
         return result
 
     try:
@@ -2040,8 +2039,8 @@ def ChangeText(s):
 
 def myrepr(s):
     text = repr(s)
-    bytes = text.encode(sys.stdout.encoding, 'backslashreplace')
-    text = bytes.decode(sys.stdout.encoding, 'strict')
+    b = text.encode(sys.stdout.encoding, 'backslashreplace')
+    text = b.decode(sys.stdout.encoding, 'strict')
     return text
 
 
