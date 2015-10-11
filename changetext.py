@@ -9,7 +9,6 @@ import pymorphy2
 
 morph = pymorphy2.MorphAnalyzer()
 
-
 unwanted_tags = ('Name', 'Surn', 'Infr')
 
 
@@ -575,13 +574,10 @@ gent_case_except = {
 }
 
 
-def inflect_noun(word: str, case: int, original_case: int = None, plural=None, anim=None) -> str:
-    parse = list(filter(lambda x: x.tag.POS == 'NOUN', most_probable(custom_parse(word))))
-    orig_form = set()
-    if anim is not None:
-        orig_form.add('anim' if anim else 'inan')
-    if original_case is not None:
-        orig_form.add(case_names[original_case])
+def inflect_noun(word: str, case, orig_form=None) -> str:
+    print('inflect_noun(%r, %r, %r)' % (word, case_names[case], orig_form))
+    parse = list(filter(lambda x: x.tag.POS == 'NOUN', custom_parse(word)))
+    
     if orig_form:
         parse = [p for p in parse if orig_form in p.tag]
     
@@ -589,11 +585,12 @@ def inflect_noun(word: str, case: int, original_case: int = None, plural=None, a
         print('Failed to set %r to %s case.' % (word, case_names[case]))
         return None
     
-    form = {case_names[case]}
-    if plural is not None:
-        form.add('plur' if plural else 'sing')
+    form = {case if isinstance(case, str) else case_names[case]}
+    if orig_form and {'plur', 'sing'} & orig_form:
+        form.add(({'plur', 'sing'} & orig_form).pop())
     
     new_form = custom_inflect(parse[0], form)
+    
     return new_form.word
 
 
@@ -1024,7 +1021,7 @@ def corr_container(s):
             
             if not material:
                 material = ' '.join(words[-2:] + list(genitive_case_list(words[:-2])))
-        elif of_material.startswith('из '):
+        elif of_material.startswith('из ') or len(of_material) < 3:
             material = of_material
         else:
             gen_case = list(genitive_case_list(of_material.split()))
@@ -1202,11 +1199,14 @@ def corr_craft_general(s):
     product = hst.group(3)
     product_gender = get_gender(product, known_tags={'nomn'})
     print('gender:', gender_names[product_gender])
-    product = inflect_noun(product, accusative, plural=product_gender == plural, anim=False)
+    orig_form = {'plur' if product_gender == plural else 'sing', 'inan'}
+    print('orig_form =', orig_form)
+    product = inflect_noun(product, accusative, orig_form=orig_form)
+    # product = inflect_noun(product, accusative, orig_form={'inan'})
     words = hst.group(2).split()
     if words:
         if len(words) == 1 and words[0] not in make_adjective and not is_adjective(words[0]):
-            material = inflect_noun(words[0], genitive, original_case=nominative, anim=False)  # рог -> (из) рога
+            material = inflect_noun(words[0], genitive, orig_form={'nomn', 'inan'})  # рог -> (из) рога
             result = "%s %s из %s" % (verb, product, material)
         else:
             adjectives = [make_adjective[word] if word in make_adjective
