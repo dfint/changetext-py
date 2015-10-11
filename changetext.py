@@ -9,6 +9,27 @@ import pymorphy2
 
 morph = pymorphy2.MorphAnalyzer()
 
+
+# Cut'n'paste from pymorphy2 with some modifications to ignore forms with extra tags
+def custom_inflect(form, required_grammemes):
+    self = form._morph
+    possible_results = [f for f in self.get_lexeme(form)
+                        if required_grammemes <= f[1].grammemes]
+
+    if not possible_results:
+        required_grammemes = self.TagClass.fix_rare_cases(required_grammemes)
+        possible_results = [f for f in self.get_lexeme(form)
+                            if required_grammemes <= f[1].grammemes]
+
+    grammemes = form[1].updated_grammemes(required_grammemes)
+
+    def similarity(frm):
+        tag = frm[1]
+        return len(grammemes & tag.grammemes) - len(grammemes ^ tag.grammemes) * 0.1  # The more extra tags, the less the similarity
+    res = heapq.nlargest(1, possible_results, key=similarity)
+    return None if not res else res[0]
+
+
 try:
     from tests import test_strings
 except ImportError:
@@ -110,115 +131,6 @@ case_names = (
     "ablt",  # творительный
     "loct",  # предложный
 )
-
-gender_item = {
-    # предметы
-    # masculine
-    "тренировочный топор": masculine, "щит": masculine, "баклер": masculine,
-    "стол": masculine, "трон": masculine, "горшок": masculine, "шкаф": masculine,
-    "ларец": masculine, "гроб": masculine, "игрушечный кораблик": masculine,
-    "игрушечный молоток": masculine, "игрушечный топорик": masculine,
-    "кубок": masculine, "костыль": masculine, "шлем": masculine,
-    "капюшон": masculine, "сапог": masculine, "ботинок": masculine, "башмак": masculine,
-    "песок": masculine, "кувшин": masculine, "барабан": masculine, "стул": masculine,
-    "мешок": masculine, "боевой топор": masculine, "короткий меч": masculine,
-    "тренировочный меч": masculine, "арбалет": masculine, "боевой молот": masculine,
-    "амулет": masculine, "нагрудник": masculine, "инструмент": masculine,
-    "улей": masculine, "рюкзак": masculine, "жилет": masculine, "плащ": masculine, "носок": masculine,
-    "колчан": masculine, "силок": masculine, "шлюз": masculine, "люк": masculine, "сундук": masculine,
-    "саркофаг": masculine, "ящик": masculine, "мемориал": masculine,
-    "головной убор": masculine, "кинжал": masculine, "болт": masculine, "рычаг": masculine,
-
-    # feminine
-    "кирка": feminine, "наковальня": feminine, "булава": feminine,
-    "кружка": feminine, "кровать": feminine, "головоломка": feminine,
-    "статуя": feminine, "бочка": feminine, "дверь": feminine,
-    "мини-кузница": feminine, "шина": feminine, "статуэтка": feminine,
-    "кольчуга": feminine, "шапка": feminine, "вагонетка": feminine, "тачка": feminine,
-    "труба": feminine, "арфа": feminine, "флейта-пикколо": feminine,
-    "корона": feminine, "перчатка": feminine, "Клетка": feminine, "клетка": feminine,
-    "стойка": feminine, "решётка": feminine, "туника": feminine, "цепь": feminine,
-    "броня": feminine, "обувь": feminine, "крышка": feminine, "звезда": feminine,
-    "бирюза": feminine,
-
-    # neuter
-    "тренировочное копьё": neuter, "гнездо": neuter, "ведро": neuter, "копьё": neuter,
-    "кольцо": neuter, "Ведро": neuter,
-    # plural
-    "кирки": plural, "тренировочные топоры": plural, "наковальни": plural, "булавы": plural,
-    "копья": plural, "кружки": plural, "стулья": plural,
-    "боевые топоры": plural, "болты": plural, "боевые молоты": plural, "топоры": plural,
-    "арбалеты": plural, "щиты": plural, "рукавицы": plural, "поножи": plural,
-    "нагрудники": plural, "брёвна": plural, "тренировочные мечи": plural,
-    "цереуса": plural, "ведра": plural, "гробы": plural, "молотки": plural,
-    "статуи": plural, "ларцы": plural, "механизмы": plural, "головоломки": plural,
-    "игрушечные кораблики": plural, "столы": plural, "кольчужный": plural,
-    "ларецы": plural, "тренировочные копья": plural, "флейты-пикколо": plural,
-    "игрушечные молотки": plural, "игрушечные топорики": plural,
-    "мини-кузницы": plural, "стрелы": plural, "дротики": plural, "баклеры": plural,
-    "короткие мечи": plural, "мечи": plural, "слитки": plural, "шины": plural, "костыли": plural, "бочки": plural,
-    "клетки": plural, "ульи": plural, "горшки": plural, "гнёзда": plural, "вёдра": plural,
-    "фляги": plural, "бурдюки": plural, "блоки": plural, "барабаны": plural,
-    "браслеты": plural, "скипетры": plural, "короны": plural, "статуэтки": plural, "кольца": plural,
-    "серьги": plural, "колчаны": plural, "рюкзаки": plural, "мешоки": plural,
-    "верёвки": plural, "кольчуги": plural, "шлемы": plural, "одежды": plural,
-    "шапки": plural, "капюшоны": plural, "сапоги": plural, "ботинки": plural, "башмаки": plural,
-    "рейтузы": plural, "штаны": plural, "амулеты": plural, "кувшины": plural,
-    "вагонетки": plural, "тачки": plural, "флейты": plural, "трубы": plural, "арфы": plural, "Поделки": plural,
-    "монеты": plural, "Блоки": plural, "Наконечники стрел": plural, "шкафы": plural, "двери": plural,
-    "кровати": plural, "жернова": plural, "троны": plural, "стойки": plural, "сундуки": plural, "изделия": plural,
-    "перчатки": plural, "брюки": plural, "доспехи": plural, "щиты/баклеры": plural, "плащи": plural,
-    "рубахи": plural, "накидки": plural, "робы": plural, "жилеты": plural, "туники": plural, "тоги": plural,
-
-    # самоцветы
-    # masculine
-    "хрусталь": masculine, "морганит": masculine, "кошачий глаз": masculine, "опал": masculine,
-    # feminine
-    "яшма": feminine, "шпинель": feminine, "тигровая яшма": feminine,
-    # neuter
-
-    # plural
-    "шерлы": plural, "прозапалы": plural, "кровавики": plural, "моховые агаты": plural, "хризопразы": plural,
-    "сердолики": plural,
-    "изысканные огненные опалы": plural, "костяные опалы": plural, "моховые опалы": plural,
-    "молочные кварцы": plural, "цитрины": plural, "пириты": plural, "зелёные турмалины": plural,
-    "белые халцедоны": plural, "лунные камни": plural, "красные пиропы": plural,
-    "синие гранаты": plural, "чёрные цирконы": plural, "демантоиды": plural, "биксбиты": plural, "топазы": plural,
-    "кунциты": plural, "фиолетовые спессартины": plural,
-    "гелиодоры": plural, "гошениты": plural, "аметисты": plural, "аквамарины": plural, "хризобериллы": plural,
-    "арлекины": plural,
-    "изумруды": plural, "александриты": plural, "морионы": plural, "лазуриты": plural, "празеолиты": plural,
-    "лавандовые нефриты": plural,
-    "розовые нефриты": plural, "восковые опалы": plural, "янтарные опалы": plural, "золотистые опалы": plural,
-    "ракушечные опалы": plural,
-    "авантюрины": plural, "альмандины": plural, "родолиты": plural, "танзаниты": plural, "золотистые бериллы": plural,
-    "топазолиты": plural,
-    "светло-жёлтые алмазы": plural, "рубицеллы": plural, "сардониксы": plural, "белые нефриты": plural,
-    "ананасовые опалы": plural,
-    "трубчатые опалы": plural, "розовые кварцы": plural, "зелёные цирконы": plural, "зелёные нефриты": plural,
-    "красные цирконы": plural,
-    "яшмовые опалы": plural, "розовые турмалины": plural, "огненные опалы": plural, "желейные опалы": plural,
-    "коричневые цирконы": plural, "жёлтые цирконы": plural, "жёлтые спессартины": plural, "чистые гранаты": plural,
-    "чистые цирконы": plural, "чёрные опалы": plural, "кристаллические опалы": plural,
-    "слоистые огненные опалы": plural,
-    "дымчатые кварцы": plural, "смолистые опалы": plural, "светло": plural, "розовые опалы": plural,
-    "розовые перриты": plural,
-    # masculine
-    "кол": masculine, "винт": masculine, "шар": masculine, "диск": masculine,
-    # neuter
-    "лезвие топора": neuter,
-    # plural
-    "колья": plural, "шары": plural, "винты": plural, "диски": plural, "лезвия топоров": plural,
-
-    # Травы
-    "морошка": feminine,
-
-    "червь": masculine,
-    "коза": feminine,
-    "галька": feminine,
-
-    "пол": masculine,
-}
 
 make_adjective = {
     # металл
@@ -603,7 +515,7 @@ gender_ordinals = {'masc': masculine, 'femn': feminine, 'neut': neuter, 'plur': 
 
 gender_exceptions = {
     'шпинель': feminine, 'пол': masculine, 'стена': feminine, 'гризли': masculine,
-    'боевой': masculine,
+    'боевой': masculine, 'кол': masculine,
 }
 
 
@@ -646,24 +558,13 @@ def get_gender(obj, known_tags=None):
         return pm_gender(parse[0])
 
 
-# Cut'n'paste from pymorphy2 with some modifications to ignore forms with extra tags
-def custom_inflect(form, required_grammemes):
-    self = form._morph
-    possible_results = [f for f in self.get_lexeme(form)
-                        if required_grammemes <= f[1].grammemes]
-
-    if not possible_results:
-        required_grammemes = self.TagClass.fix_rare_cases(required_grammemes)
-        possible_results = [f for f in self.get_lexeme(form)
-                            if required_grammemes <= f[1].grammemes]
-
-    grammemes = form[1].updated_grammemes(required_grammemes)
-
-    def similarity(frm):
-        tag = frm[1]
-        return len(grammemes & tag.grammemes) - len(grammemes ^ tag.grammemes) * 0.1  # The more extra tags, the less the similarity
-    res = heapq.nlargest(1, possible_results, key=similarity)
-    return None if not res else res[0]
+def get_main_word_gender(s):
+    if ' ' not in s:
+        return get_gender(s, known_tags={'nomn'})
+    else:
+        for word in s.split():
+            if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
+                return get_gender(word, known_tags={'NOUN', 'nomn'})
 
 
 def inflect_adjective(adjective: str, gender: int, case=nominative, animated=None):
@@ -1085,14 +986,7 @@ def corr_weapon_trap_parts(s):
         print("material:", material)
         obj = " ".join(words[2:])
         print("object:", obj)
-        if ' ' not in obj:
-            gender = get_gender(obj, known_tags={'nomn'})
-        else:
-            gender = None
-            for word in obj.split():
-                if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
-                    gender = get_gender(word, known_tags={'NOUN', 'nomn'})
-                    break
+        gender = get_main_word_gender(obj)
         print("object gender:", gender)
         if adj not in make_adjective and " " in adj:
             adj_words = adj.split()
@@ -1110,7 +1004,7 @@ def corr_weapon_trap_parts(s):
         print("material:", material)
         obj = " ".join(words[3:])
         print("object:", obj)
-        gender = gender_item[obj]
+        gender = get_main_word_gender(obj)
         if adj not in make_adjective and " " in adj:
             adj_words = adj.split()
             new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
@@ -1257,15 +1151,7 @@ def corr_relief(s):
         print('several words')
         words = group1.split(" ")
         first_words = []
-        
-        if ' ' not in obj:
-            gender = get_gender(obj, {'NOUN', 'nomn'})
-        else:
-            gender = None
-            for word in obj.split():
-                if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
-                    gender = get_gender(word)
-                    break
+        gender = get_main_word_gender(obj)
         
         for word in words:
             if word in {"Заснеженный", "Неотесанный", "Влажный"}:
@@ -1568,14 +1454,7 @@ def corr_settlement(s):
     if adjective in {'Покинуть', 'Разрушить'}:
         return
     
-    if ' ' not in settlement:
-        gender = get_gender(settlement)
-    else:
-        gender = None
-        for word in settlement.split():
-            if any_in_tag({'NOUN', 'nomn'}, morph.parse(word)):
-                gender = get_gender(word)
-                break
+    gender = get_main_word_gender(settlement)
     
     if " " not in adjective:
         adjective_2 = inflect_adjective(adjective, gender)
@@ -1600,7 +1479,7 @@ def corr_item_20(s):
         material = make_adjective[hst.group(1)]
         s = new_word + " " + material
         return s.capitalize()
-    gender = gender_item[new_word]
+    gender = get_gender(new_word)
     material = make_adjective[hst.group(1)][gender]
     s = material + " " + new_word
     return s.capitalize()
