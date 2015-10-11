@@ -480,16 +480,6 @@ dict_ending_s = {
 }
 
 
-def most_probable(parse, score=None):
-    if score is None:
-        score = parse[0].score
-    for p in parse:
-        assert score >= p.score
-        if score - p.score > 1e-5:
-            break
-        yield p
-
-
 gender_ordinals = {'masc': masculine, 'femn': feminine, 'neut': neuter, 'plur': plural, None: None}
 
 gender_exceptions = {
