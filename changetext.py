@@ -473,73 +473,6 @@ make_adjective = {
     'камень': 'каменный',
 }
 
-adjective_endings_masculine = {"ый", "ой", "ий"}
-
-adjective_cases = {
-    "ый":  # медный, шелковый etc.
-    (
-        ("ый", "ая", "ое", "ые"),  # именительный - nominative
-        ("ого", "ой", "ого", "ых"),  # родительный - genitive
-        ("ому", "ой", "ому", "ым"),  # дательный - dative
-        ("ый", "ую", "ое", "ые"),  # винительный  - accusative
-        ("ым", "ой", "ым", "ыми"),  # творительный  - instrumental
-        ("ом", "ой", "ом", "ых"),  # предложный  - prepositional
-    ),
-    "ой":  # золотой, густой etc.
-    (
-        ("ой", "ая", "ое", "ые"),  # именительный - nominative
-        ("ого", "ой", "ого", "ых"),  # родительный - genitive
-        ("ому", "ой", "ому", "ым"),  # дательный - dative
-        ("ого", "ую", "ое", "ых"),  # винительный  - accusative
-        ("ым", "ой", "ым", "ыми"),  # творительный  - instrumental
-        ("ом", "ой", "ом", "ых"),  # предложный  - prepositional
-    ),
-    "шой":  # большой etc.
-    (
-        ("шой", "шая", "шое", "шие"),  # именительный - nominative
-        ("шого", "шой", "шого", "ших"),  # родительный - genitive
-        ("шому", "шой", "шому", "шим"),  # дательный - dative
-        ("шого", "шую", "шое", "ших"),  # винительный  - accusative
-        ("шим", "шой", "шим", "шими"),  # творительный  - instrumental
-        ("шом", "шой", "шом", "ших"),  # предложный  - prepositional
-    ),
-    "ний":  # синий etc.
-    (
-        ("ний", "няя", "нее", "ние"),  # именительный - nominative
-        ("него", "нюю", "нее", "них"),  # родительный - genitive
-        ("нему", "ней", "нему", "ним"),  # дательный - dative
-        ("него", "нюю", "нее", "них"),  # винительный  - accusative
-        ("ним", "ней", "ним", "ними"),  # творительный  - instrumental
-        ("нем", "ней", "нем", "них"),  # предложный  - prepositional
-    ),
-    "кий":  # гигантский, высокий etc.
-    (
-        ("кий", "кая", "кое", "кие"),  # именительный - nominative
-        ("кого", "кой", "кого", "ких"),  # родительный - genitive
-        ("кому", "кой", "кому", "ким"),  # дательный - dative
-        ("кого", "кую", "кое", "ких"),  # винительный  - accusative
-        ("ким", "кой", "ким", "кими"),  # творительный  - instrumental
-        ("ком", "кой", "ком", "ких"),  # предложный  - prepositional
-    ),
-    "жий":  # рыжий etc.
-    (
-        ("жий", "жая", "жее", "жие"),  # именительный - nominative
-        ("жего", "жей", "жего", "жих"),  # родительный - genitive
-        ("жему", "жей", "жему", "жим"),  # дательный - dative
-        ("жего", "жую", "жее", "жих"),  # винительный  - accusative
-        ("жим", "жей", "жим", "жими"),  # творительный  - instrumental
-        ("жем", "жей", "жем", "жих"),  # предложный  - prepositional
-    ),
-    "чий":  # летучий etc.
-    (
-        ("чий", "чая", "чее", "чие"),  # именительный - nominative
-        ("чего", "чей", "чего", "чих"),  # родительный - genitive
-        ("чему", "чей", "чему", "чим"),  # дательный - dative
-        ("чего", "чую", "чее", "чих"),  # винительный  - accusative
-        ("чим", "чей", "чим", "чими"),  # творительный  - instrumental
-        ("чем", "чей", "чем", "чих"),  # предложный  - prepositional
-    ),
-}
 
 accusative_case = {
     'булава': "булаву",
@@ -757,41 +690,26 @@ def custom_inflect(form, required_grammemes):
     return None if not res else res[0]
 
 
-adj_except = {
-    # 'заснеженный',  # склоняет как разговорное - "заснежённый", нужно - "заснеженный"
-    # 'заточенный',  # склоняет как разговорное - "заточённый"
-}
-
-
 def inflect_adjective(adjective: str, gender: int, case=nominative, animated=None):
     print('inflect_adjective(%s, %s)' % (adjective, case_names[case]))
-    if adjective.lower() in adj_except:
-        ending3 = adjective[-3:]
-        ending2 = adjective[-2:]
-        if ending3 in adjective_cases:
-            return adjective[:-3] + adjective_cases[ending3][case][gender]
-        elif ending2 in adjective_cases:
-            return adjective[:-2] + adjective_cases[ending2][case][gender]
-        print("Failed to declinate '%s' to the %s case." % (adjective, case_names[case]))
-        return None
-    else:
-        assert gender is not None
-        parse = morph.parse(adjective)
-        parse = [p for p in parse if 'ADJF' in p.tag or 'PRTF' in p.tag]
-        assert len(parse) > 0, 'parse: %r' % parse
-        parse = parse[0]
+    
+    assert gender is not None
+    parse = morph.parse(adjective)
+    parse = [p for p in parse if 'ADJF' in p.tag or 'PRTF' in p.tag]
+    assert len(parse) > 0, 'parse: %r' % parse
+    parse = parse[0]
+    form_set = {gender_names[gender], case_names[case]}
+    if animated is not None and gender in {masculine, plural}:
+        form_set.add('anim' if animated else 'inan')
+    print('form_set:', form_set)
+    new_form = custom_inflect(parse, form_set)
+    if new_form is None:
         form_set = {gender_names[gender], case_names[case]}
-        if animated is not None and gender in {masculine, plural}:
-            form_set.add('anim' if animated else 'inan')
         print('form_set:', form_set)
         new_form = custom_inflect(parse, form_set)
-        if new_form is None:
-            form_set = {gender_names[gender], case_names[case]}
-            print('form_set:', form_set)
-            new_form = custom_inflect(parse, form_set)
-        ret = new_form.word
-        print('%s -> %s' % (adjective, ret))
-        return ret
+    ret = new_form.word
+    print('%s -> %s' % (adjective, ret))
+    return ret
 
 
 # существительные+ прилаг
@@ -982,7 +900,6 @@ def corr_item_general(s):
     print('corr_item_general')
     hst = re_item_general.search(s)
     initial_string = hst.group(1)
-    p_symbol = hst.group(2)
     words = hst.group(3).split()
     
     print(words)
@@ -1713,8 +1630,6 @@ def corr_ending_s(s):
             return None
     return s
 
-
-
 # Clothier's shop
 
 re_clothiers_shop = re.compile(r'(Делать|Изготовить|Вышивать) (ткань|шёлк|пряжа|кожа) (\w+)')
@@ -1726,15 +1641,7 @@ cloth_subst = {
     "кожа": ("Шить", "из кожи"),
 }
 
-# accusative_case["носок"] = "носок"
-# accusative_case["штаны"] = "штаны"
 accusative_case["верёвка"] = "верёвку"
-# accusative_case["капюшон"] = "капюшон"
-# accusative_case["башмак"] = "башмак"
-# accusative_case["мундир"] = "мундир"
-# accusative_case["плащ"] = "плащ"
-# accusative_case["мешок"] = "мешок"
-# accusative_case["жилет"] = "жилет"
 accusative_case["рубаха"] = "рубаху"
 
 
