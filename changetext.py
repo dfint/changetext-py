@@ -524,8 +524,7 @@ def most_probable(parse, score=None):
 gender_ordinals = {'masc': masculine, 'femn': feminine, 'neut': neuter, 'plur': plural, None: None}
 
 gender_exceptions = {
-    'шпинель': feminine, 'пол': masculine, 'стена': feminine, 'гризли': masculine,
-    'боевой': masculine, 'кол': masculine,
+    'шпинель': feminine, 'гризли': masculine,
 }
 
 
