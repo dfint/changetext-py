@@ -1429,14 +1429,6 @@ def corr_jewelers_shop(s):
     return s.capitalize()
 
 
-gender_item["лесное убежище"] = neuter
-gender_item["крепость"] = feminine
-gender_item["селение"] = neuter
-gender_item["горный город"] = masculine
-gender_item["городок"] = masculine
-gender_item["гробница"] = feminine
-gender_item["пригорки"] = plural
-
 re_settlement = re.compile(r'(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)')
 
 
