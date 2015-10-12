@@ -1844,17 +1844,20 @@ def myrepr(s):
 
 def main():
     if test_strings:
-        for key in test_strings:
-            result = ChangeText(key)
-            try:
-                assert result == test_strings[key]
-            except AssertionError:
-                print("A test failed.")
-                print("Given", myrepr(key))
-                print("Expected", myrepr(test_strings[key]))
-                print("Got", myrepr(result))
-                raise
-        print('All tests are passed.')
+        with open('changetext.out', 'wt') as stdout:
+            sys.stdout = stdout
+            print('Testing process started...', file=sys.stderr)
+            for key in test_strings:
+                result = ChangeText(key)
+                try:
+                    assert result == test_strings[key]
+                except AssertionError:
+                    print("A test failed.", file=sys.stderr)
+                    print("Given", myrepr(key), file=sys.stderr)
+                    print("Expected", myrepr(test_strings[key]), file=sys.stderr)
+                    print("Got", myrepr(result), file=sys.stderr)
+                    raise
+            print('All tests are passed.', file=sys.stderr)
 
 if __name__ == '__main__':
     main()
