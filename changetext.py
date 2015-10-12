@@ -603,6 +603,7 @@ def genitive_case_list(words: list):
             word = inflect_adjective(word, gender, 'gent')
         else:
             word = genitive_case_single_noun(word)
+        assert word is not None
         yield word
 
 
@@ -743,6 +744,11 @@ def corr_item_general(s):
 
     s = s.replace(initial_string, replacement_string)
     return s
+
+
+re_3 = re.compile(
+    r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольца|серьги|амулеты|браслеты|скипетры|коронаы|статуэтки\b)')
+re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 
 
 # выражения типа "рогатый филин яйцо"
@@ -897,6 +903,9 @@ def corr_weapon_trap_parts(s):
         print(adj, ":", new_adj)
         s = s.replace(hst.group(0), "%s %s %s" % (new_adj, obj, material))
     return s
+
+
+re_animal = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
 
 
 # "животные"
@@ -1069,6 +1078,9 @@ def corr_relief(s):
     if "иза" in s:
         s = s.replace(" иза", "")
     return s.capitalize()
+
+
+re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
 
 
 # "Густой и тп"
@@ -1361,10 +1373,13 @@ def corr_settlement(s):
     return "%s %s %s" % (adjective_2.capitalize(), settlement, name.capitalize())
 
 
+re_material_selection = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
+
+
 # выбор материала
-def corr_item_20(s):
+def corr_material_selection(s):
     print(20)
-    hst = re_19.search(s)
+    hst = re_material_selection.search(s)
     if hst.group(2) in phrases:
         new_word = phrases[hst.group(2)]
     else:
@@ -1378,11 +1393,13 @@ def corr_item_20(s):
     s = material + " " + new_word
     return s.capitalize()
 
+re_animal_material = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
+
 
 # кожа, шерсть-длинные названия
-def corr_item_21(s):
+def corr_animal_material(s):
     print(21)
-    hst = re_20.search(s)
+    hst = re_animal_material.search(s)
     s = hst.group(2) + " " + genitive_case(hst.group(1))
     return s
 
@@ -1676,13 +1693,10 @@ def corr_tags(s):
 
 ############################################################################
 # компилированные регулярные выражения
-re_3 = re.compile(
-    r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольца|серьги|амулеты|браслеты|скипетры|коронаы|статуэтки\b)')
-re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
-re_animal = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
-re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
-re_19 = re.compile(r'(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)')
-re_20 = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
+
+
+
+
 
 verbs = {
     "промахивается", "контракует", "punches", "атакует", "нападает", "хватает", "повален", "выпускает",
@@ -1783,16 +1797,16 @@ def _ChangeText(s):
             result = corr_jewelers_shop(s)
         elif re_settlement.search(s):
             result = corr_settlement(s)
-            # elif re_19.search(s): # Отключено: дает ложные срабатывания в логе
-            # result = corr_item_20(s) 
+            # elif re_material_selection.search(s): # Отключено: дает ложные срабатывания в логе
+            # result = corr_material_selection(s) 
         elif re_clothiers_shop.search(s):
             result = corr_clothiers_shop(s)
         elif re_craft_general.search(s):
             result = corr_craft_general(s)
         elif re_body_parts.search(s):
             result = corr_item_body_parts(s)
-        elif re_20.search(s):
-            result = corr_item_21(s)
+        elif re_animal_material.search(s):
+            result = corr_animal_material(s)
         elif re_become.search(s):
             result = corr_become(s)
         elif re_rings.search(s):
