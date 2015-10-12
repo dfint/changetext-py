@@ -122,16 +122,7 @@ plural = 3  # мн. ч.
 
 gender_names = ('masc', 'femn', 'neut', 'plur')
 
-# падежи
-nominative = 0  # именительный
-genitive = 1  # родительный
-dative = 2  # дательный
-accusative = 3  # винительный
-instrumental = 4  # творительный
-ablative = instrumental
-prepositional = 5  # предложный
-locative = prepositional
-
+# Case names - as a reference only
 case_names = (
     "nomn",  # именительный
     "gent",  # родительный
@@ -535,20 +526,20 @@ def get_main_word_gender(s):
                 return get_gender(word, known_tags={'NOUN', 'nomn'})
 
 
-def inflect_adjective(adjective: str, gender: int, case=nominative, animated=None):
-    print('inflect_adjective(%s, %s)' % (adjective, None if case is None else case_names[case]))
+def inflect_adjective(adjective: str, gender: int, case='nomn', animated=None):
+    print('inflect_adjective(%s, %s)' % (adjective, case))
     assert gender is not None
     parse = custom_parse(adjective)
     parse = [p for p in parse if 'ADJF' in p.tag or 'PRTF' in p.tag]
     assert len(parse) > 0, 'parse: %r' % parse
     parse = parse[0]
-    form_set = {gender_names[gender], case_names[case]}
+    form_set = {gender_names[gender], case}
     if animated is not None and gender in {masculine, plural}:
         form_set.add('anim' if animated else 'inan')
     print('form_set:', form_set)
     new_form = custom_inflect(parse, form_set)
     if new_form is None:
-        form_set = {gender_names[gender], case_names[case]}
+        form_set = {gender_names[gender], case}
         print('form_set:', form_set)
         new_form = custom_inflect(parse, form_set)
     ret = new_form.word
@@ -565,17 +556,17 @@ gent_case_except = {
 
 
 def inflect_noun(word: str, case, orig_form=None) -> str:
-    print('inflect_noun(%r, %r, %r)' % (word, case_names[case], orig_form))
+    print('inflect_noun(%r, %r, %r)' % (word, case, orig_form))
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', custom_parse(word)))
     
     if orig_form:
         parse = [p for p in parse if orig_form in p.tag]
     
     if len(parse) == 0:
-        print('Failed to set %r to %s case.' % (word, case_names[case]))
+        print('Failed to set %r to %s case.' % (word, case))
         return None
     
-    form = {case if isinstance(case, str) else case_names[case]}
+    form = {case}
     if orig_form and {'plur', 'sing'} & orig_form:
         form.add(({'plur', 'sing'} & orig_form).pop())
     
@@ -590,7 +581,7 @@ def genitive_case_single_noun(word: str):
     if word.lower() in gent_case_except:
         return gent_case_except[word.lower()]
     else:
-        return inflect_noun(word, case=genitive)
+        return inflect_noun(word, case='gent')
 
 
 def is_adjective(word: str):
@@ -617,7 +608,7 @@ def genitive_case_list(words: list):
     
     for word in words:
         if is_adjective(word):
-            word = inflect_adjective(word, gender, genitive)
+            word = inflect_adjective(word, gender, 'gent')
         else:
             word = genitive_case_single_noun(word)
         yield word
@@ -708,7 +699,7 @@ def corr_item_general(s):
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, custom_parse(material)))
         material = parse[0].normal_form
         adjs = words[1:-1]
-        adjs = [inflect_adjective(adj, gender, case=nominative) for adj in adjs]
+        adjs = [inflect_adjective(adj, gender, case='nomn') for adj in adjs]
         replacement_string = ' '.join(adjs) + ' ' + material
     elif (words[2] not in corr_item_general_except and len(words) > 3 and
           any_in_tag({'gent'}, custom_parse(words[1])) and  # The second word is in genitive
@@ -1101,14 +1092,14 @@ def corr_item_13(s):
         if is_adjective(words[0]):
             print("13.1.1")
             gender = get_gender(words[-1])
-            new_word = inflect_adjective(words[0], gender, nominative)
+            new_word = inflect_adjective(words[0], gender, 'nomn')
             s = s.replace(words[0], new_word)
-            new_word = inflect_adjective(adjective, gender, nominative)
+            new_word = inflect_adjective(adjective, gender, 'nomn')
             s = s.replace(adjective, new_word)
     else:
         print(13.2)
         gender = get_gender(obj)
-        new_word = inflect_adjective(adjective, gender, nominative)
+        new_word = inflect_adjective(adjective, gender, 'nomn')
         if new_word:
             print("13.2.1")
             s = new_word + " " + obj
@@ -1151,7 +1142,7 @@ def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
     verb = hst.group(1)
     if not product:
         verb = 'Варить'
-        adjectives = (inflect_adjective(adj, material_gender, accusative, animated=False) for adj in words)
+        adjectives = (inflect_adjective(adj, material_gender, 'accs', animated=False) for adj in words)
         result = "%s %s %s" % (verb, ' '.join(adjectives), material)
     else:
         index = next((i for i, item in enumerate(words) if item in {'грубое', 'зелёное', 'прозрачное', 'грубый'}),
@@ -1159,18 +1150,18 @@ def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
         product_adjectives = words[:index]
         if any_in_tag({'NOUN', 'nomn'}, custom_parse(product[0])):
             product_gender = get_gender(product[0])
-            product[0] = inflect_noun(product[0], case=accusative)
+            product[0] = inflect_noun(product[0], case='accs')
         else:
             product_gender = get_gender(product[-1])
             product_adjectives += product[:-1]
-            product = [inflect_noun(product[-1], case=accusative)]
+            product = [inflect_noun(product[-1], case='accs')]
 
-        product_adjectives = [inflect_adjective(adj, product_gender, case=accusative, animated=False)
+        product_adjectives = [inflect_adjective(adj, product_gender, case='accs', animated=False)
                               for adj in product_adjectives]
-        material_adjectives = [inflect_adjective(adj, material_gender, case=genitive, animated=False)
+        material_adjectives = [inflect_adjective(adj, material_gender, case='gent', animated=False)
                                for adj in words[index:]]
 
-        material = inflect_noun(material, case=genitive)
+        material = inflect_noun(material, case='gent')
         product_words = product_adjectives + product
         material_words = material_adjectives + [material]
         result = "%s %s из %s" % (verb, ' '.join(product_words), ' '.join(material_words))
@@ -1191,12 +1182,12 @@ def corr_craft_general(s):
     print('gender:', gender_names[product_gender])
     orig_form = {'plur' if product_gender == plural else 'sing', 'inan'}
     print('orig_form =', orig_form)
-    product = inflect_noun(product, accusative, orig_form=orig_form)
-    # product = inflect_noun(product, accusative, orig_form={'inan'})
+    product = inflect_noun(product, 'accs', orig_form=orig_form)
+    # product = inflect_noun(product, 'accs', orig_form={'inan'})
     words = hst.group(2).split()
     if words:
         if len(words) == 1 and words[0] not in make_adjective and not is_adjective(words[0]):
-            material = inflect_noun(words[0], genitive, orig_form={'nomn', 'inan'})  # рог -> (из) рога
+            material = inflect_noun(words[0], 'gent', orig_form={'nomn', 'inan'})  # рог -> (из) рога
             result = "%s %s из %s" % (verb, product, material)
         else:
             adjectives = [make_adjective[word] if word in make_adjective
@@ -1204,7 +1195,7 @@ def corr_craft_general(s):
                           else None
                           for word in words]
             assert all(adj is not None for adj in adjectives)
-            adjectives = [inflect_adjective(adj, product_gender, accusative, animated=False) for adj in adjectives]
+            adjectives = [inflect_adjective(adj, product_gender, 'accs', animated=False) for adj in adjectives]
             result = ("%s %s %s" % (verb, ' '.join(adjectives), product))
     else:
         result = "%s %s" % (verb, product)
@@ -1272,7 +1263,7 @@ def corr_forge(s):
 
     if of_material in make_adjective:
         print('gender of "%s" is %s' % (obj[item_index], gender_names[gender]))
-        material = inflect_adjective(make_adjective[of_material], gender, accusative, animated=False)
+        material = inflect_adjective(make_adjective[of_material], gender, 'accs', animated=False)
         s = verb + " " + material + " " + ' '.join(obj)
     else:
         s = verb + " " + ' '.join(obj) + " " + of_material
@@ -1289,9 +1280,9 @@ def instrumental_case(word):
         gender = masculine
 
     if is_adjective(word):
-        word = inflect_adjective(word, gender, instrumental)
+        word = inflect_adjective(word, gender, 'ablt')
     else:
-        word = inflect_noun(word, instrumental)
+        word = inflect_noun(word, 'ablt')
 
     return word
 
@@ -1315,7 +1306,7 @@ def corr_jewelers_shop(s):
         item = words[-1]
         gender = get_gender(item, known_tags=tags)
         print(':', gender_names[gender])
-        words = [inflect_adjective(word, gender, accusative, animated=False) for word in words[:-1]]
+        words = [inflect_adjective(word, gender, 'accs', animated=False) for word in words[:-1]]
         parse = list(filter(lambda x: {gender_names[gender], 'inan'} in x.tag, custom_parse(item)))
         if item == 'адамантина':
             item = 'адамантин'
@@ -1467,12 +1458,12 @@ def corr_clothiers_shop(s):
 
         gender = get_gender(product, {'nomn'})
         if gender == feminine:
-            product_accus = inflect_noun(product, case=accusative)
+            product_accus = inflect_noun(product, case='accs')
         else:
             product_accus = product
 
         if material in make_adjective:
-            material_adj = inflect_adjective(make_adjective[material], gender, accusative, animated=False)
+            material_adj = inflect_adjective(make_adjective[material], gender, 'accs', animated=False)
             return ' '.join([verb, material_adj, product_accus])
         else:
             return ' '.join([verb, product_accus, of_material])
