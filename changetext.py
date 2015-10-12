@@ -1595,7 +1595,6 @@ def corr_you_struck(s):
     words = s[i:-1].split()
     assert len(words) == 2
     parse = custom_parse(words[1])
-    print(parse)
     return you_struck + parse[0].normal_form + '!'
 
 
