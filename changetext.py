@@ -1856,11 +1856,15 @@ def myrepr(s):
 
 def main():
     if test_strings:
-        with open('changetext.out', 'wt') as stdout:
+        with open('changetext.out', 'wt', encoding='utf-8') as stdout:
             sys.stdout = stdout
             print('Testing process started...', file=sys.stderr)
             for key in test_strings:
+                print('-'*80)
+                print('Original string:', myrepr(key))
+                print('Destination string:', myrepr(test_strings[key]))
                 result = ChangeText(key)
+                print('Result:', myrepr(result))
                 try:
                     assert result == test_strings[key]
                 except AssertionError:
