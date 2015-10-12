@@ -514,6 +514,9 @@ def get_gender(obj, known_tags=None):
                 if pm_gender(p) != gender:
                     print("Gender cannot be recognized definitely for %r. Try to specify known tags (eg. case)" % obj)
                     return None
+        else:
+            print("Gender not recoginzed for %r" % obj)
+            return None
         return pm_gender(parse[0])
 
 
@@ -529,8 +532,7 @@ def get_main_word_gender(s):
 def inflect_adjective(adjective: str, gender: int, case='nomn', animated=None):
     print('inflect_adjective(%s, %s)' % (adjective, case))
     assert gender is not None
-    parse = custom_parse(adjective)
-    parse = [p for p in parse if 'ADJF' in p.tag or 'PRTF' in p.tag]
+    parse = [p for p in custom_parse(adjective) if 'ADJF' in p.tag or 'PRTF' in p.tag]
     assert len(parse) > 0, 'parse: %r' % parse
     parse = parse[0]
     form_set = {gender_names[gender], case}
@@ -581,13 +583,7 @@ def genitive_case_single_noun(word: str):
 
 
 def is_adjective(word: str):
-    parse = custom_parse(word)
-    is_adj = any_in_tag({'ADJF'}, parse) or any_in_tag({'PRTF'}, parse)
-    if is_adj:
-        print(word, 'is adj')
-    else:
-        print(word, "isn't adj")
-    return is_adj
+    return any('ADJF' in p.tag or 'PRTF' in p.tag for p in custom_parse(word))
 
 
 def genitive_case_list(words: list):
@@ -1109,7 +1105,7 @@ re_body_parts = re.compile(
 
 
 def corr_item_body_parts(s):
-    print('corr_item_body_parts')
+    print('corr_item_body_parts(%r)' % s)
     hst = re_body_parts.search(s)
     initial_string = hst.group(1)
     words = hst.group(2).split()
@@ -1433,7 +1429,7 @@ def corr_ending_s(s):
 
 # Clothier's shop
 
-re_clothiers_shop = re.compile(r'(Делать|Изготовить|Вышивать) (ткань|шёлк|пряжа|кожа) (\w+)')
+re_clothiers_shop = re.compile(r'(Делать|Изготовить|Вышивать|Ткать) (ткань|шёлк|пряжа|кожа)(\s?\w*)')
 
 cloth_subst = {
     "ткань": ("Шить", "из ткани"),
@@ -1448,9 +1444,11 @@ def corr_clothiers_shop(s):
     hst = re_clothiers_shop.search(s)
     verb = hst.group(1)
     material = hst.group(2)
-    product = hst.group(3)
-
-    if verb == 'Вышивать':
+    product = hst.group(3).strip()
+    
+    if not product:
+        return None  # Leave as is eg. 'Ткать шёлк' 
+    elif verb == 'Вышивать':
         parse = custom_parse(material)[0]
         if material == 'пряжа':
             verb = 'Вязать'
