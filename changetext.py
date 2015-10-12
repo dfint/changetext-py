@@ -566,12 +566,7 @@ def inflect_noun(word: str, case, orig_form=None) -> str:
         print('Failed to set %r to %s case.' % (word, case))
         return None
     
-    form = {case}
-    if orig_form and {'plur', 'sing'} & orig_form:
-        number = ({'plur', 'sing'} & orig_form).pop()
-        form.add(number)
-    
-    new_form = custom_inflect(parse[0], form)
+    new_form = custom_inflect(parse[0], {case})
     
     return new_form.word
 
