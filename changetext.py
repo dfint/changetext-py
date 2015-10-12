@@ -802,7 +802,7 @@ def corr_item_skin(s):
 
 # выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
 re_clothes = re.compile(
-    r'^[Xx\(+*-«☼]*((.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+))')
+    r'^[Xx\(+*-«☼]*((.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рога|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+))')
 
 
 @open_brackets
@@ -951,13 +951,13 @@ def corr_container(s):
         containment = replace_containment[containment]
     if containment.endswith('кровь'):
         words = containment.split()
-        assert len(words) == 2
         if words[0] in posessive_adjectives:
             words[0] = posessive_adjectives[words[0]]
+            words = genitive_case_list(words)
         else:
-            words.reverse()
+            words = [genitive_case_single_noun(words[-1])] + list(genitive_case_list(words[:-1]))
         containment = " ".join(words)
-    if containment.startswith('из '):
+    elif containment.startswith('из '):
         containment = containment[3:]  # Words after 'из' are already in genitive case
     elif containment in {'слитков/блоков', 'специй'}:
         pass  # Already in genitive case
