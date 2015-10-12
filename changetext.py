@@ -1170,21 +1170,37 @@ def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
     return s.replace(hst.group(0), result)
 
 
-re_craft_general = re.compile(r'(Делать|Изготовить)([\w\s]*)\s(\w+)')
+re_craft_general = re.compile(r'(Делать|Изготовить)([\w\s]+)$')
 
 
 def corr_craft_general(s):
     print('corr_craft_general')
     hst = re_craft_general.search(s)
     verb = hst.group(1)
-    product = hst.group(3)
-    product_gender = get_gender(product, known_tags={'nomn'})
-    print('gender:', gender_names[product_gender])
-    orig_form = {'plur' if product_gender == plural else 'sing', 'inan'}
-    print('orig_form =', orig_form)
-    product = inflect_noun(product, 'accs', orig_form=orig_form)
-    # product = inflect_noun(product, 'accs', orig_form={'inan'})
     words = hst.group(2).split()
+    print('words:', words)
+    product = None
+    if len(words) > 1:
+        for i, word in enumerate(words[1:], 1):
+            if any_in_tag({'NOUN', 'nomn'}, custom_parse(word)) and word not in make_adjective:
+                product = ' '.join(words[i:])
+                words = words[:i]
+                break
+    else:
+        product = words[0]
+        words = []
+    
+    print('product:', product)
+    product_gender = get_main_word_gender(product)
+    print('gender:', gender_names[product_gender])
+    
+    if ' ' not in product:
+        orig_form = {'plur' if product_gender == plural else 'sing', 'inan'}
+        print('orig_form =', orig_form)
+        product = inflect_noun(product, 'accs', orig_form=orig_form)
+    else:
+        product = inflect_collocation(product, {'accs'})
+    
     if words:
         if len(words) == 1 and words[0] not in make_adjective and not is_adjective(words[0]):
             material = inflect_noun(words[0], 'gent', orig_form={'nomn', 'inan'})  # рог -> (из) рога
