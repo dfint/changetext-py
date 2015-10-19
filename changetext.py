@@ -1814,7 +1814,7 @@ def _ChangeText(s):
             result = corr_rings(s)
         elif s.startswith('Вы нашли из '):
             result = corr_you_struck(s)
-        elif '<' in s and '<no ' not in s:
+        elif '<' in s and '<нет ' not in s:
             result = corr_tags(s)
 
         return result
