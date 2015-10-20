@@ -584,8 +584,10 @@ def genitive_case_single_noun(word: str):
         return inflect_noun(word, case='gent')
 
 
-def is_adjective(word: str):
-    return any('ADJF' in p.tag or 'PRTF' in p.tag for p in custom_parse(word))
+def is_adjective(word: str, parse=None):
+    if parse is None:
+        parse = custom_parse(word)
+    return any('ADJF' in p.tag or 'PRTF' in p.tag for p in parse)
 
 
 def genitive_case_list(words: list):
@@ -658,7 +660,7 @@ corr_item_general_except = {
 }
 
 
-def any_in_tag(gram, parse):
+def any_in_tag(gram: set, parse):
     return any(gram in p.tag for p in parse)
 
 
@@ -1615,20 +1617,47 @@ def parse_tags(s):
         yield s[start:]
 
 
+def tag_to_set(tag):
+    return set(sum((ss.split() for ss in str(tag).split(',')), list()))
+
+
+def common_tags(parse):
+    common = tag_to_set(parse[0].tag)
+    for p in parse[1:]:
+        common &= tag_to_set(p.tag)
+    return common
+
+
 def get_form(word):
-    p = custom_parse(word)[0]
-    return {tag for tag in ['sing', 'plur', 'masc', 'femn', 'neut'] if tag in p.tag}
+    common = common_tags(custom_parse(word))
+    if 'plur' in common:
+        common -= {'masc', 'femn', 'neut'}
+    if 'masc' not in common:
+        common -= {'anim', 'inan'}
+    return {tag for tag in ['sing', 'plur', 'masc', 'femn', 'neut', 'anim', 'inan'] if tag in common}
 
 
 def inflect_collocation(s, tags):
     print('inflect_collocation(%r, %r)' % (s, tags))
     words = s.split(' ')
+    animated = None
+    j = None
+    main_word_parse = None
     for i, word in enumerate(words):
         parse = custom_parse(word)
         if any_in_tag({'NOUN', 'nomn'}, parse):
             p = next(p for p in parse if {'NOUN', 'nomn'} in p.tag)
             p = custom_inflect(p, tags)
             words[i] = p.word if word[0].islower() else p.word.capitalize()
+            j = i
+            main_word_parse = parse
+            break
+    
+    for i, word in enumerate(words[:j]):
+        parse = custom_parse(word)
+        assert is_adjective(word, parse)
+        
+        
     return ' '.join(words)
 
 
@@ -1641,6 +1670,7 @@ def corr_tags(s):
         if item[0] == '<':
             item = item.strip('<>').split(':')
             if len(item) > 1:
+                # Inflect the word inside the tag after the colon
                 word = item[-1].strip()
                 tags = set(item[0].split(','))
                 print(tags)
@@ -1671,12 +1701,14 @@ def corr_tags(s):
                     # item = word if not make_lower else word.lower()
                     item = word
             else:
+                # Inflect a part of text after the tag till the ending point of the sentence.
                 continue
         li.append(item)
     
     if get_index is not None:
         print(get_index)
         form = get_form(li[get_index])
+        form -= {'anim', 'inan'}  # discard these two because they doesn't matter for the nominal case
         print(form)
         for i in set_indices:
             word = li[i]
@@ -1690,14 +1722,6 @@ def corr_tags(s):
             li[i] = item
     
     return ''.join(li)
-
-
-############################################################################
-# компилированные регулярные выражения
-
-
-
-
 
 verbs = {
     "промахивается", "контракует", "punches", "атакует", "нападает", "хватает", "повален", "выпускает",
