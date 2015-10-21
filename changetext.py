@@ -1846,7 +1846,8 @@ def _ChangeText(s):
     try:
         output = ChangeText_internal(s)
     except Exception:
-        sys.stdout.flush()
+        if sys.stdout:
+            sys.stdout.flush()
         print('An error occured.', file=sys.stderr)
         print('Initial string: %r' % s, file=sys.stderr)
         print(traceback.format_exc(), file=sys.stderr)
@@ -1874,8 +1875,9 @@ def ChangeText(s):
 
 def myrepr(s):
     text = repr(s)
-    b = text.encode(sys.stdout.encoding, 'backslashreplace')
-    text = b.decode(sys.stdout.encoding, 'strict')
+    if sys.stdout:
+        b = text.encode(sys.stdout.encoding, 'backslashreplace')
+        text = b.decode(sys.stdout.encoding, 'strict')
     return text
 
 
