@@ -1840,9 +1840,10 @@ def _ChangeText(s):
             result = corr_rings(s)
         elif s.startswith('Вы нашли из '):
             result = corr_you_struck(s)
-        elif '<' in s and '<нет ' not in s:
+        elif '<' in s and '<нет ' not in s and '<-' not in s:
             result = corr_tags(s)
 
+        assert s != ''  # Empty string may cause game crash
         return result
 
     try:
@@ -1856,7 +1857,7 @@ def _ChangeText(s):
         print("", file=sys.stderr)
         output = None
 
-    if log and s not in logged:
+    if log:
         print('%r --> %r' % (s, output), file=log_file)
         log_file.flush()
         logged.add(s)
