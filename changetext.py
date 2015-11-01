@@ -1856,8 +1856,8 @@ def _ChangeText(s):
         print(traceback.format_exc(), file=sys.stderr)
         print("", file=sys.stderr)
         output = None
-
-    if log:
+    
+    if log and s not in logged:
         print('%r --> %r' % (s, output), file=log_file)
         log_file.flush()
         logged.add(s)
