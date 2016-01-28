@@ -110,6 +110,7 @@ replaced_parts = OrderedDict([
     (' доверенное л ', ' доверенное лицо '),  # Temporary fix for 'hearthperson' cutting
     ('источника в.', 'источника воды.'),  # Temporary fix for 'No water source.' cutting
     ('большой, зазубренный', 'большой зазубренный'),
+    ('имеет создал', 'создал'),
 ])
 
 
