@@ -1520,19 +1520,21 @@ def corr_become(s):
     subj = hst.group(1)
     verb = hst.group(2)
     print(verb)
-    words = hst.group(3).split()
-    words = (instrumental_case(word) for word in words)
-    return "%s %s %s." % (subj, verb, ' '.join(words))
+    words = hst.group(3)
+    words = inflect_collocation(words, {'ablt'})
+    if subj.startswith('Животное'):
+        return "Животное выросло и стало %s." % words
+    else:
+        return "%s %s %s." % (subj, verb, words)
 
 
-re_with_his = re.compile(r'(.*) с (его|её)(.*)')
+re_with_his = re.compile(r'(с (его|её) (.*))[!]')
 
 
 def corr_with_his(s):
     print("corr_with_his")
     hst = re_with_his.search(s)
-    # return "%s своим%s" % (hst.group(1), instrumental_case(hst.group(3)))
-    return "%s своим%s" % (hst.group(1), hst.group(3))  # пока хотя бы так
+    return s.replace(hst.group(1), "своим %s" % (inflect_collocation(hst.group(3), {'ablt'})))
 
 
 re_rings = re.compile(r"([\w\s]+) (кольцо|кольца)")
@@ -1645,7 +1647,7 @@ def inflect_collocation(s, tags):
     words = s.split(' ')
     animated = None
     j = None
-    main_word_parse = None
+    main_word = None
     for i, word in enumerate(words):
         parse = custom_parse(word)
         if any_in_tag({'NOUN', 'nomn'}, parse):
@@ -1653,14 +1655,25 @@ def inflect_collocation(s, tags):
             p = custom_inflect(p, tags)
             words[i] = p.word if word[0].islower() else p.word.capitalize()
             j = i
-            main_word_parse = parse
+            main_word = p
             break
+    
+    if main_word:
+        if main_word.tag.number == 'plur':
+            tags.add('plur')
+        else:
+            tags.add(main_word.tag.gender)
+        
+        if 'accs' in tags:
+            tags.add(main_word.tag.animacy)
     
     for i, word in enumerate(words[:j]):
         parse = custom_parse(word)
         assert is_adjective(word, parse)
-        
-        
+        p = next(p for p in parse if {'ADJF'} in p.tag)
+        p = custom_inflect(p, tags)
+        words[i] = p.word
+    
     return ' '.join(words)
 
 
