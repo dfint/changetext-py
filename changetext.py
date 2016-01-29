@@ -390,78 +390,21 @@ make_adjective = {
 dict_ending_s = {
     'готовая еда': 'готовая еда',
     'питьё': 'питьё',
-    'ведро': 'вёдра',
-    'верёвка': 'верёвки',
-    'шина': 'шины',
-    'костыль': 'костыли',
-    'колчан': 'колчаны',
-    'рюкзак': 'рюкзаки',
-    'наковальня': 'наковальни',
+    'стул': 'стулья',
     'доспешная стойка': 'доспешные стойки',
     'оружейная стойка': 'оружейные стойки',
-    'дверь': 'двери',
-    'шлюз': 'шлюзы',
-    'кровать': 'кровати',
-    'трон': 'троны',
-    'стул': 'стулья',
-    'гроб': 'гробы',
-    'статуя': 'статуи',
     'дублёная шкура': 'дублёные шкуры',
     'большой самоцвет': 'большие самоцветы',
-    'монета': 'монеты',
-    'мемориал': 'мемориалы',
-    'шкаф': 'шкафы',
-    'стол': 'столы',
+    'баклер': 'баклеры',
     'оружие': 'оружие',
-    'сундук': 'сундуки',
-    'щит': 'щиты',  #
-    'баклер': 'баклеры',  #
-    'мешок': 'мешки',
-    'ларец': 'ларцы',
-    'кружка': 'кружки',
-    'капкан': 'капканы',
-    'животное': 'животные',
     'крышка люка': 'крышки люка',
-    'решётка': 'решётки',
     'ручная мельница': 'ручные мельницы',
-    'жёрнов': 'жернова',
-    'окно': 'окна',
     'ловушка для животных': 'ловушки для животных',
-    'цепь': 'цепи',
-    'клетка': 'клетки',
-    'контейнер': 'контейнеры',
-    'ящик': 'ящики',
-    'бочка': 'бочки',
     'часть ловушки': 'части ловушек',
-    'фляга': 'фляги',
-    'кубок': 'кубки',
-    'игрушка': 'игрушки',
-    'инструмент': 'инструменты',
     'музыкальный инструмент': 'музыкальные инструменты',
-    'статуэтка': 'статуэтки',
-    'амулет': 'амулеты',
-    'скипетр': 'скипетры',
-    'корона': 'короны',
-    'кольцо': 'кольца',
-    'серьга': 'серьги',
-    'браслет': 'браслеты',
-    'бурдюк': 'бурдюки',
     'наконечник стрелы баллисты': 'наконечники стрелы баллисты',
-    'тотем': 'тотемы',
-    'труп': 'трупы',
     'часть тела': 'части тела',
     'конечность/тело гипс': 'гипс для конечностей тела',
-    'душите': 'душит',  # strangle - strangles
-    'ребро': 'рёбра',
-    'инженер': 'инженеры',
-    'егерь': 'егеря',
-    'шахтёр': 'шахтёры',
-    'кузнец': 'кузнецы',
-    'камнерез': 'камнерезы',
-    'ювелир': 'ювелиры',
-    'рыбник': 'рыбники',
-    'фермер': 'фермеры',
-    'борец': 'борцы',
     'Элитный борец': 'Элитные борцы',
     'Лорд топора': 'Лорды топора',
     'Лорд булавы': 'Лорды булавы',
@@ -469,8 +412,6 @@ dict_ending_s = {
     'Мастер меча': 'Мастера меча',
     'Мастер копья': 'Мастера копья',
     # 'очко': 'очков',
-    'солдат': 'солдаты',
-    'отряд': 'отряды',
 }
 
 
@@ -1456,20 +1397,55 @@ re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*)e?s\b')
 
 
 def corr_ending_s(s):
+    def corr_ending_s_internal(s):
+        parse = [x for x in custom_parse(s)
+                if {'NOUN', 'nomn', 'sing'} in x.tag or {'VERB', '2per'} in x.tag]
+        
+        if not parse:
+            print('Cannot determine part of speech of %r' % s)
+            return None
+        
+        new_forms = set()
+        for item in parse:
+            if parse[0].tag.POS == 'NOUN':
+                new_forms.add(custom_inflect(parse[0], {'plur'}).word)
+            else:  # parse[0].tag.POS == 'VERB':
+                new_forms.add(custom_inflect(parse[0], {'3per', 'sing'}).word)
+        
+        if len(new_forms) > 1:
+            print('Cannot determine part of speech of %r because of ambiguity:' % s)
+            print(parse)
+            return None
+        
+        return new_forms.pop()
+    
     print("corr_ending_s")
     hst = re_ending_s.search(s)
     group1 = hst.group(1)
     if group1 in dict_ending_s:
-        s = s.replace(hst.group(0), dict_ending_s[group1])
+        replacement_string = dict_ending_s[group1]
+    elif ' ' not in group1:
+        new_form = corr_ending_s_internal(group1)
+        if new_form:
+            replacement_string = new_form
+        else:
+            print("Couldn't find correct -s form for %s." % group1)
+            return None
     else:
         words = group1.split()
         if words[-1] in dict_ending_s:
             words[-1] = dict_ending_s[words[-1]]
-            s = s.replace(hst.group(0), ' '.join(words))
+            replacement_string = ' '.join(words)
         else:
-            print("Couldn't find correct -s form for %s." % words[-1])
-            return None
-    return s
+            new_form = corr_ending_s_internal(words[-1])
+            if new_form:
+                words[-1] = new_form
+                replacement_string = ' '.join(words)
+            else:
+                print("Couldn't find correct -s form for %s." % words[-1])
+                return None
+
+    return s.replace(hst.group(0), replacement_string)
 
 # Clothier's shop
 
