@@ -1455,21 +1455,22 @@ def corr_stopped_construction(s):
 
 
 # Корректировка для окончания s - перевод существительного во множественное число или глагола в 3-е лицо ед.ч.
-re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*e?s\b)')
+re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*)e?s\b')
 
 
 def corr_ending_s(s):
     print("corr_ending_s")
     hst = re_ending_s.search(s)
     group1 = hst.group(1)
-    if group1[:-1] in dict_ending_s:
-        s = s.replace(group1, dict_ending_s[group1[:-1]])
+    if group1 in dict_ending_s:
+        s = s.replace(hst.group(0), dict_ending_s[group1])
     else:
         words = group1.split()
-        if words[-1][:-1] in dict_ending_s:
-            s = s.replace(words[-1], dict_ending_s[words[-1][:-1]])
+        if words[-1] in dict_ending_s:
+            words[-1] = dict_ending_s[words[-1]]
+            s = s.replace(hst.group(0), ' '.join(words))
         else:
-            print("Couldn't find correct -s form for %s." % words[-1][:-1])
+            print("Couldn't find correct -s form for %s." % words[-1])
             return None
     return s
 
