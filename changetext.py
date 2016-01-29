@@ -1628,6 +1628,22 @@ def corr_you_struck(s):
     return you_struck + parse[0].normal_form + '!'
 
 
+re_someone_has = re.compile(r"(он|она)\s+(имеет)")
+
+
+def corr_someone_has(s):
+    hst = re_someone_has.search(s)
+    pronoun = hst.group(1)
+    if pronoun == 'он':
+        replacement_string = 'У него'
+    elif pronoun == 'она':
+        replacement_string = 'У неё'
+    else:
+        return None
+    
+    return s.replace(hst.group(0), replacement_string)
+
+
 def parse_tags(s):
     start = 0
     for i, c in enumerate(s):
@@ -1824,6 +1840,10 @@ def _ChangeText(s):
         
         if re_animal_gender.search(s):
             s = corr_animal_gender(s)
+            result = s
+        
+        if re_someone_has.search(s):
+            s = corr_someone_has(s)
             result = s
         
         if re_histories_of.search(s):
