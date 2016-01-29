@@ -1443,14 +1443,11 @@ def corr_stopped_construction(s):
     obj = hst.group(2)
     print(obj)
     
-    if 'мастерская' in obj:
+    if 'Ремесленник мастерская' in obj:
         gen_case_obj = ' '.join(genitive_case(word) for word in reversed(obj.split()))  # Put words into genitive case separately
     else:
         gen_case_obj = genitive_case(obj)
     
-    if gen_case_obj.endswith('мастерской'):
-        gen_case_obj = ' '.join(reversed(gen_case_obj.split()))
-
     return ("%s приостановили строительство %s." % (subj, gen_case_obj)).capitalize()
 
 
