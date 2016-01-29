@@ -1393,7 +1393,7 @@ def corr_stopped_construction(s):
 
 
 # Корректировка для окончания s - перевод существительного во множественное число или глагола в 3-е лицо ед.ч.
-re_ending_s = re.compile(r'([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*)e?s\b')
+re_ending_s = re.compile(r'(\d+\s)?([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*)e?s\b')
 
 
 def corr_ending_s(s):
@@ -1421,18 +1421,25 @@ def corr_ending_s(s):
     
     print("corr_ending_s")
     hst = re_ending_s.search(s)
-    group1 = hst.group(1)
-    if group1 in dict_ending_s:
-        replacement_string = dict_ending_s[group1]
-    elif ' ' not in group1:
-        new_form = corr_ending_s_internal(group1)
+    number = hst.group(1)
+    group2 = hst.group(2)
+    if number and ' ' not in group2:
+        number = int(number)
+        parse = [x for x in custom_parse(group2) if {'NOUN', 'nomn', 'sing'} in x.tag]
+        print(parse)
+        assert len(parse) == 1
+        replacement_string = '%d %s' % (number, parse[0].make_agree_with_number(number).word)
+    elif group2 in dict_ending_s:
+        replacement_string = dict_ending_s[group2]
+    elif ' ' not in group2:
+        new_form = corr_ending_s_internal(group2)
         if new_form:
             replacement_string = new_form
         else:
-            print("Couldn't find correct -s form for %s." % group1)
+            print("Couldn't find correct -s form for %s." % group2)
             return None
     else:
-        words = group1.split()
+        words = group2.split()
         if words[-1] in dict_ending_s:
             words[-1] = dict_ending_s[words[-1]]
             replacement_string = ' '.join(words)
