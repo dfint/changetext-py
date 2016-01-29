@@ -910,7 +910,28 @@ def corr_weapon_trap_parts(s):
     return s
 
 
-re_animal = re.compile(r'(Ничей|охотничий|сырой)(.+)((Ручной)|♀)')
+animal_genders = {
+    'собака': ('пёс', 'собака'),
+    'кошка': ('кот', 'кошка')
+}
+
+re_animal_gender = re.compile(r"(\w+), ([♂♀])")
+
+
+def corr_animal_gender(s):
+    print('corr_animal_gender(%r)' % s)
+    hst = re_animal_gender.search(s)
+    
+    gender = '♂♀'.index(hst.group(2))
+    animal = hst.group(1)
+    if animal not in animal_genders:
+        print('Unknown animal: %r' % animal)
+        return None
+    else:
+        return s.replace(hst.group(0), animal_genders[animal][gender] + " ")
+
+
+re_animal = re.compile(r'(охотничий|боевой|сырой) (\w+)(\(Ручной\))?')
 
 
 # "животные"
@@ -1800,7 +1821,11 @@ def _ChangeText(s):
             if item in s:
                 s = s.replace(item, replaced_parts[item])
                 result = s
-
+        
+        if re_animal_gender.search(s):
+            s = corr_animal_gender(s)
+            result = s
+        
         if re_histories_of.search(s):
             result = corr_histories_of(s)
         elif re_container.search(s):
