@@ -1625,21 +1625,6 @@ def corr_someone_has(s):
     return s.replace(hst.group(0), replacement_string)
 
 
-def parse_tags(s):
-    start = 0
-    for i, c in enumerate(s):
-        if c == '<':
-            if start < i:
-                yield s[start:i]
-            start = i
-        elif c == '>':
-            yield s[start:i + 1]
-            start = i + 1
-    
-    if start < len(s):
-        yield s[start:]
-
-
 def tag_to_set(tag):
     return set(sum((ss.split() for ss in str(tag).split(',')), list()))
 
@@ -1692,7 +1677,26 @@ def inflect_collocation(s, tags):
         p = custom_inflect(p, tags)
         words[i] = p.word
     
+    print(words)
     return ' '.join(words)
+
+
+def parse_tags(s):
+    start = 0
+    for i, c in enumerate(s):
+        if c == '<':
+            if start < i:
+                yield s[start:i]
+            start = i
+        elif c == '>':
+            yield s[start:i + 1]
+            start = i + 1
+    
+    if start < len(s):
+        yield s[start:]
+
+
+re_sentence = re.compile(r'^(.*)([\.!].*)$')
 
 
 def corr_tags(s):
@@ -1700,14 +1704,15 @@ def corr_tags(s):
     li = []
     get_index = None
     set_indices = set()
+    inflect_next = None
     for i, item in enumerate(parse_tags(s)):
         if item[0] == '<':
             item = item.strip('<>').split(':')
+            tags = set(item[0].split(','))
+            print(tags)
             if len(item) > 1:
                 # Inflect the word inside the tag after the colon
                 word = item[-1].strip()
-                tags = set(item[0].split(','))
-                print(tags)
                 
                 if 'get-form' in tags:
                     if get_index is not None:
@@ -1736,7 +1741,26 @@ def corr_tags(s):
                     item = word
             else:
                 # Inflect a part of text after the tag till the ending point of the sentence.
+                inflect_next = tags
                 continue
+        elif inflect_next:
+            sentence = re_sentence.search(item)
+            if sentence:
+                item = sentence.group(1)
+                tail = sentence.group(2)
+            else:
+                tail = ''
+            item = item.lstrip(' ')
+            # TODO: support of enumerations with commas and conjunctions
+            if ' ' in item:
+                item = inflect_collocation(item, inflect_next)
+            else:
+                p = custom_parse(item)[0]
+                item = custom_inflect(p, tags).word
+            item += tail
+            inflect_next = None
+        else:
+            pass
         li.append(item)
     
     if get_index is not None:
