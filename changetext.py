@@ -1789,6 +1789,27 @@ verbs = {
 }
 
 
+contexts = {'  Dwarf Fortress  ': 'main', 'Овощи/фрукты/листья': 'kitchen'}
+
+
+contextual_replace = dict(
+    kitchen={
+        'Повар': 'Готовить',
+    }
+)
+
+
+context = None
+def corr_contextual(s):
+    global context
+    if s in contexts:
+        context = contexts[s]
+    
+    current_context = context
+    if context and context in contextual_replace:
+        return contextual_replace[context].get(s, None)
+
+
 ############################################################################
 def Init():
     # phrases['Test'] = 'Test'
@@ -1842,6 +1863,11 @@ def _ChangeText(s):
             if item in s:
                 s = s.replace(item, replaced_parts[item])
                 result = s
+        
+        replacement = corr_contextual(s)
+        if replacement:
+            s = replacement
+            result = s
         
         if re_animal_gender.search(s):
             s = corr_animal_gender(s)
