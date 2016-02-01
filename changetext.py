@@ -1528,7 +1528,7 @@ def corr_become(s):
         return "%s %s %s." % (subj, verb, words)
 
 
-re_with_his = re.compile(r'(с (его|её) (.*))[!]')
+re_with_his = re.compile(r'(с (его|её|ваш) (.*))[!]')
 
 
 def corr_with_his(s):
