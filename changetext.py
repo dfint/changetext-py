@@ -1705,7 +1705,10 @@ def corr_tags(s):
     inflect_next = None
     for i, item in enumerate(parse_tags(s)):
         if item[0] == '<':
-            item = item.strip('<>').split(':')
+            item = item.strip('<>')
+            if not item:
+                return None
+            item = item.split(':')
             tags = set(item[0].split(','))
             print(tags)
             if len(item) > 1:
