@@ -1706,7 +1706,10 @@ def parse_tags(s):
         yield s[start:]
 
 
-re_sentence = re.compile(r'^(.*)([\.!].*)$')
+re_sentence = re.compile(r'^(.*)([\.!",].*)$')
+
+
+any_cyr = lambda s: any('а' <= x <= 'я' or x == 'ё' for x in s.lower())
 
 
 def corr_tags(s):
@@ -1764,12 +1767,22 @@ def corr_tags(s):
             else:
                 tail = ''
             item = item.lstrip(' ')
-            # TODO: support of enumerations with commas and conjunctions
-            if ' ' in item:
-                item = inflect_collocation(item, inflect_next)
+            if not any_cyr(item.split(' ')[0]):
+                if all(x.isdigit() for x in item.split(' ')[0]):
+                    if 'loct' in tags:
+                        tags.remove('loct')
+                        tags.add('loc2')  # inflect into 'году' instead of 'годе'
+                    item += ' ' + custom_inflect(custom_parse('год')[0], inflect_next).word
+                elif not any_cyr(li[-1].rstrip().split(' ')[-1]) and tags == {'gent'}:
+                    li.append('of ')
+                pass
             else:
-                p = custom_parse(item)[0]
-                item = custom_inflect(p, tags).word
+                # TODO: support of enumerations with commas and conjunctions
+                if ' ' in item:
+                    item = inflect_collocation(item, inflect_next)
+                else:
+                    p = custom_parse(item)[0]
+                    item = custom_inflect(p, tags).word
             item += tail
             inflect_next = None
         else:
