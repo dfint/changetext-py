@@ -1665,13 +1665,15 @@ def inflect_collocation(s, tags):
         else:
             tags.add(main_word.tag.gender)
         
-        if 'accs' in tags:
+        if 'accs' in tags and not 'plur' in tags and 'masc' in tags:
             tags.add(main_word.tag.animacy)
     
     for i, word in enumerate(words[:j]):
         parse = custom_parse(word)
         assert is_adjective(word, parse)
         p = next(p for p in parse if {'ADJF'} in p.tag)
+        print(p)
+        print(tags)
         p = custom_inflect(p, tags)
         words[i] = p.word
     
