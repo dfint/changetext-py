@@ -1607,20 +1607,30 @@ def corr_you_struck(s):
     return you_struck + parse[0].normal_form + '!'
 
 
-re_someone_has = re.compile(r"(он|она)\s+(имеет)")
+re_someone_has = re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE)
 
 
 def corr_someone_has(s):
     hst = re_someone_has.search(s)
-    pronoun = hst.group(1)
+    pronoun = hst.group(1).lower()
     if pronoun == 'он':
-        replacement_string = 'У него'
+        replacement_string = 'у него'
     elif pronoun == 'она':
-        replacement_string = 'У неё'
+        replacement_string = 'у неё'
+    elif pronoun == 'вы':
+        replacement_string = 'у вас'
     else:
-        return None
+        return s
     
-    return s.replace(hst.group(0), replacement_string)
+    if hst.group(0)[0].isupper():
+        replacement_string = replacement_string.capitalize()
+    
+    if hst.group(2):
+        replacement_string += ' нет'
+    
+    s = s.replace(hst.group(0), replacement_string)
+    assert isinstance(s, str), s
+    return s
 
 
 def tag_to_set(tag):
