@@ -943,6 +943,8 @@ test_strings = {
     'Couple  <gent> Glimmers  в Oakgrasping как часть <gent>  Festival <gent> Driving.':
         'Couple  of Glimmers  в Oakgrasping как часть Festival of Driving.',
     'В 2, Ezif стал <ablt> поэт в <loct> Tiresky.': 'В 2, Ezif стал поэтом в Tiresky.',
+    '<gent> Driving. Здесь были 5 конкуренты включая Ezif. Ezif одержал победу.':
+        'of Driving. Здесь были 5 конкуренты включая Ezif. Ezif одержал победу.',
     
     
     "(-изумрудный краситель мешок (цесарка из кожи)-)": "(-Мешок изумрудного красителя (из кожи цесарки)-)",

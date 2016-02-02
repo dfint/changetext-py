@@ -1773,7 +1773,7 @@ def corr_tags(s):
                         tags.remove('loct')
                         tags.add('loc2')  # inflect into 'году' instead of 'годе'
                     item += ' ' + custom_inflect(custom_parse('год')[0], inflect_next).word
-                elif not any_cyr(li[-1].rstrip().split(' ')[-1]) and tags == {'gent'}:
+                elif (not li or not any_cyr(li[-1].rstrip().split(' ')[-1])) and tags == {'gent'}:
                     li.append('of ')
                 pass
             else:
