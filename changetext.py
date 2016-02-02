@@ -1937,14 +1937,14 @@ def _ChangeText(s):
             result = corr_item_body_parts(s)
         elif re_animal_material.search(s):
             result = corr_animal_material(s)
-        elif re_become.search(s):
-            result = corr_become(s)
         elif re_rings.search(s):
             result = corr_rings(s)
         elif s.startswith('Вы нашли из '):
             result = corr_you_struck(s)
         elif '<' in s and '>' in s and '<нет ' not in s:
             result = corr_tags(s)
+        elif re_become.search(s):
+            result = corr_become(s)
 
         assert result != ''  # Empty string may cause game crash
         return result
