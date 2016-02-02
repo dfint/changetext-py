@@ -1661,8 +1661,8 @@ def inflect_collocation(s, tags):
     main_word = None
     for i, word in enumerate(words):
         parse = custom_parse(word)
-        if any_in_tag({'NOUN', 'nomn'}, parse):
-            p = next(p for p in parse if {'NOUN', 'nomn'} in p.tag)
+        if any_in_tag({'NOUN'}, parse):
+            p = next(p for p in parse if {'NOUN'} in p.tag)
             p = custom_inflect(p, tags)
             words[i] = p.word if word[0].islower() else p.word.capitalize()
             j = i
