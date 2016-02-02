@@ -938,15 +938,16 @@ test_strings = {
     # Some special cases:
     'Ruÿava Mawada Dipane, "Ruÿava  Bean   <gent> Skunks", сила': 'Ruÿava Mawada Dipane, "Ruÿava  Bean   of Skunks", сила',
     'В начале осени  <gent> 14, Factional Confederacy держать  соревнование с участием':
-        'В начале осени  14 года, Factional Confederacy держать  соревнование с участием',
-    'В <loc2>1, Lusnub поселился в Hill <gent> Perishing.': 'В 1 году, Lusnub поселился в Hill of Perishing.',
+        'В начале осени  14 года Factional Confederacy держать  соревнование с участием',
+    'В <loct> 1, Ezif поселился в Tiresky.': 'В 1 году Ezif поселился в Tiresky.',
+    'В <loct> 1, Lusnub поселился в Hill <gent> Perishing.': 'В 1 году Lusnub поселился в Hill of Perishing.',
     'Couple  <gent> Glimmers  в Oakgrasping как часть <gent>  Festival <gent> Driving.':
         'Couple  of Glimmers  в Oakgrasping как часть Festival of Driving.',
     'В 2, Ezif стал <ablt> поэт в <loct> Tiresky.': 'В 2, Ezif стал поэтом в Tiresky.',
     '<gent> Driving. Здесь были 5 конкуренты включая Ezif. Ezif одержал победу.':
         'of Driving. Здесь были 5 конкуренты включая Ezif. Ezif одержал победу.',
     'В  <loct> начале  осени <gent> 10,  Factional Confederacy  провели соревнование с':
-        'В  начале  осени 10 года,  Factional Confederacy  провели соревнование с',
+        'В  начале  осени 10 года  Factional Confederacy  провели соревнование с',
     
     
     "(-изумрудный краситель мешок (цесарка из кожи)-)": "(-Мешок изумрудного красителя (из кожи цесарки)-)",
