@@ -2011,9 +2011,9 @@ def main():
                     assert result == test_strings[key]
                 except AssertionError:
                     print("A test failed.", file=sys.stderr)
-                    print("Given", myrepr(key), file=sys.stderr)
+                    print("Given   ", myrepr(key), file=sys.stderr)
                     print("Expected", myrepr(test_strings[key]), file=sys.stderr)
-                    print("Got", myrepr(result), file=sys.stderr)
+                    print("Got     ", myrepr(result), file=sys.stderr)
                     raise
             print('All tests are passed.', file=sys.stderr)
 
