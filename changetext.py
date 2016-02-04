@@ -1655,7 +1655,7 @@ def get_form(word):
 
 def inflect_collocation(s, tags):
     print('inflect_collocation(%r, %r)' % (s, tags))
-    words = s.split(' ')
+    words = [x for x in s.split(' ') if x]  # skip empty strings
     animated = None
     j = None
     main_word = None
@@ -1688,7 +1688,7 @@ def inflect_collocation(s, tags):
         words[i] = p.word
     
     print(words)
-    return ' '.join(words)
+    return ' '.join(words) + (' ' if s.endswith(' ') else '')
 
 
 def parse_tags(s):
