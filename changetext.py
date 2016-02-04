@@ -1712,9 +1712,12 @@ re_sentence = re.compile(r'^(.*)([\.!"].*)$')
 any_cyr = lambda s: any('а' <= x <= 'я' or x == 'ё' for x in s.lower())
 
 
-def split_by_first(s, sep):
-    i = s.index(sep)
-    return (s[:i], s[i+1:])
+re_number = re.compile(r'^(\d+)(.*)')
+
+
+def cut_number(s):
+    hst = re_number.search(s)
+    return (hst.group(1), hst.group(2))
 
 
 def corr_tags(s):
@@ -1777,8 +1780,8 @@ def corr_tags(s):
                     if 'loct' in tags:
                         tags.remove('loct')
                         tags.add('loc2')  # inflect into 'году' instead of 'годе'
-                    item, tail1 = split_by_first(item, ',')
-                    item += ' ' + custom_inflect(custom_parse('год')[0], inflect_next).word + tail1
+                    item, tail1 = cut_number(item)
+                    item += ' ' + custom_inflect(custom_parse('год')[0], inflect_next).word + tail1.lstrip(',')
                 elif (not li or not any_cyr(li[-1].rstrip().split(' ')[-1])) and tags == {'gent'}:
                     li.append('of ')
                 pass
