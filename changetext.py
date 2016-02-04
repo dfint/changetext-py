@@ -1896,7 +1896,9 @@ def _ChangeText(s):
             s = corr_someone_has(s)
             result = s
         
-        if re_histories_of.search(s):
+        if '<' in s and '>' in s and '<нет ' not in s and not '<#' in s:
+            result = corr_tags(s)
+        elif re_histories_of.search(s):
             result = corr_histories_of(s)
         elif re_container.search(s):
             result = corr_container(s)
@@ -1947,8 +1949,6 @@ def _ChangeText(s):
             result = corr_rings(s)
         elif s.startswith('Вы нашли из '):
             result = corr_you_struck(s)
-        elif '<' in s and '>' in s and '<нет ' not in s:
-            result = corr_tags(s)
         elif re_become.search(s):
             result = corr_become(s)
 
