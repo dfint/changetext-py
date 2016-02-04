@@ -934,6 +934,7 @@ test_strings = {
     "был похищен из Passplagues <ablt> птица рух Mot.": "был похищен из Passplagues птицей рух Mot.",
     "Вы бьёте <accs> гоблин клерк в <accs> верхняя часть тела": "Вы бьёте гоблина клерк в верхнюю часть тела", # пока так FIXME
     'украшать <ablt> кость': 'украшать костью',
+    # 'Украшать <ablt> слоновая кость/зуб': 'Украшать слоновой костью/зубом',
     'Impaling в <loct> 1.': 'Impaling в 1 году.',
     'Mirrorseal <ablt> Blunt Smith <gent> Mute Work в <loct> начале весны <gent> 5.':
         'Mirrorseal Blunt Smith of Mute Work в начале весны 5 года.',
