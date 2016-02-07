@@ -1893,8 +1893,10 @@ def _ChangeText(s):
             result = s
         
         if re_animal_gender.search(s):
-            s = corr_animal_gender(s)
-            result = s
+            new_string = corr_animal_gender(s)
+            if new_string is not None:
+                s = new_string
+                result = s
         
         if re_someone_has.search(s):
             s = corr_someone_has(s)
