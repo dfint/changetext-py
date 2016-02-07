@@ -893,7 +893,7 @@ posessive_adjectives = {
     'медведь': 'медвежий'
 }
 
-re_container = re.compile(r'((\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$))')
+re_container = re.compile(r'(\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$)')
 
 replace_containment = {
     "Семя": "семена",
@@ -911,9 +911,9 @@ materials = {'волокон', 'шёлка', 'шерсти', 'кожи'}
 def corr_container(s):
     print("corr_container")
     hst = re_container.search(s)
-    initial_string = hst.group(1)
+    initial_string = hst.group(0)
     print('initial_string:', initial_string)
-    containment = hst.group(2)
+    containment = hst.group(1)
     if containment in replace_containment:
         containment = replace_containment[containment]
     if containment.endswith('кровь'):
@@ -934,8 +934,8 @@ def corr_container(s):
         containment = ' '.join(words)
     else:
         containment = genitive_case(containment)
-    container = hst.group(3)
-    of_material = hst.group(4)
+    container = hst.group(2)
+    of_material = hst.group(3)
     if not of_material:
         print('Void material')
         replacement_string = container + ' ' + containment
