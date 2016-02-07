@@ -942,6 +942,7 @@ def corr_container(s):
     elif (' ' not in of_material and is_adjective(of_material) or
           of_material in make_adjective or of_material[3:] in make_adjective):
         print('Case 1')
+        
         if ' ' not in of_material and is_adjective(of_material):
             adjective = of_material
         elif of_material in make_adjective:
@@ -952,14 +953,18 @@ def corr_container(s):
             adjective = None
         gender = get_gender(container, {'nomn'})
         adjective = inflect_adjective(adjective, gender)
-        print([adjective, container, containment])
-        replacement_string = ' '.join([adjective, container, containment])
+        print([container, containment, adjective])
+        replacement_string = '%s %s (%s)' % (container, containment, adjective)
     else:
         print('Case 2')
         words = of_material.split()
         material = None
-        if (len(words) >= 2 and words[-2] == 'из' and words[-1] in materials or
+        if of_material.startswith('из ') or len(of_material) <= 2:
+            print('Material name is too short or it starts with "из"')
+            material = of_material
+        elif len(words) >= 2 and words[-2] == 'из' and (words[-1] in materials or
                 any(mat.startswith(words[-1]) for mat in materials)):
+            # Try to fix truncated materail names, eg. '(ямный краситель мешок (гигантский пещерный паук из шёл'
             if words[-1] not in materials:  # Fix partial material name eg. 'шерст', 'шёлк'
                 candidates = [mat for mat in materials if mat.startswith(words[-1])]
                 if len(candidates) == 1:
@@ -969,8 +974,6 @@ def corr_container(s):
             
             if not material:
                 material = ' '.join(words[-2:] + list(genitive_case_list(words[:-2])))
-        elif of_material.startswith('из ') or len(of_material) < 3:
-            material = of_material
         else:
             gen_case = list(genitive_case_list(of_material.split()))
             if None not in gen_case:
