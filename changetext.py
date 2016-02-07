@@ -1821,13 +1821,16 @@ def corr_tags(s):
     return ''.join(li)
 
 
-contexts = {'  Dwarf Fortress  ': 'main', 'Овощи/фрукты/листья': 'kitchen'}
+contexts = {
+    '  Dwarf Fortress  ': 'main',
+    'Овощи/фрукты/листья': 'kitchen',
+    re.compile(r'Граждане \(\d+\)'): 'units',
+}
 
 
 contextual_replace = dict(
-    kitchen={
-        'Повар': 'Готовить',
-    }
+    kitchen={'Повар': 'Готовить'},
+    units={'Рыба': 'Рыбачить'},
 )
 
 
@@ -1836,6 +1839,11 @@ def corr_contextual(s):
     global context
     if s in contexts:
         context = contexts[s]
+    else:
+        for pattern in contexts:
+            if not isinstance(pattern, str) and pattern.search(s):
+                context = contexts[pattern]
+                break
     
     current_context = context
     if context and context in contextual_replace:
