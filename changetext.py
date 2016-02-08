@@ -1825,6 +1825,7 @@ contexts = {
     '  Dwarf Fortress  ': 'main',
     'Овощи/фрукты/листья': 'kitchen',
     re.compile(r'Граждане \(\d+\)'): 'units',
+    'Создано:': 'status',
 }
 
 
