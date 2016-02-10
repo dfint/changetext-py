@@ -1176,12 +1176,14 @@ def corr_craft_general(s):
         orig_form = {'plur' if product_gender == plural else 'sing', 'inan'}
         print('orig_form =', orig_form)
         product = inflect_noun(product, 'accs', orig_form=orig_form)
+        assert product is not None
     else:
         product = inflect_collocation(product, {'accs'})
     
     if words:
         if len(words) == 1 and words[0] not in make_adjective and not is_adjective(words[0]):
             material = inflect_noun(words[0], 'gent', orig_form={'nomn', 'inan'})  # рог -> (из) рога
+            assert material is not None
             result = "%s %s из %s" % (verb, product, material)
         else:
             adjectives = [make_adjective[word] if word in make_adjective
