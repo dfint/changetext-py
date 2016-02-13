@@ -1,3 +1,7 @@
+import sys
+
+from changetext import ChangeText, myrepr
+
 # Спецсимволы: ≡ ♀ ♂
 
 test_strings = {
@@ -995,3 +999,28 @@ test_strings = {
     'Делать пластины адамантина': None,
     # 'летящий {+железный болт+} бьёт <accs> индюк в <loct> голова, разрывая <accs>': '',
 }
+
+
+def _main():
+    with open('changetext.out', 'wt', encoding='utf-8') as stdout:
+        sys.stdout = stdout
+        print('Testing process started...', file=sys.stderr)
+        for key in test_strings:
+            print('-'*80)
+            print('Original string:', myrepr(key))
+            print('Destination string:', myrepr(test_strings[key]))
+            result = ChangeText(key)
+            print('Result:', myrepr(result))
+            try:
+                assert result == test_strings[key]
+            except AssertionError:
+                print("A test failed.", file=sys.stderr)
+                print("Given   ", myrepr(key), file=sys.stderr)
+                print("Expected", myrepr(test_strings[key]), file=sys.stderr)
+                print("Got     ", myrepr(result), file=sys.stderr)
+                raise
+        print('All tests are passed.', file=sys.stderr)
+
+
+if __name__ == '__main__':
+    _main()
