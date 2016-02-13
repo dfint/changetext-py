@@ -1,4 +1,5 @@
 #! python3
+# -*- coding: utf-8 -*-
 import sys
 import re
 import traceback
@@ -111,6 +112,7 @@ replaced_parts = OrderedDict([
     ('большой, зазубренный', 'большой зазубренный'),
     ('имеет создал', 'создал'),
     ('имеет пришёл', 'пришёл'),
+    ('имеет упал', 'упал'),
     ('ремесленник мастерская', 'мастерская ремесленника'),
     ('Ремесленник мастерская', 'Мастерская ремесленника'),
 ])
@@ -1640,6 +1642,9 @@ def corr_someone_has(s):
     s = s.replace(hst.group(0), replacement_string)
     assert isinstance(s, str), s
     return s
+
+
+
 
 
 def tag_to_set(tag):
