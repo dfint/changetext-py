@@ -1921,9 +1921,11 @@ def _ChangeText(s):
         if '<' in s and '>' in s and '<нет ' not in s and not '<#' in s:
             try:
                 result = corr_tags(s)
-            except AssertionError:
-                print('corr_tags() failed (raises AssertionError). Remove tags from input.')
-                result = ' '.join(part.strip(' ') for part in parse_tags(s) if not part.startswith('<'))
+            except (AssertionError, ValueError) as err:
+                print('corr_tags() raises exception %r.' % err)
+                result = ' '.join(part.strip(' ') if not part.startswith('<')
+                                    else part.strip('<>').partition(':')[2]
+                                        for part in parse_tags(s))
         elif re_histories_of.search(s):
             result = corr_histories_of(s)
         elif re_container.search(s):
