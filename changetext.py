@@ -104,9 +104,6 @@ replaced_parts = OrderedDict([
     (' доверенное л ', ' доверенное лицо '),  # Temporary fix for 'hearthperson' cutting
     ('источника в.', 'источника воды.'),  # Temporary fix for 'No water source.' cutting
     ('большой, зазубренный', 'большой зазубренный'),
-    ('имеет создал', 'создал'),
-    ('имеет пришёл', 'пришёл'),
-    ('имеет упал', 'упал'),
     ('ремесленник мастерская', 'мастерская ремесленника'),
     ('Ремесленник мастерская', 'Мастерская ремесленника'),
 ])
@@ -1638,7 +1635,16 @@ def corr_someone_has(s):
     return s
 
 
+re_has_verb = re.compile(r"(имеете?)\s+(\w+)")
 
+
+def corr_has_verb(s):
+    hst = re_has_verb.search(s)
+    if hst:
+        word = hst.group(2)
+        parse = custom_parse(word)
+        if any(p.tag.POS == 'VERB' for p in parse):
+            return s.replace(hst.group(0), word)
 
 
 def tag_to_set(tag):
@@ -1917,6 +1923,11 @@ def _ChangeText(s):
         if re_someone_has.search(s):
             s = corr_someone_has(s)
             result = s
+        
+        if re_has_verb.search(s):
+            result = corr_has_verb(s)
+            if result:
+                s = result
         
         if '<' in s and '>' in s and '<нет ' not in s and not '<#' in s:
             try:
