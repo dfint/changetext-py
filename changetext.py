@@ -1745,20 +1745,20 @@ def corr_tags(s):
             item = item.strip('<>')
             if not item:
                 return None
-            item = item.split(':')
-            tags = set(item[0].split(','))
+            tags, _, item = item.partition(':')
+            tags = set(tags.split(','))
             print(tags)
-            if len(item) > 1:
+            if item:
                 # Inflect the word inside the tag after the colon
-                word = item[-1].strip()
+                word = item.strip()
                 
                 if 'get-form' in tags:
                     if get_index is not None:
                         raise ValueError('Duplicate <get-form> tag in %r' % s)
-                    get_index = i
+                    get_index = len(li)
                     tags.remove('get-form')
                 elif 'set-form' in tags:
-                    set_indices.add(i)
+                    set_indices.add(len(li))
                     tags.remove('set-form')
                 
                 # make_lower = 'make-lower' in tags
