@@ -996,6 +996,8 @@ test_strings = {
     "В <loct> начале осени <gent> 8, <get-form:Я> <set-form:пел>:  'О Music!' был":
         "В начале осени 8 года Я пел:  'О Music!' был",
     
+    'Golololв <accs>, "Golololв <accs>", ': 'Golololin, "Golololin", ',
+    
     # Test 'has' + verb fix
     ' имеет создал ': ' создал ',
     ' имеет пришёл ': ' пришёл ',
