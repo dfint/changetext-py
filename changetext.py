@@ -1922,10 +1922,9 @@ def _ChangeText(s):
         if result:
             s = result
         
-        replacement = corr_contextual(s)
-        if replacement:
-            s = replacement
-            result = s
+        result = corr_contextual(s) or result
+        if result:
+            s = result
         
         if re_animal_gender.search(s):
             new_string = corr_animal_gender(s)
@@ -1937,10 +1936,9 @@ def _ChangeText(s):
             s = corr_someone_has(s)
             result = s
         
-        if re_has_verb.search(s):
-            result = corr_has_verb(s)
-            if result:
-                s = result
+        result = corr_has_verb(s) or result
+        if result:
+            s = result
         
         if '<' in s and '>' in s and '<нет ' not in s and not '<#' in s:
             try:
