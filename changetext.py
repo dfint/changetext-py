@@ -1647,6 +1647,15 @@ def corr_has_verb(s):
             return s.replace(hst.group(0), word)
 
 
+re_in_ending = re.compile(r"[a-z](в <[a-z]+>)")
+
+
+def corr_in_ending(s):
+    hst = re_in_ending.search(s)
+    if hst:
+        return s.replace(hst.group(1), 'in')
+
+
 def tag_to_set(tag):
     return set(sum((ss.split() for ss in str(tag).split(',')), list()))
 
@@ -1908,6 +1917,10 @@ def _ChangeText(s):
             if item in s:
                 s = s.replace(item, replaced_parts[item])
                 result = s
+        
+        result = corr_in_ending(s) or result
+        if result:
+            s = result
         
         replacement = corr_contextual(s)
         if replacement:
