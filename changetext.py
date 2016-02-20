@@ -1861,7 +1861,6 @@ def corr_tags(s):
     if capitalize_indices:
         for i in capitalize_indices:
             for part in li[i].split():
-                print(part, file=sys.stderr)
                 if part:
                     li[i] = li[i].replace(part, part.capitalize(), 1)
                     break
