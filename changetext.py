@@ -1964,6 +1964,10 @@ def _ChangeText(s):
         if result:
             s = result
         
+        result = corr_color_of_color(s) or result
+        if result:
+            s = result
+        
         if '<' in s and '>' in s and '<нет ' not in s and not '<#' in s:
             try:
                 result = corr_tags(s)
