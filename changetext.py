@@ -1762,6 +1762,7 @@ def corr_tags(s):
     li = []
     get_index = None
     set_indices = set()
+    capitalize_indices = set()
     inflect_next = None
     for i, item in enumerate(parse_tags(s)):
         if item[0] == '<':
@@ -1771,6 +1772,11 @@ def corr_tags(s):
             tags, _, item = item.partition(':')
             tags = set(tags.split(','))
             print(tags)
+            
+            if 'capitalize' in tags:
+                tags.remove('capitalize')
+                capitalize_indices.add(len(li))
+            
             if item:
                 # Inflect the word inside the tag after the colon
                 word = item.strip()
@@ -1783,10 +1789,6 @@ def corr_tags(s):
                 elif 'set-form' in tags:
                     set_indices.add(len(li))
                     tags.remove('set-form')
-                
-                # make_lower = 'make-lower' in tags
-                # if make_lower:
-                    # tags.remove('make-lower')
                 
                 if tags:
                     if ' ' in word:
@@ -1850,6 +1852,14 @@ def corr_tags(s):
                 if word[0].isupper():
                     item = item.capitalize()
             li[i] = item
+    
+    if capitalize_indices:
+        for i in capitalize_indices:
+            for part in li[i].split():
+                print(part, file=sys.stderr)
+                if part:
+                    li[i] = li[i].replace(part, part.capitalize(), 1)
+                    break
     
     return ''.join(li)
 
