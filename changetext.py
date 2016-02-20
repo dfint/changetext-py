@@ -1758,6 +1758,7 @@ def cut_number(s):
 
 
 def corr_tags(s):
+    global prev_tail
     print('corr_tags(%r)' % s)
     li = []
     get_index = None
@@ -1837,6 +1838,10 @@ def corr_tags(s):
             pass
         li.append(item)
     
+    if inflect_next:
+        prev_tail += '<%s>' % ','.join(inflect_next)
+        print('Delay to the next string: %r' % prev_tail)
+    
     if get_index is not None:
         print(get_index)
         form = get_form(li[get_index])
@@ -1907,9 +1912,15 @@ else:
 
 logged = set()
 
+prev_tail = ''
 
 def _ChangeText(s):
     def ChangeText_internal(s):
+        global prev_tail
+        if prev_tail:
+            s = prev_tail + s
+            prev_tail = ''
+        
         result = None
         # preprocessing:
         if s in phrases:
