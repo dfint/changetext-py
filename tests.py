@@ -946,10 +946,8 @@ test_strings = {
     'Mirrorseal <ablt> Blunt Smith <gent> Mute Work в <loct> начале весны <gent> 5.':
         'Mirrorseal Blunt Smith of Mute Work в начале весны 5 года.',
         # 'Mirrorseal Blunt Smith of Mute Work в начале весны 5 года.',
-    # проверка ложных срабатываний:
-    "<-": None,
-    "<1в": None,
-    " <> ": None,
+    
+
     # Some special cases:
     'Ruÿava Mawada Dipane, "Ruÿava  Bean   <gent> Skunks", сила': 'Ruÿava Mawada Dipane, "Ruÿava  Bean   of Skunks", сила',
     'В начале осени  <gent> 14, Factional Confederacy держать  соревнование с участием':
