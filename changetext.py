@@ -1656,6 +1656,20 @@ def corr_in_ending(s):
         return s.replace(hst.group(1), 'in')
 
 
+re_color_of_color = re.compile(r"цвет ([\w\s]*)цвета")
+
+
+def corr_color_of_color(s):
+    hst = re_color_of_color.search(s)
+    if hst:
+        if not hst.group(1):
+            replacement = "цвет"
+        else:
+            color = hst.group(1).strip()
+            replacement = '%s цвет' % inflect_collocation(color, {'nomn', 'masc'})
+        return s.replace(hst.group(0), replacement)
+
+
 def tag_to_set(tag):
     return set(sum((ss.split() for ss in str(tag).split(',')), list()))
 
@@ -1986,7 +2000,7 @@ def _ChangeText(s):
         elif re_settlement.search(s):
             result = corr_settlement(s)
             # elif re_material_selection.search(s): # Отключено: дает ложные срабатывания в логе
-            # result = corr_material_selection(s) 
+            # result = corr_material_selection(s)
         elif re_clothiers_shop.search(s):
             result = corr_clothiers_shop(s)
         elif re_craft_general.search(s):
