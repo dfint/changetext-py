@@ -1473,7 +1473,7 @@ def corr_clothiers_shop(s):
     product = hst.group(3).strip()
     
     if not product:
-        return None  # Leave as is eg. 'Ткать шёлк' 
+        return None  # Leave as is eg. 'Ткать шёлк'
     elif verb == 'Вышивать':
         parse = custom_parse(material)[0]
         if material == 'пряжа':
