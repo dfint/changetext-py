@@ -18,3 +18,7 @@ def test_invalid_tags():
 def test_tag_wrap():
     ChangeText('whatever <gent>')
     assert ChangeText('голова') == 'головы'
+
+
+def test_capitalize_tag():
+    assert ChangeText("<capitalize>капитан ополчения встаёт.") == "Капитан ополчения встаёт."
