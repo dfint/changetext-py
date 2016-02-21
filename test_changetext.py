@@ -22,3 +22,8 @@ def test_tag_wrap():
 
 def test_capitalize_tag():
     assert ChangeText("<capitalize>капитан ополчения встаёт.") == "Капитан ополчения встаёт."
+
+
+def test_corr_color_of_color():
+    assert ChangeText("цвет серебристого цвета") == "серебристый цвет"
+    assert ChangeText("цвет цвета морской волны") == "цвет морской волны"
