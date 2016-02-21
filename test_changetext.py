@@ -10,6 +10,11 @@ def test_not_tags():
     assert ChangeText(" <> ") == None
 
 
+def test_invalid_tags():
+    assert ChangeText('asdfa <aeger:etrhrt> ehsge') == 'asdfa etrhrt ehsge'
+    assert ChangeText('asdfa <aeger> ehsge') == 'asdfa ehsge'
+
+
 def test_tag_wrap():
     ChangeText('whatever <gent>')
     assert ChangeText('голова') == 'головы'
