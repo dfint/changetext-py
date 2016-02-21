@@ -2,26 +2,23 @@ import pytest
 
 from changetext import ChangeText
 
+class TestTags:
+    def test_not_tags(self):
+        # проверка ложных срабатываний:
+        assert ChangeText("<-") == None
+        assert ChangeText("<1в") == None
+        assert ChangeText(" <> ") == None
 
-def test_not_tags():
-    # проверка ложных срабатываний:
-    assert ChangeText("<-") == None
-    assert ChangeText("<1в") == None
-    assert ChangeText(" <> ") == None
+    def test_invalid_tags(self):
+        assert ChangeText('asdfa <aeger:etrhrt> ehsge') == 'asdfa etrhrt ehsge'
+        assert ChangeText('asdfa <aeger> ehsge') == 'asdfa ehsge'
 
+    def test_tag_wrap(self):
+        ChangeText('whatever <gent>')
+        assert ChangeText('голова') == 'головы'
 
-def test_invalid_tags():
-    assert ChangeText('asdfa <aeger:etrhrt> ehsge') == 'asdfa etrhrt ehsge'
-    assert ChangeText('asdfa <aeger> ehsge') == 'asdfa ehsge'
-
-
-def test_tag_wrap():
-    ChangeText('whatever <gent>')
-    assert ChangeText('голова') == 'головы'
-
-
-def test_capitalize_tag():
-    assert ChangeText("<capitalize>капитан ополчения встаёт.") == "Капитан ополчения встаёт."
+    def test_capitalize_tag(self):
+        assert ChangeText("<capitalize>капитан ополчения встаёт.") == "Капитан ополчения встаёт."
 
 
 def test_corr_color_of_color():
