@@ -996,10 +996,6 @@ test_strings = {
     
     'Golololв <accs>, "Golololв <accs>", ': 'Golololin, "Golololin", ',
     
-    # Test 'has' + verb fix
-    ' имеет создал ': ' создал ',
-    ' имеет пришёл ': ' пришёл ',
-    ' имеет упал ': ' упал ',
     "`Cook' Zefontathur имеет создал шедевр ☼алоза, ♂ жаркое [8]☼!":
         "`Cook' Zefontathur создал шедевр ☼алоза, ♂ жаркое [8]☼!",
     

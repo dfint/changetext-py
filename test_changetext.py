@@ -37,3 +37,11 @@ def test_corr_contextual():
     
     ChangeText('Граждане (10)')  # switch to the 'units' context
     assert ChangeText('Рыба') == 'Рыбачить'
+
+
+def test_corr_has_verb():
+    # Test 'has' + verb fix
+    assert ChangeText(' имеет создал ') == ' создал '
+    assert ChangeText(' имеет пришёл ') == ' пришёл '
+    assert ChangeText(' имеет упал ') == ' упал '
+    assert ChangeText(' имеет стрямкал ') == ' стрямкал '
