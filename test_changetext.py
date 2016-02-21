@@ -2,6 +2,7 @@ import pytest
 
 from changetext import ChangeText
 
+
 class TestTags:
     def test_not_tags(self):
         # проверка ложных срабатываний:
