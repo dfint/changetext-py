@@ -1865,7 +1865,19 @@ def corr_tags(s):
                     li[i] = li[i].replace(part, part.capitalize(), 1)
                     break
     
-    return ' '.join(part.strip() for part in li)
+    def add_spaces(s):
+        first = True
+        for part in s:
+            part = part.strip()
+            if part:
+                if not first and part[0].isalnum():
+                    part = ' ' + part
+                
+                yield part
+                first = False
+    
+    print(li)
+    return ''.join(add_spaces(li))
 
 
 contexts = {
