@@ -1865,7 +1865,7 @@ def corr_tags(s):
                     li[i] = li[i].replace(part, part.capitalize(), 1)
                     break
     
-    return ''.join(li)
+    return ' '.join(part.strip() for part in li)
 
 
 contexts = {
