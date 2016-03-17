@@ -20,6 +20,12 @@ class TestTags:
 
     def test_capitalize_tag(self):
         assert ChangeText("<capitalize>капитан ополчения встаёт.") == "Капитан ополчения встаёт."
+    
+    def test_tag_spaces(self):
+        assert ChangeText('Lyrical Wisp. По  возможности она предпочитает употреблять<accs>  ячий сыр и') == \
+                          'Lyrical Wisp. По  возможности она предпочитает употреблять ячий сыр и'
+        assert ChangeText('вино из плодов восковницы. Она совершенно не выносит<accs> комары.') == \
+                          'вино из плодов восковницы. Она совершенно не выносит комаров.'
 
 
 def test_corr_color_of_color():

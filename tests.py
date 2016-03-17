@@ -955,12 +955,12 @@ test_strings = {
     'В <loct> 1, Ezif поселился в Tiresky.': 'В 1 году Ezif поселился в Tiresky.',
     'В <loct> 1, Lusnub поселился в Hill <gent> Perishing.': 'В 1 году Lusnub поселился в Hill of Perishing.',
     'Couple  <gent> Glimmers  в Oakgrasping как часть <gent>  Festival <gent> Driving.':
-        'Couple  of Glimmers  в Oakgrasping как часть Festival of Driving.',
+        'Couple of Glimmers  в Oakgrasping как часть Festival of Driving.',
     'В 2, Ezif стал <ablt> поэт в <loct> Tiresky.': 'В 2, Ezif стал поэтом в Tiresky.',
     '<gent> Driving. Здесь были 5 конкуренты включая Ezif. Ezif одержал победу.':
         'of Driving. Здесь были 5 конкуренты включая Ezif. Ezif одержал победу.',
     'В  <loct> начале  осени <gent> 10,  Factional Confederacy  провели соревнование с':
-        'В  начале осени 10 года  Factional Confederacy  провели соревнование с',
+        'В начале осени 10 года  Factional Confederacy  провели соревнование с',
     # 'смертельного плевка! Oakpacks  был связан с <ablt>  вода, растения, природа,':
         # 'смертельного плевка! Oakpacks  был связан с  водой, растениями, природой,',
     # '<ablt> деревья, реки, растения, природа и животные.': 'деревьями, реками, растениями, природой и животными.',
@@ -969,7 +969,7 @@ test_strings = {
     # 'Plaited Hall. èshgor  чаще всего изображается в виде <gent>  женский дварф и':
         # 'Plaited Hall. èshgor  чаще всего изображается в виде женщины-дварфа и',
     'В  <loct> конце  зимы <gent> 12,  Rotik приручил  <accs> гигантские  протеи':
-        'В  конце зимы 12 года  Rotik приручил  гигантских протеев',
+        'В конце зимы 12 года  Rotik приручил гигантских протеев',
     'весны <gent> 1 в <loct> Oakgrasping как часть <gent> Stern Celebration.':
         'весны 1 года в Oakgrasping как часть Stern Celebration.',
     # 'всего изображается в  виде <gent> мужской дварф и был связан  с <ablt> днём,':
