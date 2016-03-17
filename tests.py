@@ -949,9 +949,9 @@ test_strings = {
     
 
     # Some special cases:
-    'Ruÿava Mawada Dipane, "Ruÿava  Bean   <gent> Skunks", сила': 'Ruÿava Mawada Dipane, "Ruÿava  Bean   of Skunks", сила',
+    'Ruÿava Mawada Dipane, "Ruÿava  Bean   <gent> Skunks", сила': 'Ruÿava Mawada Dipane, "Ruÿava  Bean of Skunks", сила',
     'В начале осени  <gent> 14, Factional Confederacy держать  соревнование с участием':
-        'В начале осени  14 года Factional Confederacy держать  соревнование с участием',
+        'В начале осени 14 года Factional Confederacy держать  соревнование с участием',
     'В <loct> 1, Ezif поселился в Tiresky.': 'В 1 году Ezif поселился в Tiresky.',
     'В <loct> 1, Lusnub поселился в Hill <gent> Perishing.': 'В 1 году Lusnub поселился в Hill of Perishing.',
     'Couple  <gent> Glimmers  в Oakgrasping как часть <gent>  Festival <gent> Driving.':
