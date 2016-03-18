@@ -1996,7 +1996,8 @@ def _ChangeText(s):
             try:
                 result = corr_tags(s)
             except (AssertionError, ValueError) as err:
-                print('corr_tags() raises exception %r.' % err)
+                print('corr_tags() raises exception %r:' % err)
+                print(traceback.format_exc())
                 result = ' '.join(part.strip(' ') if not part.startswith('<')
                                     else part.strip('<>').partition(':')[2]
                                         for part in parse_tags(s))
