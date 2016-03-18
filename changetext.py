@@ -1719,7 +1719,8 @@ def inflect_collocation(s, tags):
     
     for i, word in enumerate(words[:j]):
         parse = custom_parse(word)
-        assert is_adjective(word, parse)
+        if not is_adjective(word, parse):
+            raise ValueError('%s is not an adjective')
         p = next(p for p in parse if {'ADJF'} in p.tag)
         print(p)
         print(tags)
@@ -1746,7 +1747,11 @@ def parse_tags(s):
 
 
 re_sentence = re.compile(r'^([^\.!"]*)([\.!"].*)$')
+re_split_enumeration = re.compile(r'(,| и )')
 
+split_enumeration = lambda s: re_split_enumeration.split(s)
+
+is_delimiter = lambda s: s in {',', ' и '}
 
 any_cyr = lambda s: any('а' <= x <= 'я' or x == 'ё' for x in s.lower())
 
@@ -1757,6 +1762,41 @@ re_number = re.compile(r'^(\d+)(.*)')
 def cut_number(s):
     hst = re_number.search(s)
     return (hst.group(1), hst.group(2))
+
+
+def smart_join(li):
+    def add_spaces(s):
+        first = True
+        for part in s:
+            part = part.strip()
+            if part:
+                if not first and part[0].isalnum():
+                    part = ' ' + part
+                
+                yield part
+                first = False
+    
+    return ''.join(add_spaces(li))
+
+
+def inflect_enumeration(s, form):
+    print('inflect_enumeration(%s, %r)' % (myrepr(s), form))
+    def _inflect_enumeration(s, form):
+        do_not_inflect = False
+        for part in split_enumeration(s):
+            if is_delimiter(part) or do_not_inflect:
+                yield part
+            else:
+                try:
+                    part = inflect_collocation(part, form)
+                except ValueError as err:
+                    print('inflect_collocation() raises %r. Leaving %s without changes.' %
+                        (err, myrepr(part)))
+                    do_not_inflect = True
+                yield part
+    li = list(_inflect_enumeration(s, form))
+    print(li)
+    return smart_join(li)
 
 
 def corr_tags(s):
@@ -1828,8 +1868,9 @@ def corr_tags(s):
                     li.append('of ')
                 pass
             else:
-                # TODO: support of enumerations with commas and conjunctions
-                if ' ' in item:
+                if ',' in item:
+                    item = inflect_enumeration(item, inflect_next)
+                elif ' ' in item:
                     item = inflect_collocation(item, inflect_next)
                 else:
                     p = custom_parse(item)[0]
@@ -1867,19 +1908,7 @@ def corr_tags(s):
                     li[i] = li[i].replace(part, part.capitalize(), 1)
                     break
     
-    def add_spaces(s):
-        first = True
-        for part in s:
-            part = part.strip()
-            if part:
-                if not first and part[0].isalnum():
-                    part = ' ' + part
-                
-                yield part
-                first = False
-    
-    print(li)
-    return ''.join(add_spaces(li))
+    return smart_join(li)
 
 
 contexts = {
