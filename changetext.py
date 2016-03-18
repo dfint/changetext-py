@@ -1808,7 +1808,10 @@ def corr_tags(s):
     capitalize_indices = set()
     inflect_next = None
     for i, item in enumerate(parse_tags(s)):
-        if item[0] == '<':
+        print(repr(item))
+        if not item.strip():
+            pass
+        elif item[0] == '<':
             item = item.strip('<>')
             if not item:
                 return None
