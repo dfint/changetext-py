@@ -1635,15 +1635,17 @@ def corr_someone_has(s):
     return s
 
 
-re_has_verb = re.compile(r"(имеете?)\s+(\w+)")
+re_has_verb = re.compile(r"(имеете?|был)\s+(\w+)")
 
 
 def corr_has_verb(s):
     hst = re_has_verb.search(s)
     if hst:
         word = hst.group(2)
-        parse = custom_parse(word)
-        if any(p.tag.POS == 'VERB' for p in parse):
+        parse = [p for p in custom_parse(word) if p.tag.POS == 'VERB']
+        if parse:
+            if not any({'past'} in p.tag for p in parse):
+                word = custom_inflect(parse[0], {'past'}).word
             return s.replace(hst.group(0), word)
 
 
