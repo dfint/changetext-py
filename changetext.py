@@ -1766,15 +1766,16 @@ def cut_number(s):
 
 def smart_join(li):
     def add_spaces(s):
-        first = True
+        add_space = False
         for part in s:
             part = part.strip()
             if part:
-                if not first and part[0].isalnum():
+                if add_space and part[0].isalnum():
                     part = ' ' + part
                 
                 yield part
-                first = False
+                if part[-1] not in set('"('):
+                    add_space = True
     
     return ''.join(add_spaces(li))
 
@@ -1911,6 +1912,7 @@ def corr_tags(s):
                     li[i] = li[i].replace(part, part.capitalize(), 1)
                     break
     
+    print(li)
     return smart_join(li)
 
 
