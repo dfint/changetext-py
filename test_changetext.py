@@ -32,6 +32,7 @@ class TestTags:
                           'Lyrical Wisp. По  возможности она предпочитает употреблять ячий сыр и'
         assert ChangeText('вино из плодов восковницы. Она совершенно не выносит<accs> комары.') == \
                           'вино из плодов восковницы. Она совершенно не выносит комаров.'
+        assert ChangeText('Anurnir, " <capitalize> Wondrous Land"') == 'Anurnir, "Wondrous Land"'
     
     def test_commas(self):
         assert ChangeText('летящий {+железный болт+} бьёт <accs> индюк в <accs> голова, разрывая <accs>') == \
