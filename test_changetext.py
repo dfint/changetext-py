@@ -22,6 +22,10 @@ class TestTags:
     def test_capitalize_tag(self):
         assert ChangeText("<capitalize>капитан ополчения встаёт.") == "Капитан ополчения встаёт."
     
+    def test_consecutive_tags(self):
+        assert ChangeText('Она   гражданин   <gent>   <capitalize>    Ochre   Girders.   Она   член   <gent>') == \
+                          'Она   гражданин Ochre   Girders.   Она   член'
+    
     def test_tag_spaces(self):
         changetext.init()
         assert ChangeText('Lyrical Wisp. По  возможности она предпочитает употреблять<accs>  ячий сыр и') == \
