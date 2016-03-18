@@ -1745,7 +1745,7 @@ def parse_tags(s):
         yield s[start:]
 
 
-re_sentence = re.compile(r'^(.*)([\.!"].*)$')
+re_sentence = re.compile(r'^([^\.!"]*)([\.!"].*)$')
 
 
 any_cyr = lambda s: any('а' <= x <= 'я' or x == 'ё' for x in s.lower())
