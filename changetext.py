@@ -1925,7 +1925,6 @@ contextual_replace = dict(
 )
 
 
-context = None
 def corr_contextual(s):
     global context
     if s in contexts:
@@ -1943,18 +1942,27 @@ def corr_contextual(s):
 
 ############################################################################
 
-log = True
-if log:
-    log_file = open('changetext.log', 'a', 1, encoding='utf-8')
-    from datetime import datetime
 
-    print('\n', datetime.today(), '\n', file=log_file)
-else:
-    log_file = None
+def init():
+    global prev_tail, log, logged, log_file, context
+    log = True
+    if log:
+        log_file = open('changetext.log', 'a', 1, encoding='utf-8')
+        from datetime import datetime
 
-logged = set()
+        print('\n', datetime.today(), '\n', file=log_file)
+    else:
+        log_file = None
 
-prev_tail = ''
+    logged = set()
+
+    prev_tail = ''
+    
+    context = None
+
+
+init()
+
 
 def _ChangeText(s):
     def ChangeText_internal(s):

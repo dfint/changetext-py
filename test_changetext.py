@@ -1,4 +1,5 @@
 import pytest
+import changetext
 
 from changetext import ChangeText, myrepr
 from tests import test_strings
@@ -22,6 +23,7 @@ class TestTags:
         assert ChangeText("<capitalize>капитан ополчения встаёт.") == "Капитан ополчения встаёт."
     
     def test_tag_spaces(self):
+        changetext.init()
         assert ChangeText('Lyrical Wisp. По  возможности она предпочитает употреблять<accs>  ячий сыр и') == \
                           'Lyrical Wisp. По  возможности она предпочитает употреблять ячий сыр и'
         assert ChangeText('вино из плодов восковницы. Она совершенно не выносит<accs> комары.') == \
