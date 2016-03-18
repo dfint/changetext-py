@@ -1720,7 +1720,7 @@ def inflect_collocation(s, tags):
     for i, word in enumerate(words[:j]):
         parse = custom_parse(word)
         if not is_adjective(word, parse):
-            raise ValueError('%s is not an adjective')
+            raise ValueError('%s is not an adjective' % word)
         p = next(p for p in parse if {'ADJF'} in p.tag)
         print(p)
         print(tags)
@@ -1807,7 +1807,7 @@ def corr_tags(s):
     get_index = None
     set_indices = set()
     capitalize_indices = set()
-    inflect_next = None
+    inflect_next = set()
     for i, item in enumerate(parse_tags(s)):
         print(repr(item))
         if not item.strip():
@@ -1880,13 +1880,14 @@ def corr_tags(s):
                     p = custom_parse(item)[0]
                     item = custom_inflect(p, tags).word
             item += tail
-            inflect_next = None
+            inflect_next = set()
         else:
             pass
         li.append(item)
     
+    delayed = ''
     if inflect_next:
-        prev_tail += '<%s>' % ','.join(inflect_next)
+        delayed += '<%s>' % ','.join(inflect_next)
         print('Delay to the next string: %r' % prev_tail)
     
     if get_index is not None:
@@ -1907,10 +1908,17 @@ def corr_tags(s):
     
     if capitalize_indices:
         for i in capitalize_indices:
-            for part in li[i].split():
-                if part:
-                    li[i] = li[i].replace(part, part.capitalize(), 1)
-                    break
+            if i >= len(li):
+                delayed += '<capitalize>'
+            else:
+                for part in li[i].split():
+                    if part:
+                        li[i] = li[i].replace(part, part.capitalize(), 1)
+                        break
+    
+    if delayed:
+        print('Delay to the next string: %r' % delayed)
+        prev_tail += delayed
     
     print(li)
     return smart_join(li)

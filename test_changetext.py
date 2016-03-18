@@ -25,6 +25,9 @@ class TestTags:
     def test_consecutive_tags(self):
         assert ChangeText('Она   гражданин   <gent>   <capitalize>    Ochre   Girders.   Она   член   <gent>') == \
                           'Она   гражданин Ochre   Girders.   Она   член'
+        changetext.init()
+        assert ChangeText('Она  гражданин  <gent>  <capitalize>  Livid Dyes.  Она  член <gent>  <capitalize>') == \
+                          'Она  гражданин Livid Dyes.  Она  член'
     
     def test_tag_spaces(self):
         changetext.init()
