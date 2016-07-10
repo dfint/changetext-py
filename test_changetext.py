@@ -67,6 +67,6 @@ def test_corr_has_verb():
     assert ChangeText(' имеет стрямкал ') == ' стрямкал '
 
 
-def test_old_tests():
-    for string, result in test_strings.items():
-        assert myrepr(ChangeText(string)) == myrepr(result)
+@pytest.mark.parametrize(('string', 'result'), test_strings.items())
+def test_old_tests(string, result):
+    assert myrepr(ChangeText(string)) == myrepr(result)
