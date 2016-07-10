@@ -6,5 +6,5 @@ pipelines:
   default:
     - step:
         script: # Modify the commands below to build your repository.
-          - pip install -r testrequire.txt
+          - pip install -r test_require.txt
           - py.test --cov-report term --cov=changetext.py test_changetext.py
