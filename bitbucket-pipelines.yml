@@ -6,6 +6,5 @@ pipelines:
   default:
     - step:
         script: # Modify the commands below to build your repository.
-          - pip install -U tox
-          - pip --version
-          - tox --version
+          - pip install -r testrequire.txt
+          - py.test --cov-report term --cov=changetext.py test_changetext.py
