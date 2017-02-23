@@ -5,4 +5,4 @@ pipelines:
     - step:
         script:
           - pip install -r test_require.txt
-          - py.test --cov-report term --doctest-modules --cov=changetext.py changetext.py test_changetext.py
+          - py.test --doctest-modules changetext.py test_changetext.py
