@@ -419,25 +419,25 @@ gender_exceptions = {
 def get_gender(obj, known_tags=None):
     def pm_gender(parse):
         tag = parse.tag
-        print(tag)
+        # print(tag)
         if tag.number == 'plur':
             gender = tag.number
         else:
             gender = tag.gender
-        print(gender)
+        # print(gender)
         return gender_ordinals[gender]
 
-    print("get_gender(%r, known_tags=%r)" % (obj, known_tags))
+    # print("get_gender(%r, known_tags=%r)" % (obj, known_tags))
     assert ' ' not in obj, 'get_gender() is not suitable for word collocations'
     
     if '-' in obj:
         obj = obj.split('-')
         if obj[0] in {'мини'}:
             obj = obj[1]
-            print('Using the second part of the hyphen-compound: %r' % obj)
+            # print('Using the second part of the hyphen-compound: %r' % obj)
         else:
             obj = obj[0]
-            print('Using the first part of the hyphen-compound: %r' % obj)
+            # print('Using the first part of the hyphen-compound: %r' % obj)
     
     parse = custom_parse(obj)
     if known_tags is not None:
@@ -450,10 +450,10 @@ def get_gender(obj, known_tags=None):
             gender = pm_gender(parse[0])
             for p in parse:
                 if pm_gender(p) != gender:
-                    print("Gender cannot be recognized definitely for %r. Try to specify known tags (eg. case)" % obj)
+                    # print("Gender cannot be recognized definitely for %r. Try to specify known tags (eg. case)" % obj)
                     return None
         else:
-            print("Gender not recoginzed for %r" % obj)
+            # print("Gender not recoginzed for %r" % obj)
             return None
         return pm_gender(parse[0])
 
@@ -468,7 +468,7 @@ def get_main_word_gender(s):
 
 
 def inflect_adjective(adjective: str, gender: int, case='nomn', animated=None):
-    print('inflect_adjective(%s, %s)' % (adjective, case))
+    # print('inflect_adjective(%s, %s)' % (adjective, case))
     assert gender is not None
     parse = [p for p in custom_parse(adjective) if 'ADJF' in p.tag or 'PRTF' in p.tag]
     assert len(parse) > 0, 'parse: %r' % parse
@@ -476,14 +476,14 @@ def inflect_adjective(adjective: str, gender: int, case='nomn', animated=None):
     form_set = {gender_names[gender], case}
     if animated is not None and gender in {masculine, plural}:
         form_set.add('anim' if animated else 'inan')
-    print('form_set:', form_set)
+    # print('form_set:', form_set)
     new_form = custom_inflect(parse, form_set)
     if new_form is None:
         form_set = {gender_names[gender], case}
-        print('form_set:', form_set)
+        # print('form_set:', form_set)
         new_form = custom_inflect(parse, form_set)
     ret = new_form.word
-    print('%s -> %s' % (adjective, ret))
+    # print('%s -> %s' % (adjective, ret))
     return ret
 
 
@@ -496,14 +496,14 @@ gent_case_except = {
 
 
 def inflect_noun(word: str, case, orig_form=None) -> str:
-    print('inflect_noun(%r, %r, %r)' % (word, case, orig_form))
+    # print('inflect_noun(%r, %r, %r)' % (word, case, orig_form))
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', custom_parse(word)))
     
     if orig_form:
         parse = [p for p in parse if orig_form in p.tag]
     
     if len(parse) == 0:
-        print('Failed to set %r to %s case.' % (word, case))
+        # print('Failed to set %r to %s case.' % (word, case))
         return None
     
     new_form = custom_inflect(parse[0], {case})
@@ -512,8 +512,8 @@ def inflect_noun(word: str, case, orig_form=None) -> str:
 
 
 def genitive_case_single_noun(word: str):
-    print('genitive_case_single_noun')
-    print(word)
+    # print('genitive_case_single_noun')
+    # print(word)
     if word.lower() in gent_case_except:
         return gent_case_except[word.lower()]
     else:
@@ -527,7 +527,7 @@ def is_adjective(word: str, parse=None):
 
 
 def genitive_case_list(words: list):
-    print("genitive_case_list(%r)" % words)
+    # print("genitive_case_list(%r)" % words)
     if len(words) == 1:
         gender = get_gender(words[0], {'nomn'})
     else:
@@ -602,12 +602,12 @@ def any_in_tag(gram: set, parse):
 
 @open_brackets
 def corr_item_general(s):
-    print('corr_item_general')
+    # print('corr_item_general')
     hst = re_item_general.search(s)
     initial_string = hst.group(1)
     words = hst.group(3).split()
     
-    print(words)
+    # print(words)
     if len(words) == 2:
         parse = list(filter(lambda x: {'NOUN', 'gent'} in x.tag, custom_parse(words[1])))
         assert len(parse) == 1
@@ -638,7 +638,7 @@ def corr_item_general(s):
           any_in_tag({'gent'}, custom_parse(words[1])) and  # The second word is in genitive
           any_in_tag({'NOUN', 'gent'}, custom_parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
-        print('Complex case')
+        # print('Complex case')
         of_material = " ".join(words[:3])
         words = words[3:]
         if len(words) == 1:
@@ -651,7 +651,7 @@ def corr_item_general(s):
         replacement_string = first_part + " " + of_material
     elif any_in_tag({'NOUN', 'gent'}, custom_parse(words[1])) and words[1] != 'древесины':
         # Simple case, eg. "из бронзы"
-        print('Simple case')
+        # print('Simple case')
         of_material = " ".join(words[:2])
         words = words[2:]
         item = words[-1]
@@ -693,26 +693,30 @@ re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)
 
 # выражения типа "рогатый филин яйцо"
 def corr_item_3(s):
-    print(3)
+    '''
+    >>> corr_item_3('рогатый филин яйцо')
+    'яйцо рогатого филина'
+    '''
+    # print(3)
     hst = re_3.search(s)
     if re_3_1.search(s):
-        print(3.1)
+        # print(3.1)
         hst = re_3_1.search(s)
         s = hst.group(1) + " " + genitive_case(hst.group(3) + " " + hst.group(2))
         return s.capitalize()
     if hst.group(3) in replaced_parts:
-        print(3.2)
+        # print(3.2)
         new_word = replaced_parts[hst.group(3)]
     else:
-        print(3.3)
+        # print(3.3)
         new_word = hst.group(3)
     if hst.group(2) in make_adjective:
-        print(3.4)
+        # print(3.4)
         s = s.replace(hst.group(0), hst.group(1) + new_word + " " + make_adjective[hst.group(2)])
     else:
-        print(3.5)
+        # print(3.5)
         s = s.replace(hst.group(0), hst.group(1) + new_word + " " + genitive_case(hst.group(2)))
-    print(3.0)
+    # print(3.0)
     return s
 
 
@@ -721,7 +725,7 @@ re_prepared = re.compile(r"\W((приготовленные|рубленная)\
 
 
 def corr_prepared(s):
-    print('corr_prepared(%r)' % s)
+    # print('corr_prepared(%r)' % s)
     hst = re_prepared.search(s)
     s = s.replace(hst.group(1), hst.group(2) + " " + hst.group(4) + " " + genitive_case(hst.group(3)))
     return s
@@ -732,7 +736,11 @@ re_skin = re.compile(r'(\(?)(.+)\s(из кожи)')
 
 # выражения типа "горный козёл из кожи"
 def corr_item_skin(s):
-    print('corr_item_skin')
+    """
+    >>> corr_item_skin("горный козёл из кожи")
+    'кожа горного козла'
+    """
+    # print('corr_item_skin')
     hst = re_skin.search(s)
     s = s.replace(hst.group(0), hst.group(1) + "кожа " + genitive_case(hst.group(2)))
     return s
@@ -745,10 +753,10 @@ re_clothes = re.compile(
 
 @open_brackets
 def corr_clothes(s):
-    print('corr_clothes')
-    print(myrepr(s))
+    # print('corr_clothes')
+    # print(myrepr(s))
     hst = re_clothes.search(s)
-    print(hst.group(1))
+    # print(hst.group(1))
     s = s.replace(hst.group(1), hst.group(4) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
     s = s.replace("левый", "левая")
     s = s.replace("правый", "правая")
@@ -760,7 +768,7 @@ re_wooden_logs = re.compile(r'(древесина)\s(\w+)\s(брёвна)')
 
 
 def corr_wooden_logs(s):
-    print('corr_wooden_logs')
+    # print('corr_wooden_logs')
     hst = re_wooden_logs.search(s)
     of_wood = "из " + hst.group(2)
     if of_wood in make_adjective:
@@ -776,16 +784,16 @@ re_gem_cutting = re.compile(r'((бриолетовый|большой|огран
 
 
 def corr_gem_cutting(s):
-    print('corr_gem_cutting')
+    # print('corr_gem_cutting')
     hst = re_gem_cutting.search(s)
     words = hst.group(1).split()
     if words[-1] in body_parts:
-        print('Redirect to corr_item_body_parts')
+        # print('Redirect to corr_item_body_parts')
         return corr_item_body_parts(s)
 
-    print(words)
+    # print(words)
     gender = get_gender(words[-1], {'NOUN', 'nomn'})
-    print("gender:", gender)
+    # print("gender:", gender)
 
     new_list = []
     for word in words[:-1]:
@@ -805,42 +813,47 @@ re_weapon_trap_parts = re.compile(
 
 
 def corr_weapon_trap_parts(s):
-    print('corr_weapon_trap_parts')
+    """
+    >>> corr_weapon_trap_parts('гигантский из меди лезвия топоров')
+    'гигантские медные лезвия топоров'
+    """
+    # print('corr_weapon_trap_parts')
     hst = re_weapon_trap_parts.search(s)
     adj = hst.group(1)
     words = hst.group(2).split()
     if " ".join(words[:2]) in make_adjective:
-        print(9.1)
+        # print(9.1)
         material = " ".join(words[:2])
-        print("material:", material)
+        # print("material:", material)
         obj = " ".join(words[2:])
-        print("object:", obj)
+        # print("object:", obj)
         gender = get_main_word_gender(obj)
-        print("object gender:", gender)
+        # print("object gender:", gender)
         if adj not in make_adjective and " " in adj:
             adj_words = adj.split()
             new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
             new_adj = " ".join(new_words)
         else:
             new_adj = inflect_adjective(make_adjective[adj], gender)
-        print(adj, ":", new_adj)
+        # print(adj, ":", new_adj)
         new_word_2 = inflect_adjective(make_adjective[material], gender)
-        print(material, ":", new_word_2)
+        # print(material, ":", new_word_2)
         s = s.replace(hst.group(0), "%s %s %s" % (new_adj, new_word_2, obj))
     else:
-        print(9.2)
+        # print(9.2)
         material = " ".join(words[:3])
-        print("material:", material)
+        # print("material:", material)
         obj = " ".join(words[3:])
-        print("object:", obj)
+        # print("object:", obj)
         gender = get_main_word_gender(obj)
+        assert gender is not None
         if adj not in make_adjective and " " in adj:
             adj_words = adj.split()
             new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
             new_adj = " ".join(new_words)
         else:
             new_adj = inflect_adjective(make_adjective[adj], gender)
-        print(adj, ":", new_adj)
+        # print(adj, ":", new_adj)
         s = s.replace(hst.group(0), "%s %s %s" % (new_adj, obj, material))
     return s
 
@@ -855,13 +868,13 @@ re_animal_gender = re.compile(r"(\w+), ([♂♀])")
 
 
 def corr_animal_gender(s):
-    print('corr_animal_gender(%r)' % s)
+    # print('corr_animal_gender(%r)' % s)
     hst = re_animal_gender.search(s)
     
     gender = '♂♀'.index(hst.group(2))
     animal = hst.group(1)
     if animal not in animal_genders:
-        print('Unknown animal: %r' % animal)
+        # print('Unknown animal: %r' % animal)
         return None
     else:
         return s.replace(hst.group(0), animal_genders[animal][gender] + " ")
@@ -872,7 +885,7 @@ re_animal = re.compile(r'(охотничий|боевой|сырой) (\w+)(\(Р
 
 # "животные"
 def corr_animal(s):
-    print('corr_animal')
+    # print('corr_animal')
     s = s.replace("сырой", "сырая")
     if any(s.find(item) != -1 for item in animals_female):
         s = s.replace("(Ручной)", "(Ручная)")
@@ -905,10 +918,10 @@ materials = {'волокон', 'шёлка', 'шерсти', 'кожи'}
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
 @open_brackets
 def corr_container(s):
-    print("corr_container")
+    # print("corr_container")
     hst = re_container.search(s)
     initial_string = hst.group(0)
-    print('initial_string:', initial_string)
+    # print('initial_string:', initial_string)
     containment = hst.group(1)
     if containment in replace_containment:
         containment = replace_containment[containment]
@@ -933,11 +946,11 @@ def corr_container(s):
     container = hst.group(2)
     of_material = hst.group(3)
     if not of_material:
-        print('Void material')
+        # print('Void material')
         replacement_string = container + ' ' + containment
     elif (' ' not in of_material and is_adjective(of_material) or
           of_material in make_adjective or of_material[3:] in make_adjective):
-        print('Case 1')
+        # print('Case 1')
         
         if ' ' not in of_material and is_adjective(of_material):
             adjective = of_material
@@ -949,14 +962,14 @@ def corr_container(s):
             adjective = None
         gender = get_gender(container, {'nomn'})
         adjective = inflect_adjective(adjective, gender)
-        print([container, containment, adjective])
+        # print([container, containment, adjective])
         replacement_string = '%s %s (%s)' % (container, containment, adjective)
     else:
-        print('Case 2')
+        # print('Case 2')
         words = of_material.split()
         material = None
         if of_material.startswith('из ') or len(of_material) <= 2:
-            print('Material name is too short or it starts with "из"')
+            # print('Material name is too short or it starts with "из"')
             material = of_material
         elif len(words) >= 2 and words[-2] == 'из' and (words[-1] in materials or
                 any(mat.startswith(words[-1]) for mat in materials)):
@@ -995,7 +1008,7 @@ re_corr_relief = re.compile(
 
 
 def corr_relief(s):
-    print('corr_relief')
+    # print('corr_relief')
     hst = re_corr_relief.search(s)
     group1 = hst.group(1)
     obj = hst.group(2)
@@ -1007,7 +1020,7 @@ def corr_relief(s):
         return s.capitalize()
 
     if " " in group1:
-        print('several words')
+        # print('several words')
         words = group1.split(" ")
         first_words = []
         gender = get_main_word_gender(obj)
@@ -1032,13 +1045,13 @@ def corr_relief(s):
             words = genitive_case_list(words)
 
         if not first_words:
-            print("12.1.1")
+            # print("12.1.1")
             s = "%s из %s" % (obj, " ".join(words))
         else:
-            print("12.1.2")
+            # print("12.1.2")
             s = "%s %s из %s" % (" ".join(first_words), obj, " ".join(words))
     else:
-        print('one word')
+        # print('one word')
         material = group1
         s = "%s из %s" % (obj, genitive_case(material))
 
@@ -1052,27 +1065,27 @@ re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+
 
 # "Густой и тп"
 def corr_item_13(s):
-    print(13)
+    # print(13)
     hst = re_13_1.search(s)
     adjective = hst.group(1)
     obj = hst.group(2)
 
     if " " in obj:
-        print(13.1)
+        # print(13.1)
         words = obj.split(" ")
         if is_adjective(words[0]):
-            print("13.1.1")
+            # print("13.1.1")
             gender = get_gender(words[-1])
             new_word = inflect_adjective(words[0], gender, 'nomn')
             s = s.replace(words[0], new_word)
             new_word = inflect_adjective(adjective, gender, 'nomn')
             s = s.replace(adjective, new_word)
     else:
-        print(13.2)
+        # print(13.2)
         gender = get_gender(obj)
         new_word = inflect_adjective(adjective, gender, 'nomn')
         if new_word:
-            print("13.2.1")
+            # print("13.2.1")
             s = new_word + " " + obj
 
     return s.capitalize()
@@ -1084,7 +1097,7 @@ re_body_parts = re.compile(
 
 
 def corr_item_body_parts(s):
-    print('corr_item_body_parts(%r)' % s)
+    # print('corr_item_body_parts(%r)' % s)
     hst = re_body_parts.search(s)
     initial_string = hst.group(1)
     words = hst.group(2).split()
@@ -1101,15 +1114,15 @@ re_craft_glass = re.compile(r'\b(Делать|Изготовить)\s([\w\s]*)(�
 
 
 def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
-    print('corr_craft_glass')
+    # print('corr_craft_glass')
     hst = re_craft_glass.search(s)
     material = hst.group(3)
-    print('material: %r' % material)
+    # print('material: %r' % material)
     material_gender = get_gender(material)
     words = hst.group(2).split()
-    print('words: %r' % words)
+    # print('words: %r' % words)
     product = hst.group(4).split()
-    print('product: %r' % product)
+    # print('product: %r' % product)
     verb = hst.group(1)
     if not product:
         verb = 'Варить'
@@ -1137,7 +1150,7 @@ def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
         material_words = material_adjectives + [material]
         result = "%s %s из %s" % (verb, ' '.join(product_words), ' '.join(material_words))
 
-    print('result:', result)
+    # print('result:', result)
     return s.replace(hst.group(0), result)
 
 
@@ -1145,11 +1158,11 @@ re_craft_general = re.compile(r'(Делать|Изготовить)([\w\s]+)$')
 
 
 def corr_craft_general(s):
-    print('corr_craft_general')
+    # print('corr_craft_general')
     hst = re_craft_general.search(s)
     verb = hst.group(1)
     words = hst.group(2).split()
-    print('words:', words)
+    # print('words:', words)
     product = None
     if len(words) > 1:
         for i, word in enumerate(words[1:], 1):
@@ -1161,13 +1174,13 @@ def corr_craft_general(s):
         product = words[0]
         words = []
     
-    print('product:', product)
+    # print('product:', product)
     product_gender = get_main_word_gender(product)
-    print('gender:', gender_names[product_gender])
+    # print('gender:', gender_names[product_gender])
     
     if ' ' not in product:
         orig_form = {'plur' if product_gender == plural else 'sing', 'inan'}
-        print('orig_form =', orig_form)
+        # print('orig_form =', orig_form)
         product = inflect_noun(product, 'accs', orig_form=orig_form)
         assert product is not None
     else:
@@ -1197,28 +1210,28 @@ re_forge = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изго
 
 # кузница
 def corr_forge(s):
-    print('corr_forge')
+    # print('corr_forge')
     hst = re_forge.search(s)
     verb = hst.group(1)
     words = hst.group(2).split()
-    print('Verb:', verb)
-    print('words:', words)
+    # print('Verb:', verb)
+    # print('words:', words)
     assert len(words) >= 3
     if (any_in_tag({'ADJF', 'gent'}, custom_parse(words[1])) and  # The second word is an adj in gent
             any_in_tag({'NOUN', 'gent'}, custom_parse(words[2]))):  # The third word is a noun in gent
-        print('Complex case')
+        # print('Complex case')
         of_material = words[:3]
         obj = words[3:]
     else:
         assert any_in_tag({'NOUN', 'gent'}, custom_parse(words[1]))
-        print('Simple case')
+        # print('Simple case')
         of_material = words[:2]
         obj = words[2:]
-        print('of_material:', of_material)
-        print('obj:', obj)
+        # print('of_material:', of_material)
+        # print('obj:', obj)
 
     of_material = ' '.join(of_material)
-    print(obj)
+    # print(obj)
     item_index = None
     if len(obj) == 1:
         item_index = 0
@@ -1241,8 +1254,8 @@ def corr_forge(s):
             elif not any_in_tag('accs', parse):
                 obj[i] = parse[0].inflect({'accs'}).word
 
-    print(obj)
-    print(obj[item_index])
+    # print(obj)
+    # print(obj[item_index])
 
     if not any_in_tag('accs', parse):
         obj[item_index] = parse[0].inflect({'accs'}).word
@@ -1251,7 +1264,7 @@ def corr_forge(s):
         verb = 'Ковать'
 
     if of_material in make_adjective:
-        print('gender of "%s" is %s' % (obj[item_index], gender_names[gender]))
+        # print('gender of "%s" is %s' % (obj[item_index], gender_names[gender]))
         material = inflect_adjective(make_adjective[of_material], gender, 'accs', animated=False)
         s = verb + " " + material + " " + ' '.join(obj)
     else:
@@ -1261,11 +1274,11 @@ def corr_forge(s):
 
 
 def instrumental_case(word):
-    print("instrumental_case(%s)" % repr(word))
+    # print("instrumental_case(%s)" % repr(word))
     assert ' ' not in word
     gender = get_gender(word)
     if gender is None:
-        print("Assuming gender of '%s' is masculine" % word)
+        # print("Assuming gender of '%s' is masculine" % word)
         gender = masculine
 
     if is_adjective(word):
@@ -1282,7 +1295,7 @@ re_jewelers_shop = re.compile(
 
 # Ювелирная мастерская
 def corr_jewelers_shop(s):
-    print('corr_jewelers_shop')
+    # print('corr_jewelers_shop')
     hst = re_jewelers_shop.search(s)
     first_part = hst.group(1)
     words = hst.group(2).split()
@@ -1294,7 +1307,7 @@ def corr_jewelers_shop(s):
             tags = {'gent'}
         item = words[-1]
         gender = get_gender(item, known_tags=tags)
-        print(':', gender_names[gender])
+        # print(':', gender_names[gender])
         words = [inflect_adjective(word, gender, 'accs', animated=False) for word in words[:-1]]
         parse = list(filter(lambda x: {gender_names[gender], 'inan'} in x.tag, custom_parse(item)))
         if item == 'адамантина':
@@ -1305,7 +1318,7 @@ def corr_jewelers_shop(s):
     else:
         # instrumental/ablative case ('incrust with smth')
         words = [custom_inflect(custom_parse(word)[0], {'ablt'}).word for word in words if word != 'из']
-    print(words)
+    # print(words)
     if first_part.endswith(' с'):
         first_part = first_part[:-2]
     s = first_part + ' ' + ' '.join(words)
@@ -1317,7 +1330,7 @@ re_settlement = re.compile(r'(.*)\s(лесное убежище|крепость
 
 # убежище, крепость
 def corr_settlement(s):
-    print("corr_settlement")
+    # print("corr_settlement")
     hst = re_settlement.search(s)
     adjective = hst.group(1).strip()
     settlement = hst.group(2)
@@ -1347,7 +1360,7 @@ re_material_selection = re.compile(r'(металл|кожа|пряжа|раст�
 
 # выбор материала
 def corr_material_selection(s):
-    print(20)
+    # print(20)
     hst = re_material_selection.search(s)
     if hst.group(2) in phrases:
         new_word = phrases[hst.group(2)]
@@ -1367,7 +1380,7 @@ re_animal_material = re.compile(r'(.+)\s(кожа|кость|волокно|шё
 
 # кожа, шерсть-длинные названия
 def corr_animal_material(s):
-    print(21)
+    # print(21)
     hst = re_animal_material.search(s)
     s = hst.group(2) + " " + genitive_case(hst.group(1))
     return s
@@ -1377,11 +1390,11 @@ re_stopped_construction = re.compile(r'(\w+) приостановили стро
 
 
 def corr_stopped_construction(s):
-    print("corr_stopped_construction")
+    # print("corr_stopped_construction")
     hst = re_stopped_construction.search(s)
     subj = hst.group(1)
     obj = hst.group(2)
-    print(obj)
+    # print(obj)
     
     if 'Ремесленник мастерская' in obj:
         gen_case_obj = ' '.join(genitive_case(word) for word in reversed(obj.split()))  # Put words into genitive case separately
@@ -1401,7 +1414,7 @@ def corr_ending_s(s):
                 if {'NOUN', 'nomn', 'sing'} in x.tag or {'VERB', '2per'} in x.tag]
         
         if not parse:
-            print('Cannot determine part of speech of %r' % s)
+            # print('Cannot determine part of speech of %r' % s)
             return None
         
         new_forms = set()
@@ -1412,20 +1425,20 @@ def corr_ending_s(s):
                 new_forms.add(custom_inflect(parse[0], {'3per', 'sing'}).word)
         
         if len(new_forms) > 1:
-            print('Cannot determine part of speech of %r because of ambiguity:' % s)
-            print(parse)
+            # print('Cannot determine part of speech of %r because of ambiguity:' % s)
+            # print(parse)
             return None
         
         return new_forms.pop()
     
-    print("corr_ending_s")
+    # print("corr_ending_s")
     hst = re_ending_s.search(s)
     number = hst.group(1)
     group2 = hst.group(2)
     if number and ' ' not in group2:
         number = int(number)
         parse = [x for x in custom_parse(group2) if {'NOUN', 'nomn', 'sing'} in x.tag]
-        print(parse)
+        # print(parse)
         assert len(parse) == 1
         replacement_string = '%d %s' % (number, parse[0].make_agree_with_number(number).word)
     elif group2 in dict_ending_s:
@@ -1435,7 +1448,7 @@ def corr_ending_s(s):
         if new_form:
             replacement_string = new_form
         else:
-            print("Couldn't find correct -s form for %s." % group2)
+            # print("Couldn't find correct -s form for %s." % group2)
             return None
     else:
         words = group2.split()
@@ -1448,7 +1461,7 @@ def corr_ending_s(s):
                 words[-1] = new_form
                 replacement_string = ' '.join(words)
             else:
-                print("Couldn't find correct -s form for %s." % words[-1])
+                # print("Couldn't find correct -s form for %s." % words[-1])
                 return None
 
     return s.replace(hst.group(0), replacement_string)
@@ -1466,7 +1479,7 @@ cloth_subst = {
 
 
 def corr_clothiers_shop(s):
-    print("Corr clothier's/leather shop")
+    # print("Corr clothier's/leather shop")
     hst = re_clothiers_shop.search(s)
     verb = hst.group(1)
     material = hst.group(2)
@@ -1517,11 +1530,11 @@ re_become = re.compile(r"(.+)\s(стал)\s(.+)\.")
 
 
 def corr_become(s):
-    print("corr_become")
+    # print("corr_become")
     hst = re_become.search(s)
     subj = hst.group(1)
     verb = hst.group(2)
-    print(verb)
+    # print(verb)
     words = hst.group(3)
     words = inflect_collocation(words, {'ablt'})
     if subj.startswith('Животное'):
@@ -1534,7 +1547,7 @@ re_with_his = re.compile(r'(с (его|её|ваш) (.*))[!]')
 
 
 def corr_with_his(s):
-    print("corr_with_his")
+    # print("corr_with_his")
     hst = re_with_his.search(s)
     return s.replace(hst.group(1), "своим %s" % (inflect_collocation(hst.group(3), {'ablt'})))
 
@@ -1543,7 +1556,7 @@ re_rings = re.compile(r"([\w\s]+) (кольцо|кольца)")
 
 
 def corr_rings(s):
-    print("corr_rings")
+    # print("corr_rings")
     hst = re_rings.search(s)
     obj = hst.group(2)
     description = hst.group(1)
@@ -1600,7 +1613,7 @@ def corr_minced(s):
 
 
 def corr_you_struck(s):
-    print('corr_you_struck')
+    # print('corr_you_struck')
     i = s.find('из ')
     you_struck = s[:i]
     words = s[i:-1].split()
@@ -1693,7 +1706,7 @@ def get_form(word):
 
 
 def inflect_collocation(s, tags):
-    print('inflect_collocation(%r, %r)' % (s, tags))
+    # print('inflect_collocation(%r, %r)' % (s, tags))
     words = [x for x in s.split(' ') if x]  # skip empty strings
     animated = None
     j = None
@@ -1722,12 +1735,12 @@ def inflect_collocation(s, tags):
         if not is_adjective(word, parse):
             raise ValueError('%s is not an adjective' % word)
         p = next(p for p in parse if {'ADJF'} in p.tag)
-        print(p)
-        print(tags)
+        # print(p)
+        # print(tags)
         p = custom_inflect(p, tags)
         words[i] = p.word
     
-    print(words)
+    # print(words)
     return ' '.join(words) + (' ' if s.endswith(' ') else '')
 
 
@@ -1781,7 +1794,7 @@ def smart_join(li):
 
 
 def inflect_enumeration(s, form):
-    print('inflect_enumeration(%s, %r)' % (myrepr(s), form))
+    # print('inflect_enumeration(%s, %r)' % (myrepr(s), form))
     def _inflect_enumeration(s, form):
         do_not_inflect = False
         for part in split_enumeration(s):
@@ -1791,25 +1804,25 @@ def inflect_enumeration(s, form):
                 try:
                     part = inflect_collocation(part, form)
                 except ValueError as err:
-                    print('inflect_collocation() raises %r. Leaving %s without changes.' %
-                        (err, myrepr(part)))
+                    # print('inflect_collocation() raises %r. Leaving %s without changes.' %
+                    #     (err, myrepr(part)))
                     do_not_inflect = True
                 yield part
     li = list(_inflect_enumeration(s, form))
-    print(li)
+    # print(li)
     return smart_join(li)
 
 
 def corr_tags(s):
     global prev_tail
-    print('corr_tags(%r)' % s)
+    # print('corr_tags(%r)' % s)
     li = []
     get_index = None
     set_indices = set()
     capitalize_indices = set()
     inflect_next = set()
     for i, item in enumerate(parse_tags(s)):
-        print(repr(item))
+        # print(repr(item))
         if not item.strip():
             pass
         elif item[0] == '<':
@@ -1818,7 +1831,7 @@ def corr_tags(s):
                 return None
             tags, _, item = item.partition(':')
             tags = set(tags.split(','))
-            print(tags)
+            # print(tags)
             
             if 'capitalize' in tags:
                 tags.remove('capitalize')
@@ -1888,13 +1901,13 @@ def corr_tags(s):
     delayed = ''
     if inflect_next:
         delayed += '<%s>' % ','.join(inflect_next)
-        print('Delay to the next string: %r' % prev_tail)
+        # print('Delay to the next string: %r' % prev_tail)
     
     if get_index is not None:
-        print(get_index)
+        # print(get_index)
         form = get_form(li[get_index])
         form -= {'anim', 'inan'}  # discard these two because they doesn't matter for the nominal case
-        print(form)
+        # print(form)
         for i in set_indices:
             word = li[i]
             if ' ' in word:
@@ -1917,10 +1930,10 @@ def corr_tags(s):
                         break
     
     if delayed:
-        print('Delay to the next string: %r' % delayed)
+        # print('Delay to the next string: %r' % delayed)
         prev_tail += delayed
     
-    print(li)
+    # print(li)
     return smart_join(li)
 
 
