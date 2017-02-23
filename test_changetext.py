@@ -2,7 +2,6 @@ import pytest
 import changetext
 
 from changetext import ChangeText, myrepr
-from tests import test_strings
 
 class TestTags:
     def test_not_tags(self):
@@ -65,8 +64,3 @@ def test_corr_has_verb():
     assert ChangeText(' имеет пришёл ') == ' пришёл '
     assert ChangeText(' имеет упал ') == ' упал '
     assert ChangeText(' имеет стрямкал ') == ' стрямкал '
-
-
-@pytest.mark.parametrize(('string', 'result'), test_strings.items())
-def test_old_tests(string, result):
-    assert myrepr(ChangeText(string)) == myrepr(result)
