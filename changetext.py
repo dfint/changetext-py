@@ -730,7 +730,7 @@ def corr_prepared(s):
     return s
 
 
-re_skin = re.compile(r'(\(?)(.+)\s(из кожи)')
+re_skin = re.compile(r'(\(?)(.+)\s(из кожи|из шерсти)')
 
 
 # выражения типа "горный козёл из кожи"
@@ -738,10 +738,14 @@ def corr_item_skin(s):
     """
     >>> corr_item_skin("горный козёл из кожи")
     'кожа горного козла'
+    
+    >>> corr_item_skin("альпака из шерсти")
+    'шерсть альпака'
     """
     # print('corr_item_skin')
     hst = re_skin.search(s)
-    s = s.replace(hst.group(0), hst.group(1) + "кожа " + genitive_case(hst.group(2)))
+    material = inflect_noun(hst.group(3).split()[-1], 'nomn')  # кожа, шерсть и т.д.
+    s = s.replace(hst.group(0), hst.group(1) + material + ' ' + genitive_case(hst.group(2)))
     return s
 
 
