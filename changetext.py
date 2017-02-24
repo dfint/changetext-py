@@ -767,6 +767,10 @@ re_wooden_logs = re.compile(r'(древесина)\s(\w+)\s(брёвна)')
 
 
 def corr_wooden_logs(s):
+    """
+    >>> corr_wooden_logs('древесина дуба брёвна')
+    'дубовые брёвна'
+    """
     # print('corr_wooden_logs')
     hst = re_wooden_logs.search(s)
     of_wood = "из " + hst.group(2)
@@ -1592,6 +1596,13 @@ def corr_histories_of(s):
 
 
 def corr_well(s):
+    """
+    >>> corr_well('Я колодец')  # I am well
+    'Я в порядке'
+    
+    >>> corr_well('Я чувствую колодец')  # I am feeling well
+    'Я чувствую себя хорошо'
+    """
     s = s.replace('колодец', 'хорошо')
     if 'чувствую' in s and 'себя' not in s:
         s = s.replace('чувствую', 'чувствую себя')
@@ -1599,6 +1610,8 @@ def corr_well(s):
         s = s.replace('делаю хорошо', 'в порядке')
     elif 'был хорошо' in s:
         s = s.replace('был хорошо', 'в порядке')
+    elif 'хорошо' in s:
+        s = s.replace('хорошо', 'в порядке')
     return s
 
 
