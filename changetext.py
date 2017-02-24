@@ -1,4 +1,3 @@
-#! python3
 # -*- coding: utf-8 -*-
 import sys
 import re
@@ -2141,12 +2140,10 @@ def _ChangeText(s):
 
 
 def ChangeText(s):
-    if type(s) is bytes:
+    if isinstance(s, bytes):
         output = _ChangeText(s.decode("utf-16"))
-        if output is None:
-            return None
-        else:
-            return output.encode("utf-16")[2:] + bytes(2)  # Truncate BOM marker and add b'\0\0' to the end
+        # Return None if output is None or encoded output otherwise
+        return output and output.encode("utf-16")[2:] + bytes(2)  # Truncate BOM marker and add b'\0\0' to the end
     else:
         return _ChangeText(s)
 
