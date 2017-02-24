@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import functools
 import sys
 import re
 import traceback
 import heapq
-from collections import OrderedDict
-
 import pymorphy2
+
+from collections import OrderedDict
 
 morph = pymorphy2.MorphAnalyzer()
 
@@ -564,6 +565,7 @@ closing = {'«': '»', '[': ']', '(': ')', '{': '}'}
 
 
 def open_brackets(func):
+    @functools.wraps(func)
     def wrapper(s):
         start_i = 0
         end_i = len(s) - 1
@@ -925,6 +927,10 @@ materials = {'волокон', 'шёлка', 'шерсти', 'кожи'}
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
 @open_brackets
 def corr_container(s):
+    """
+    >>> corr_container('(дварфийское пиво бочка (из ольхи))')
+    '(Бочка дварфийского пива (ольховая))'
+    """
     # print("corr_container")
     hst = re_container.search(s)
     initial_string = hst.group(0)
