@@ -886,7 +886,7 @@ def corr_animal_gender(s):
         # print('Unknown animal: %r' % animal)
         return None
     else:
-        return s.replace(hst.group(0), animal_genders[animal][gender] + " ")
+        return s.replace(hst.group(0), animal_genders[animal][gender] + ", " + hst.group(2))
 
 
 re_animal = re.compile(r'(охотничий|боевой|сырой) (\w+)(\(Ручной\))?')
