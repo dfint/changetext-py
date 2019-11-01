@@ -1,3 +1,3 @@
 # changetextpy script
 
-[![Build Status](https://travis-ci.org/dfint/changetextpy_script.svg?branch=master)](https://travis-ci.org/dfint/changetextpy_script)
+[![Build Status](https://travis-ci.org/dfint/changetextpy_script.svg?branch=master)](https://travis-ci.org/dfint/changetextpy_script) [![codecov](https://codecov.io/gh/dfint/changetextpy_script/branch/master/graph/badge.svg)](https://codecov.io/gh/dfint/changetextpy_script)
