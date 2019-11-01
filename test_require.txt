@@ -1,3 +1,0 @@
-pymorphy2
-pytest
-pytest-cov
