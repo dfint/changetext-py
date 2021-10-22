@@ -1,3 +1,6 @@
+.idea
+.venv
+venv
 *.pyc
 .coverage
 changetext.log
