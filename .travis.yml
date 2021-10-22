@@ -1,9 +1,0 @@
-language: python
-python:
-  - "3.6"
-# Run tests
-script:
-  - pip install -r test_requirements.txt
-  - pip install codecov
-  - pytest --doctest-modules changetext.py ./tests --cov=.
-  - codecov
