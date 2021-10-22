@@ -5,5 +5,5 @@ python:
 script:
   - pip install -r test_requirements.txt
   - pip install codecov
-  - pytest --doctest-modules changetext.py test_changetext.py tests_old.py --cov=.
+  - pytest --doctest-modules changetext.py ./tests --cov=.
   - codecov
