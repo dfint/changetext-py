@@ -1,6 +1,7 @@
 .idea
 .venv
 venv
+.pytest_cache
 *.pyc
 .coverage
 changetext.log
