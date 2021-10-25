@@ -1,4 +1,4 @@
-name: Test
+name: Test Python 3.4 compatibility
 
 on:
   push:
@@ -9,10 +9,10 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.4.10]
 
     steps:
     - uses: actions/checkout@v2
@@ -25,7 +25,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r test_requirements.txt
-        pip install coveralls==3.2.0
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -34,9 +33,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest --doctest-modules changetext.py ./tests --cov=.
-    - name: Upload coverage data to coveralls.io
-      run: |
-        coveralls --service=github
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        pytest --doctest-modules changetext.py ./tests
