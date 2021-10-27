@@ -441,21 +441,26 @@ def get_main_word_gender(s):
                 return get_gender(word, known_tags={'NOUN', 'nomn'})
 
 
+def parse_as_adjective(adjective: str) -> list:
+    parse = [p for p in custom_parse(adjective) if 'ADJF' in p.tag or 'PRTF' in p.tag]
+    assert len(parse) > 0, 'parse: %r' % parse
+    return parse
+
+
 def inflect_adjective(adjective: str, gender: str, case='nomn', animated=None):
     # print('inflect_adjective(%s, %s)' % (adjective, case))
     assert gender is not None
-    parse = [p for p in custom_parse(adjective) if 'ADJF' in p.tag or 'PRTF' in p.tag]
-    assert len(parse) > 0, 'parse: %r' % parse
-    parse = parse[0]
+    parse = parse_as_adjective(adjective)
+    p = parse[0]
     form_set = {gender, case}
     if animated is not None and gender in {'masc', 'plur'}:
         form_set.add('anim' if animated else 'inan')
     # print('form_set:', form_set)
-    new_form = parse.inflect(form_set)
+    new_form = p.inflect(form_set)
     if new_form is None:
         form_set = {gender, case}
         # print('form_set:', form_set)
-        new_form = parse.inflect(form_set)
+        new_form = p.inflect(form_set)
     ret = new_form.word
     # print('%s -> %s' % (adjective, ret))
     return ret
@@ -565,11 +570,11 @@ def open_brackets(func):
 
 re_item_general = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
 
-corr_item_general_except = {
-    # "боевой",  # Avoid recognition "боевой" as a female surname in genitive
-    # "кирки",  # Avoid recognition "кирки" as a noun in genitive
-    # "бочка",  # Avoid recognition "бочка" as "бочок" in genitive
-}
+# corr_item_general_except = {
+#     # "боевой",  # Avoid recognition "боевой" as a female surname in genitive
+#     # "кирки",  # Avoid recognition "кирки" as a noun in genitive
+#     # "бочка",  # Avoid recognition "бочка" as "бочок" in genitive
+# }
 
 
 def any_in_tag(gram, parse):
@@ -610,7 +615,8 @@ def corr_item_general(s):
         adjs = words[1:-1]
         adjs = [inflect_adjective(adj, gender, case='nomn') for adj in adjs]
         replacement_string = ' '.join(adjs) + ' ' + material
-    elif (words[2] not in corr_item_general_except and len(words) > 3 and
+    # elif (words[2] not in corr_item_general_except and len(words) > 3 and
+    elif (len(words) > 3 and
           any_in_tag({'gent'}, custom_parse(words[1])) and  # The second word is in genitive
           any_in_tag({'NOUN', 'gent'}, custom_parse(words[2]))):  # The third word is a noun in genitive
         # Complex case, eg. "из висмутовой бронзы"
@@ -729,8 +735,17 @@ def corr_item_skin(s):
 
 # выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
 re_clothes = re.compile(r'^[Xx\(+*-«☼]*((.+)\s'
-                        r'(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рога|из рогов|из бивней'
-                        r'|из панциря|из зубов)'
+                        r'(из волокон'
+                        r'|из шёлка'
+                        r'|из шерсти'
+                        r'|из кожи'
+                        r'|из копыт'
+                        r'|из кости'
+                        r'|из рога'
+                        r'|из рогов'
+                        r'|из бивней'
+                        r'|из панциря'
+                        r'|из зубов)'
                         r'\s(\w+\s?\w+))')
 
 
