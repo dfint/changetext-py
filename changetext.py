@@ -88,23 +88,20 @@ replaced_parts = OrderedDict([
 
 
 ############################################################################
-# роды - значения не менять, т.к. используются как индексы
-masculine = 0  # м. род
-feminine = 1  # ж. род
-neuter = 2  # ср. род
-plural = 3  # мн. ч.
-
-gender_names = ('masc', 'femn', 'neut', 'plur')
+# masculine = 'masc'  # м. род
+# feminine = 'femn'  # ж. род
+# neuter = 'neut'  # ср. род
+# plural = 'plur'  # мн. ч.
 
 # Case names - as a reference only
-case_names = (
-    "nomn",  # именительный
-    "gent",  # родительный
-    "datv",  # дательный
-    "accs",  # винительный
-    "ablt",  # творительный
-    "loct",  # предложный
-)
+# case_names = (
+#     "nomn",  # именительный
+#     "gent",  # родительный
+#     "datv",  # дательный
+#     "accs",  # винительный
+#     "ablt",  # творительный
+#     "loct",  # предложный
+# )
 
 make_adjective = {
     # металл
@@ -387,24 +384,23 @@ dict_ending_s = {
 }
 
 
-gender_ordinals = {'masc': masculine, 'femn': feminine, 'neut': neuter, 'plur': plural, None: None}
-
 gender_exceptions = {
-    'шпинель': feminine, 'гризли': masculine,
+    'шпинель': 'femn', 'гризли': 'masc',
 }
 
 
-def get_gender(obj, known_tags=None):
-    def pm_gender(parse):
-        tag = parse.tag
-        # print(tag)
-        if tag.number == 'plur':
-            gender = tag.number
-        else:
-            gender = tag.gender
-        # print(gender)
-        return gender_ordinals[gender]
+def pm_gender(parse):
+    tag = parse.tag
+    # print(tag)
+    if tag.number == 'plur':
+        gender = tag.number
+    else:
+        gender = tag.gender
+    # print(gender)
+    return str(gender)  # explicitly convert to a string any internal types returned from pymorphy2
 
+
+def get_gender(obj, known_tags=None):
     # print("get_gender(%r, known_tags=%r)" % (obj, known_tags))
     assert ' ' not in obj, 'get_gender() is not suitable for word collocations'
     
@@ -445,19 +441,19 @@ def get_main_word_gender(s):
                 return get_gender(word, known_tags={'NOUN', 'nomn'})
 
 
-def inflect_adjective(adjective: str, gender: int, case='nomn', animated=None):
+def inflect_adjective(adjective: str, gender: str, case='nomn', animated=None):
     # print('inflect_adjective(%s, %s)' % (adjective, case))
     assert gender is not None
     parse = [p for p in custom_parse(adjective) if 'ADJF' in p.tag or 'PRTF' in p.tag]
     assert len(parse) > 0, 'parse: %r' % parse
     parse = parse[0]
-    form_set = {gender_names[gender], case}
-    if animated is not None and gender in {masculine, plural}:
+    form_set = {gender, case}
+    if animated is not None and gender in {'masc', 'plur'}:
         form_set.add('anim' if animated else 'inan')
     # print('form_set:', form_set)
     new_form = parse.inflect(form_set)
     if new_form is None:
-        form_set = {gender_names[gender], case}
+        form_set = {gender, case}
         # print('form_set:', form_set)
         new_form = parse.inflect(form_set)
     ret = new_form.word
@@ -759,7 +755,7 @@ def corr_wooden_logs(s):
     hst = re_wooden_logs.search(s)
     of_wood = "из " + hst.group(2)
     if of_wood in make_adjective:
-        adj = inflect_adjective(make_adjective[of_wood], plural)
+        adj = inflect_adjective(make_adjective[of_wood], 'plur')
         s = s.replace(hst.group(0), adj + " " + hst.group(3))  # берёзовые брёвна
     else:
         s = s.replace(hst.group(0), hst.group(1) + " " + hst.group(2))  # древесина акации
@@ -767,7 +763,7 @@ def corr_wooden_logs(s):
 
 
 # выражения типа "(бриолетовый восковые опалы)"
-re_gem_cutting = re.compile(r'((бриолетовый|большой|огранённый|огранённый|грубый)\s[\w\s-]+)')
+re_gem_cutting = re.compile(r'((бриолетовый|большой|огранённый|грубый)\s[\w\s-]+)')
 
 
 def corr_gem_cutting(s):
@@ -1167,10 +1163,10 @@ def corr_craft_general(s):
     
     # print('product:', product)
     product_gender = get_main_word_gender(product)
-    # print('gender:', gender_names[product_gender])
+    # print('gender:', product_gender)
     
     if ' ' not in product:
-        orig_form = {'plur' if product_gender == plural else 'sing', 'inan'}
+        orig_form = {'plur' if product_gender == 'plur' else 'sing', 'inan'}
         # print('orig_form =', orig_form)
         product = inflect_noun(product, 'accs', orig_form=orig_form)
         assert product is not None
@@ -1255,7 +1251,7 @@ def corr_forge(s):
         verb = 'Ковать'
 
     if of_material in make_adjective:
-        # print('gender of "%s" is %s' % (obj[item_index], gender_names[gender]))
+        # print('gender of "%s" is %s' % (obj[item_index], gender))
         material = inflect_adjective(make_adjective[of_material], gender, 'accs', animated=False)
         s = verb + " " + material + " " + ' '.join(obj)
     else:
@@ -1270,7 +1266,7 @@ def instrumental_case(word):
     gender = get_gender(word)
     if gender is None:
         # print("Assuming gender of '%s' is masculine" % word)
-        gender = masculine
+        gender = 'masc'
 
     if is_adjective(word):
         word = inflect_adjective(word, gender, 'ablt')
@@ -1298,9 +1294,9 @@ def corr_jewelers_shop(s):
             tags = {'gent'}
         item = words[-1]
         gender = get_gender(item, known_tags=tags)
-        # print(':', gender_names[gender])
+        # print(':', gender)
         words = [inflect_adjective(word, gender, 'accs', animated=False) for word in words[:-1]]
-        parse = list(filter(lambda x: {gender_names[gender], 'inan'} in x.tag, custom_parse(item)))
+        parse = list(filter(lambda x: {gender, 'inan'} in x.tag, custom_parse(item)))
         if item == 'адамантина':
             item = 'адамантин'
         else:
@@ -1497,7 +1493,7 @@ def corr_clothiers_shop(s):
             verb = "Вить"
 
         gender = get_gender(product, {'nomn'})
-        if gender == feminine:
+        if gender == 'femn':
             product_accus = inflect_noun(product, case='accs')
         else:
             product_accus = product
