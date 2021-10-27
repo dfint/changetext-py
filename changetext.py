@@ -2153,7 +2153,7 @@ def utf16_codec(func):
         if isinstance(data, bytes):
             data = data.decode("utf-16-le")
             output = func(data)
-            return output if output is None else output.encode("utf-16-le") + bytes(2)  # Add b'\0\0' to the end
+            return output if output is None else output.encode("utf-16-le") + b"\0\0"
         else:
             return func(data)
 
