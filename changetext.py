@@ -712,9 +712,9 @@ re_prepared = re.compile(r"\W((приготовленные|рубленная)\
 def corr_prepared(text):
     # print('corr_prepared(%r)' % s)
     search_result = re_prepared.search(text)
-    text = text.replace(search_result.group(1),
-                        search_result.group(2) + " " + search_result.group(4) + " " + genitive_case(search_result.group(3)))
-    return text
+    groups = search_result.groups()
+    result = text.replace(groups[0], "{} {} {}".format(groups[1], groups[3], genitive_case(groups[2])))
+    return result
 
 
 re_skin = re.compile(r'(\(?)(.+)\s(из кожи|из шерсти)')
