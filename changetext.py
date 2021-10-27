@@ -11,11 +11,11 @@ morph = pymorphy2.MorphAnalyzer()
 unwanted_tags = ('Name', 'Surn', 'Infr')
 
 
-def custom_parse(s):
-    if s.lower().startswith('адамантин'):
-        return morph.parse(s)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
+def custom_parse(text):
+    if text.lower().startswith('адамантин'):
+        return morph.parse(text)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
     else:
-        return [p for p in morph.parse(s) if all(tag not in p.tag for tag in unwanted_tags)]
+        return [p for p in morph.parse(text) if all(tag not in p.tag for tag in unwanted_tags)]
 
 
 phrases = {
@@ -432,11 +432,11 @@ def get_gender(obj, known_tags=None):
         return pm_gender(parse[0])
 
 
-def get_main_word_gender(s):
-    if ' ' not in s:
-        return get_gender(s, known_tags={'nomn'})
+def get_main_word_gender(text):
+    if ' ' not in text:
+        return get_gender(text, known_tags={'nomn'})
     else:
-        for word in s.split():
+        for word in text.split():
             if any_in_tag({'NOUN', 'nomn'}, custom_parse(word)):
                 return get_gender(word, known_tags={'NOUN', 'nomn'})
 
@@ -545,25 +545,25 @@ closing = {'«': '»', '[': ']', '(': ')', '{': '}'}
 
 def open_brackets(func):
     @functools.wraps(func)
-    def wrapper(s):
+    def wrapper(text):
         start_i = 0
-        end_i = len(s) - 1
-        for c in s:
+        end_i = len(text) - 1
+        for c in text:
             if c in opening:
                 start_i += 1
-                if s[end_i] == closing.get(c, c):
+                if text[end_i] == closing.get(c, c):
                     end_i -= 1
             else:
                 break
 
-        if (start_i > 0 and s[start_i - 1] == 'р' and (end_i == len(s) - 1 or s[end_i + 1] != 'р')
-           and not s[start_i:].startswith('из')) and not s[start_i].isupper():
+        if (start_i > 0 and text[start_i - 1] == 'р' and (end_i == len(text) - 1 or text[end_i + 1] != 'р')
+            and not text[start_i:].startswith('из')) and not text[start_i].isupper():
             start_i -= 1
 
-        leading_symbols = s[:start_i].replace('р', '≡')
-        trailing_symbols = s[end_i + 1:].replace('р', '≡')
+        leading_symbols = text[:start_i].replace('р', '≡')
+        trailing_symbols = text[end_i + 1:].replace('р', '≡')
 
-        return leading_symbols + func(s[start_i:end_i + 1]) + trailing_symbols
+        return leading_symbols + func(text[start_i:end_i + 1]) + trailing_symbols
 
     return wrapper
 
@@ -582,9 +582,9 @@ def any_in_tag(gram, parse):
 
 
 @open_brackets
-def corr_item_general(s):
+def corr_item_general(text):
     # print('corr_item_general')
-    search_result = re_item_general.search(s)
+    search_result = re_item_general.search(text)
     initial_string = search_result.group(1)
     words = search_result.group(3).split()
 
@@ -662,10 +662,10 @@ def corr_item_general(s):
         else:
             replacement_string = " ".join(words) + " " + of_material
     else:
-        raise ValueError('Unknown case: %r' % s)
+        raise ValueError('Unknown case: %r' % text)
 
-    s = s.replace(initial_string, replacement_string)
-    return s
+    text = text.replace(initial_string, replacement_string)
+    return text
 
 
 re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольца|серьги|амулеты|браслеты'
@@ -675,18 +675,18 @@ re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)
 
 
 # выражения типа "рогатый филин яйцо"
-def corr_item_3(s):
+def corr_item_3(text):
     """
     >>> corr_item_3('рогатый филин яйцо')
     'яйцо рогатого филина'
     """
     # print(3)
-    search_result = re_3.search(s)
-    if re_3_1.search(s):
+    search_result = re_3.search(text)
+    if re_3_1.search(text):
         # print(3.1)
-        search_result = re_3_1.search(s)
-        s = search_result.group(1) + " " + genitive_case(search_result.group(3) + " " + search_result.group(2))
-        return s.capitalize()
+        search_result = re_3_1.search(text)
+        text = search_result.group(1) + " " + genitive_case(search_result.group(3) + " " + search_result.group(2))
+        return text.capitalize()
     if search_result.group(3) in replaced_parts:
         # print(3.2)
         new_word = replaced_parts[search_result.group(3)]
@@ -695,33 +695,33 @@ def corr_item_3(s):
         new_word = search_result.group(3)
     if search_result.group(2) in make_adjective:
         # print(3.4)
-        s = s.replace(search_result.group(0),
-                      search_result.group(1) + new_word + " " + make_adjective[search_result.group(2)])
+        text = text.replace(search_result.group(0),
+                            search_result.group(1) + new_word + " " + make_adjective[search_result.group(2)])
     else:
         # print(3.5)
-        s = s.replace(search_result.group(0),
-                      search_result.group(1) + new_word + " " + genitive_case(search_result.group(2)))
+        text = text.replace(search_result.group(0),
+                            search_result.group(1) + new_word + " " + genitive_case(search_result.group(2)))
     # print(3.0)
-    return s
+    return text
 
 
 # выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
 re_prepared = re.compile(r"\W((приготовленные|рубленная)\s(.+)\s(\w+))")
 
 
-def corr_prepared(s):
+def corr_prepared(text):
     # print('corr_prepared(%r)' % s)
-    search_result = re_prepared.search(s)
-    s = s.replace(search_result.group(1),
-                  search_result.group(2) + " " + search_result.group(4) + " " + genitive_case(search_result.group(3)))
-    return s
+    search_result = re_prepared.search(text)
+    text = text.replace(search_result.group(1),
+                        search_result.group(2) + " " + search_result.group(4) + " " + genitive_case(search_result.group(3)))
+    return text
 
 
 re_skin = re.compile(r'(\(?)(.+)\s(из кожи|из шерсти)')
 
 
 # выражения типа "горный козёл из кожи"
-def corr_item_skin(s):
+def corr_item_skin(text):
     """
     >>> corr_item_skin("горный козёл из кожи")
     'кожа горного козла'
@@ -730,11 +730,11 @@ def corr_item_skin(s):
     'шерсть альпака'
     """
     # print('corr_item_skin')
-    search_result = re_skin.search(s)
+    search_result = re_skin.search(text)
     material = inflect_noun(search_result.group(3).split()[-1], 'nomn')  # кожа, шерсть и т.д.
-    s = s.replace(search_result.group(0),
-                  search_result.group(1) + material + ' ' + genitive_case(search_result.group(2)))
-    return s
+    text = text.replace(search_result.group(0),
+                        search_result.group(1) + material + ' ' + genitive_case(search_result.group(2)))
+    return text
 
 
 # выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
@@ -754,48 +754,50 @@ re_clothes = re.compile(r'^[Xx\(+*-«☼]*((.+)\s'
 
 
 @open_brackets
-def corr_clothes(s):
+def corr_clothes(text):
     # print('corr_clothes')
-    search_result = re_clothes.search(s)
+    search_result = re_clothes.search(text)
     # print(search_result.group(1))
-    s = s.replace(search_result.group(1), search_result.group(4) + " " + search_result.group(3) + " " + genitive_case(search_result.group(2)))
-    s = s.replace("левый", "левая")
-    s = s.replace("правый", "правая")
-    return s
+    text = text.replace(search_result.group(1),
+                        search_result.group(4) + " " + search_result.group(3)
+                        + " " + genitive_case(search_result.group(2)))
+    text = text.replace("левый", "левая")
+    text = text.replace("правый", "правая")
+    return text
 
 
 # выражения типа "древесина дуба брёвна"
 re_wooden_logs = re.compile(r'(древесина)\s(\w+)\s(брёвна)')
 
 
-def corr_wooden_logs(s):
+def corr_wooden_logs(text):
     """
     >>> corr_wooden_logs('древесина дуба брёвна')
     'дубовые брёвна'
     """
     # print('corr_wooden_logs')
-    search_result = re_wooden_logs.search(s)
+    search_result = re_wooden_logs.search(text)
     of_wood = "из " + search_result.group(2)
     if of_wood in make_adjective:
         adj = inflect_adjective(make_adjective[of_wood], 'plur')
-        s = s.replace(search_result.group(0), adj + " " + search_result.group(3))  # берёзовые брёвна
+        text = text.replace(search_result.group(0), adj + " " + search_result.group(3))  # берёзовые брёвна
     else:
-        s = s.replace(search_result.group(0),
-                      search_result.group(1) + " " + search_result.group(2))  # древесина акации
-    return s
+        text = text.replace(search_result.group(0),
+                            search_result.group(1) + " " + search_result.group(2))  # древесина акации
+    return text
 
 
 # выражения типа "(бриолетовый восковые опалы)"
 re_gem_cutting = re.compile(r'((бриолетовый|большой|огранённый|грубый)\s[\w\s-]+)')
 
 
-def corr_gem_cutting(s):
+def corr_gem_cutting(text):
     # print('corr_gem_cutting')
-    search_result = re_gem_cutting.search(s)
+    search_result = re_gem_cutting.search(text)
     words = search_result.group(1).split()
     if words[-1] in body_parts:
         # print('Redirect to corr_item_body_parts')
-        return corr_item_body_parts(s)
+        return corr_item_body_parts(text)
 
     # print(words)
     gender = get_gender(words[-1], {'NOUN', 'nomn'})
@@ -810,7 +812,7 @@ def corr_gem_cutting(s):
 
     new_list.append(words[-1])
 
-    return s.replace(search_result.group(0), " ".join(new_list))
+    return text.replace(search_result.group(0), " ".join(new_list))
 
 
 # выражения типа "гигантский из ясеня лезвия топоров"
@@ -818,13 +820,13 @@ re_weapon_trap_parts = re.compile(
     r'(шипованный|огромный|большой|заточенный|гигантский|большой зазубренный)\s(из\s[\w\s]+\b)')
 
 
-def corr_weapon_trap_parts(s):
+def corr_weapon_trap_parts(text):
     """
     >>> corr_weapon_trap_parts('гигантский из меди лезвия топоров')
     'гигантские медные лезвия топоров'
     """
     # print('corr_weapon_trap_parts')
-    search_result = re_weapon_trap_parts.search(s)
+    search_result = re_weapon_trap_parts.search(text)
     adj = search_result.group(1)
     words = search_result.group(2).split()
     if " ".join(words[:2]) in make_adjective:
@@ -844,7 +846,7 @@ def corr_weapon_trap_parts(s):
         # print(adj, ":", new_adj)
         new_word_2 = inflect_adjective(make_adjective[material], gender)
         # print(material, ":", new_word_2)
-        s = s.replace(search_result.group(0), "%s %s %s" % (new_adj, new_word_2, obj))
+        text = text.replace(search_result.group(0), "%s %s %s" % (new_adj, new_word_2, obj))
     else:
         # print(9.2)
         material = " ".join(words[:3])
@@ -860,8 +862,8 @@ def corr_weapon_trap_parts(s):
         else:
             new_adj = inflect_adjective(make_adjective[adj], gender)
         # print(adj, ":", new_adj)
-        s = s.replace(search_result.group(0), "%s %s %s" % (new_adj, obj, material))
-    return s
+        text = text.replace(search_result.group(0), "%s %s %s" % (new_adj, obj, material))
+    return text
 
 
 animal_genders = {
@@ -873,9 +875,9 @@ animal_genders = {
 re_animal_gender = re.compile(r"(\w+), ([♂♀])")
 
 
-def corr_animal_gender(s):
+def corr_animal_gender(text):
     # print('corr_animal_gender(%r)' % s)
-    search_result = re_animal_gender.search(s)
+    search_result = re_animal_gender.search(text)
 
     gender = '♂♀'.index(search_result.group(2))
     animal = search_result.group(1)
@@ -883,23 +885,23 @@ def corr_animal_gender(s):
         # print('Unknown animal: %r' % animal)
         return None
     else:
-        return s.replace(search_result.group(0), animal_genders[animal][gender] + ", " + search_result.group(2))
+        return text.replace(search_result.group(0), animal_genders[animal][gender] + ", " + search_result.group(2))
 
 
 re_animal = re.compile(r'(охотничий|боевой|сырой) (\w+)(\(Ручной\))?')
 
 
 # "животные"
-def corr_animal(s):
+def corr_animal(text):
     # print('corr_animal')
-    s = s.replace("сырой", "сырая")
-    if any(item in s for item in animals_female):
-        s = s.replace("(Ручной)", "(Ручная)")
-        s = s.replace("боевой", "боевая")
-        s = s.replace("Ничей", "Ничья")
-        s = s.replace("охотничий", "охотничья")
+    text = text.replace("сырой", "сырая")
+    if any(item in text for item in animals_female):
+        text = text.replace("(Ручной)", "(Ручная)")
+        text = text.replace("боевой", "боевая")
+        text = text.replace("Ничей", "Ничья")
+        text = text.replace("охотничий", "охотничья")
 
-    return s
+    return text
 
 
 posessive_adjectives = {
@@ -922,13 +924,13 @@ materials = {'волокон', 'шёлка', 'шерсти', 'кожи'}
 
 # выражения типа "(дварфийское пиво бочка (из ольхи))"
 @open_brackets
-def corr_container(s):
+def corr_container(text):
     """
     >>> corr_container('(дварфийское пиво бочка (из ольхи))')
     '(Бочка дварфийского пива (ольховая))'
     """
     # print("corr_container")
-    search_result = re_container.search(s)
+    search_result = re_container.search(text)
     initial_string = search_result.group(0)
     # print('initial_string:', initial_string)
     containment = search_result.group(1)
@@ -1001,8 +1003,8 @@ def corr_container(s):
         replacement_string = "%s %s (%s" % (container, containment, material)
         if initial_string[-1] == ')':
             replacement_string += ')'
-    s = s.replace(initial_string, replacement_string.capitalize())
-    return s
+    text = text.replace(initial_string, replacement_string.capitalize())
+    return text
 
 
 # Элементы рельефа, крепости и т.п.
@@ -1016,17 +1018,17 @@ re_corr_relief = re.compile(
 # => (прилагательное) (второе дополнение) из (первое дополнение)
 
 
-def corr_relief(s):
+def corr_relief(text):
     # print('corr_relief')
-    search_result = re_corr_relief.search(s)
+    search_result = re_corr_relief.search(text)
     group1 = search_result.group(1)
     obj = search_result.group(2)
     if obj == "деревце":
         if group1.split(" ")[0] == "Мёртвый":
-            s = "Мёртвое деревце (" + ''.join(search_result.group(0).split(" ")[1:-1]) + ")"
+            text = "Мёртвое деревце (" + ''.join(search_result.group(0).split(" ")[1:-1]) + ")"
         else:
-            s = "Деревце (" + group1 + ")"
-        return s.capitalize()
+            text = "Деревце (" + group1 + ")"
+        return text.capitalize()
 
     if " " in group1:
         # print('several words')
@@ -1055,27 +1057,27 @@ def corr_relief(s):
 
         if not first_words:
             # print("12.1.1")
-            s = "%s из %s" % (obj, " ".join(words))
+            text = "%s из %s" % (obj, " ".join(words))
         else:
             # print("12.1.2")
-            s = "%s %s из %s" % (" ".join(first_words), obj, " ".join(words))
+            text = "%s %s из %s" % (" ".join(first_words), obj, " ".join(words))
     else:
         # print('one word')
         material = group1
-        s = "%s из %s" % (obj, genitive_case(material))
+        text = "%s из %s" % (obj, genitive_case(material))
 
-    if "иза" in s:
-        s = s.replace(" иза", "")
-    return s.capitalize()
+    if "иза" in text:
+        text = text.replace(" иза", "")
+    return text.capitalize()
 
 
 re_13_1 = re.compile(r'\b(Густой|Редкий|Заснеженный)\s(.+)')
 
 
 # "Густой и тп"
-def corr_item_13(s):
+def corr_item_13(text):
     # print(13)
-    search_result = re_13_1.search(s)
+    search_result = re_13_1.search(text)
     adjective = search_result.group(1)
     obj = search_result.group(2)
 
@@ -1086,18 +1088,18 @@ def corr_item_13(s):
             # print("13.1.1")
             gender = get_gender(words[-1])
             new_word = inflect_adjective(words[0], gender, 'nomn')
-            s = s.replace(words[0], new_word)
+            text = text.replace(words[0], new_word)
             new_word = inflect_adjective(adjective, gender, 'nomn')
-            s = s.replace(adjective, new_word)
+            text = text.replace(adjective, new_word)
     else:
         # print(13.2)
         gender = get_gender(obj)
         new_word = inflect_adjective(adjective, gender, 'nomn')
         if new_word:
             # print("13.2.1")
-            s = new_word + " " + obj
+            text = new_word + " " + obj
 
-    return s.capitalize()
+    return text.capitalize()
 
 
 # "Скелет, останки и тп"
@@ -1105,9 +1107,9 @@ re_body_parts = re.compile(r'^{?((\w+\s?\w+?|)\s(панцирь|скелет|т�
                            r'|мех|хвост|голень))}?\b')
 
 
-def corr_item_body_parts(s):
+def corr_item_body_parts(text):
     # print('corr_item_body_parts(%r)' % s)
-    search_result = re_body_parts.search(s)
+    search_result = re_body_parts.search(text)
     initial_string = search_result.group(1)
     words = search_result.group(2).split()
     if words[-1] in {"частичный", "искалеченный"}:
@@ -1116,15 +1118,15 @@ def corr_item_body_parts(s):
         if any('GRND' in custom_parse(word)[0].tag for word in words):  # Ignore participles
             return None
         replacement_string = search_result.group(3) + " " + " ".join(genitive_case_list(words))
-    return s.replace(initial_string, replacement_string.capitalize())
+    return text.replace(initial_string, replacement_string.capitalize())
 
 
 re_craft_glass = re.compile(r'\b(Делать|Изготовить)\s([\w\s]*)(стекло|хрусталь)([\w\s]*)')
 
 
-def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
+def corr_craft_glass(text):  # TODO: Combine into single crafting-related function
     # print('corr_craft_glass')
-    search_result = re_craft_glass.search(s)
+    search_result = re_craft_glass.search(text)
     material = search_result.group(3)
     # print('material: %r' % material)
     material_gender = get_gender(material)
@@ -1160,15 +1162,15 @@ def corr_craft_glass(s):  # TODO: Combine into single crafting-related function
         result = "%s %s из %s" % (verb, ' '.join(product_words), ' '.join(material_words))
 
     # print('result:', result)
-    return s.replace(search_result.group(0), result)
+    return text.replace(search_result.group(0), result)
 
 
 re_craft_general = re.compile(r'(Делать|Изготовить)([\w\s]+)$')
 
 
-def corr_craft_general(s):
+def corr_craft_general(text):
     # print('corr_craft_general')
-    search_result = re_craft_general.search(s)
+    search_result = re_craft_general.search(text)
     verb = search_result.group(1)
     words = search_result.group(2).split()
     # print('words:', words)
@@ -1210,16 +1212,16 @@ def corr_craft_general(s):
     else:
         result = "%s %s" % (verb, product)
 
-    return s.replace(search_result.group(0), result).capitalize()
+    return text.replace(search_result.group(0), result).capitalize()
 
 
 re_forge = re.compile(r"(^Ковать|^Делать|^Чеканить|^Изготовить|^Кузница)\s(из\s[\w\s?]+\b)")
 
 
 # кузница
-def corr_forge(s):
+def corr_forge(text):
     # print('corr_forge')
-    search_result = re_forge.search(s)
+    search_result = re_forge.search(text)
     verb = search_result.group(1)
     words = search_result.group(2).split()
     # print('Verb:', verb)
@@ -1274,11 +1276,11 @@ def corr_forge(s):
     if of_material in make_adjective:
         # print('gender of "%s" is %s' % (obj[item_index], gender))
         material = inflect_adjective(make_adjective[of_material], gender, 'accs', animated=False)
-        s = verb + " " + material + " " + ' '.join(obj)
+        text = verb + " " + material + " " + ' '.join(obj)
     else:
-        s = verb + " " + ' '.join(obj) + " " + of_material
+        text = verb + " " + ' '.join(obj) + " " + of_material
 
-    return s.capitalize()
+    return text.capitalize()
 
 
 def instrumental_case(word):
@@ -1304,9 +1306,9 @@ re_jewelers_shop = re.compile(r"^(Инкрустировать Готовые т
 
 
 # Ювелирная мастерская
-def corr_jewelers_shop(s):
+def corr_jewelers_shop(text):
     # print('corr_jewelers_shop')
-    search_result = re_jewelers_shop.search(s)
+    search_result = re_jewelers_shop.search(text)
     first_part = search_result.group(1)
     words = search_result.group(2).split()
     if first_part == "Огранить":
@@ -1331,17 +1333,17 @@ def corr_jewelers_shop(s):
     # print(words)
     if first_part.endswith(' с'):
         first_part = first_part[:-2]
-    s = first_part + ' ' + ' '.join(words)
-    return s.capitalize()
+    text = first_part + ' ' + ' '.join(words)
+    return text.capitalize()
 
 
 re_settlement = re.compile(r'(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)')
 
 
 # убежище, крепость
-def corr_settlement(s):
+def corr_settlement(text):
     # print("corr_settlement")
-    search_result = re_settlement.search(s)
+    search_result = re_settlement.search(text)
     adjective = search_result.group(1).strip()
     settlement = search_result.group(2)
     name = search_result.group(3)
@@ -1369,40 +1371,40 @@ re_material_selection = re.compile(r'(металл|кожа|пряжа|раст�
 
 
 # выбор материала
-def corr_material_selection(s):
+def corr_material_selection(text):
     # print(20)
-    search_result = re_material_selection.search(s)
+    search_result = re_material_selection.search(text)
     if search_result.group(2) in phrases:
         new_word = phrases[search_result.group(2)]
     else:
         new_word = search_result.group(2)
     if search_result.group(1) == 'пряжа' or search_result.group(1) == 'растительное волокно':
         material = make_adjective[search_result.group(1)]
-        s = new_word + " " + material
-        return s.capitalize()
+        text = new_word + " " + material
+        return text.capitalize()
     gender = get_gender(new_word)
     material = make_adjective[search_result.group(1)][gender]
-    s = material + " " + new_word
-    return s.capitalize()
+    text = material + " " + new_word
+    return text.capitalize()
 
 
 re_animal_material = re.compile(r'(.+)\s(кожа|кость|волокно|шёлк)\b')
 
 
 # кожа, шерсть-длинные названия
-def corr_animal_material(s):
+def corr_animal_material(text):
     # print(21)
-    search_result = re_animal_material.search(s)
-    s = search_result.group(2) + " " + genitive_case(search_result.group(1))
-    return s
+    search_result = re_animal_material.search(text)
+    text = search_result.group(2) + " " + genitive_case(search_result.group(1))
+    return text
 
 
 re_stopped_construction = re.compile(r'(\w+) приостановили строительство (.*)\.')
 
 
-def corr_stopped_construction(s):
+def corr_stopped_construction(text):
     # print("corr_stopped_construction")
-    search_result = re_stopped_construction.search(s)
+    search_result = re_stopped_construction.search(text)
     subj = search_result.group(1)
     obj = search_result.group(2)
     # print(obj)
@@ -1420,8 +1422,8 @@ def corr_stopped_construction(s):
 re_ending_s = re.compile(r'(\d+\s)?([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*)e?s\b')
 
 
-def corr_ending_s_internal(s):
-    parse = [x for x in custom_parse(s)
+def corr_ending_s_internal(text):
+    parse = [x for x in custom_parse(text)
              if {'NOUN', 'nomn', 'sing'} in x.tag or {'VERB', '2per'} in x.tag]
 
     if not parse:
@@ -1443,9 +1445,9 @@ def corr_ending_s_internal(s):
     return new_forms.pop()
 
 
-def corr_ending_s(s):
+def corr_ending_s(text):
     # print("corr_ending_s")
-    search_result = re_ending_s.search(s)
+    search_result = re_ending_s.search(text)
     number = search_result.group(1)
     group2 = search_result.group(2)
     if number and ' ' not in group2:
@@ -1477,7 +1479,7 @@ def corr_ending_s(s):
                 # print("Couldn't find correct -s form for %s." % words[-1])
                 return None
 
-    return s.replace(search_result.group(0), replacement_string)
+    return text.replace(search_result.group(0), replacement_string)
 
 
 # Clothier's shop
@@ -1492,9 +1494,9 @@ cloth_subst = {
 }
 
 
-def corr_clothiers_shop(s):
+def corr_clothiers_shop(text):
     # print("Corr clothier's/leather shop")
-    search_result = re_clothiers_shop.search(s)
+    search_result = re_clothiers_shop.search(text)
     verb = search_result.group(1)
     material = search_result.group(2)
     product = search_result.group(3).strip()
@@ -1535,17 +1537,17 @@ def corr_clothiers_shop(s):
 re_werebeast = re.compile(r"были(\w+)")
 
 
-def corr_werebeast(s):
-    search_result = re_werebeast.search(s)
-    return s.replace(search_result.group(0), search_result.group(1) + "-оборотень")
+def corr_werebeast(text):
+    search_result = re_werebeast.search(text)
+    return text.replace(search_result.group(0), search_result.group(1) + "-оборотень")
 
 
 re_become = re.compile(r"(.+)\s(стал)\s(.+)\.")
 
 
-def corr_become(s):
+def corr_become(text):
     # print("corr_become")
-    search_result = re_become.search(s)
+    search_result = re_become.search(text)
     subj = search_result.group(1)
     verb = search_result.group(2)
     # print(verb)
@@ -1560,21 +1562,21 @@ def corr_become(s):
 re_with_his = re.compile(r'(с (его|её|ваш) (.*))[!]')
 
 
-def corr_with_his(s):
+def corr_with_his(text):
     # print("corr_with_his")
-    search_result = re_with_his.search(s)
-    return s.replace(search_result.group(1), "своим %s" % (inflect_collocation(search_result.group(3), {'ablt'})))
+    search_result = re_with_his.search(text)
+    return text.replace(search_result.group(1), "своим %s" % (inflect_collocation(search_result.group(3), {'ablt'})))
 
 
 re_rings = re.compile(r"([\w\s]+) (кольцо|кольца)")
 
 
-def corr_rings(s):
+def corr_rings(text):
     # print("corr_rings")
-    search_result = re_rings.search(s)
+    search_result = re_rings.search(text)
     obj = search_result.group(2)
     description = search_result.group(1)
-    return s.replace(search_result.group(0), "%s из %s" % (obj, genitive_case(description)))
+    return text.replace(search_result.group(0), "%s из %s" % (obj, genitive_case(description)))
 
 
 # Title eg. "Histories of Greed and Avarice" for the Linux version
@@ -1601,12 +1603,12 @@ histories_adjs = {
 re_histories_of = re.compile(r"Histories of (\w+) and (\w+)")
 
 
-def corr_histories_of(s):
-    search_result = re_histories_of.search(s)
+def corr_histories_of(text):
+    search_result = re_histories_of.search(text)
     return 'Истории о%s и %s' % (histories_adjs[search_result.group(1)], histories_adjs[search_result.group(2)])
 
 
-def corr_well(s):
+def corr_well(text):
     """
     >>> corr_well('Я колодец')  # I am well
     'Я в порядке'
@@ -1614,32 +1616,32 @@ def corr_well(s):
     >>> corr_well('Я чувствую колодец')  # I am feeling well
     'Я чувствую себя хорошо'
     """
-    s = s.replace('колодец', 'хорошо')
-    if 'чувствую' in s and 'себя' not in s:
-        s = s.replace('чувствую', 'чувствую себя')
-    elif 'делаю хорошо' in s:
-        s = s.replace('делаю хорошо', 'в порядке')
-    elif 'был хорошо' in s:
-        s = s.replace('был хорошо', 'в порядке')
-    elif 'хорошо' in s:
-        s = s.replace('хорошо', 'в порядке')
-    return s
+    text = text.replace('колодец', 'хорошо')
+    if 'чувствую' in text and 'себя' not in text:
+        text = text.replace('чувствую', 'чувствую себя')
+    elif 'делаю хорошо' in text:
+        text = text.replace('делаю хорошо', 'в порядке')
+    elif 'был хорошо' in text:
+        text = text.replace('был хорошо', 'в порядке')
+    elif 'хорошо' in text:
+        text = text.replace('хорошо', 'в порядке')
+    return text
 
 
-def corr_minced(s):
+def corr_minced(text):
     s1 = ''
-    while 'рублены' in s and 'рубленый' not in s:
-        x, _, s = s.partition('рублены')
+    while 'рублены' in text and 'рубленый' not in text:
+        x, _, text = text.partition('рублены')
         s1 += x + 'рубленый '
 
-    return s1 + s
+    return s1 + text
 
 
-def corr_you_struck(s):
+def corr_you_struck(text):
     # print('corr_you_struck')
-    i = s.find('из ')
-    you_struck = s[:i]
-    words = s[i:-1].split()
+    i = text.find('из ')
+    you_struck = text[:i]
+    words = text[i:-1].split()
     assert len(words) == 2
     parse = custom_parse(words[1])
     return you_struck + parse[0].normal_form + '!'
@@ -1648,8 +1650,8 @@ def corr_you_struck(s):
 re_someone_has = re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE)
 
 
-def corr_someone_has(s):
-    search_result = re_someone_has.search(s)
+def corr_someone_has(text):
+    search_result = re_someone_has.search(text)
     pronoun = search_result.group(1).lower()
     if pronoun == 'он':
         replacement_string = 'у него'
@@ -1658,7 +1660,7 @@ def corr_someone_has(s):
     elif pronoun == 'вы':
         replacement_string = 'у вас'
     else:
-        return s
+        return text
 
     if search_result.group(0)[0].isupper():
         replacement_string = replacement_string.capitalize()
@@ -1666,46 +1668,46 @@ def corr_someone_has(s):
     if search_result.group(2):
         replacement_string += ' нет'
 
-    s = s.replace(search_result.group(0), replacement_string)
-    assert isinstance(s, str), s
-    return s
+    text = text.replace(search_result.group(0), replacement_string)
+    assert isinstance(text, str), text
+    return text
 
 
 re_has_verb = re.compile(r"(имеете?|был)\s+(\w+)")
 
 
-def corr_has_verb(s):
-    search_result = re_has_verb.search(s)
+def corr_has_verb(text):
+    search_result = re_has_verb.search(text)
     if search_result:
         word = search_result.group(2)
         parse = [p for p in custom_parse(word) if p.tag.POS == 'VERB']
         if parse:
             if not any({'past'} in p.tag for p in parse):
                 word = parse[0].inflect({'past'}).word
-            return s.replace(search_result.group(0), word)
+            return text.replace(search_result.group(0), word)
 
 
 re_in_ending = re.compile(r"[a-z](в <[a-z]+>)")
 
 
-def corr_in_ending(s):
-    search_result = re_in_ending.search(s)
+def corr_in_ending(text):
+    search_result = re_in_ending.search(text)
     if search_result:
-        return s.replace(search_result.group(1), 'in')
+        return text.replace(search_result.group(1), 'in')
 
 
 re_color_of_color = re.compile(r"цвет ([\w\s]*)цвета")
 
 
-def corr_color_of_color(s):
-    search_result = re_color_of_color.search(s)
+def corr_color_of_color(text):
+    search_result = re_color_of_color.search(text)
     if search_result:
         if not search_result.group(1):
             replacement = "цвет"
         else:
             color = search_result.group(1).strip()
             replacement = '%s цвет' % inflect_collocation(color, {'nomn', 'masc'})
-        return s.replace(search_result.group(0), replacement)
+        return text.replace(search_result.group(0), replacement)
 
 
 def tag_to_set(tag):
@@ -1766,45 +1768,45 @@ def inflect_collocation(s, tags):
     return ' '.join(words) + (' ' if s.endswith(' ') else '')
 
 
-def parse_tags(s):
+def parse_tags(text):
     start = 0
-    for i, c in enumerate(s):
+    for i, c in enumerate(text):
         if c == '<':
             if start < i:
-                yield s[start:i]
+                yield text[start:i]
             start = i
         elif c == '>':
-            yield s[start:i + 1]
+            yield text[start:i + 1]
             start = i + 1
 
-    if start < len(s):
-        yield s[start:]
+    if start < len(text):
+        yield text[start:]
 
 
 re_sentence = re.compile(r'^([^\.!"]*)([\.!"].*)$')
 re_split_enumeration = re.compile(r'(,| и )')
 
 
-def is_enumeration_delimiter(s):
-    return s in {',', ' и '}
+def is_enumeration_delimiter(text):
+    return text in {',', ' и '}
 
 
-def any_cyr(s):
-    return any('а' <= x <= 'я' or x == 'ё' for x in s.lower())
+def any_cyr(text):
+    return any('а' <= x <= 'я' or x == 'ё' for x in text.lower())
 
 
 re_number = re.compile(r'^(\d+)(.*)')
 
 
-def cut_number(s):
-    search_result = re_number.search(s)
+def cut_number(text):
+    search_result = re_number.search(text)
     return search_result.group(1), search_result.group(2)
 
 
 def smart_join(li):
-    def add_spaces(s):
+    def add_spaces(text):
         add_space = False
-        for part in s:
+        for part in text:
             part = part.strip()
             if part:
                 if add_space and part[0].isalnum():
@@ -1817,15 +1819,15 @@ def smart_join(li):
     return ''.join(add_spaces(li))
 
 
-def _inflect_enumeration(s, form):
+def _inflect_enumeration(text, form):
     do_not_inflect = False
-    for part in re_split_enumeration.split(s):
+    for part in re_split_enumeration.split(text):
         if is_enumeration_delimiter(part) or do_not_inflect:
             yield part
         else:
             try:
                 part = inflect_collocation(part, form)
-            except ValueError as err:
+            except ValueError:
                 do_not_inflect = True
             yield part
 
@@ -1836,7 +1838,7 @@ def inflect_enumeration(s, form):
     return smart_join(li)
 
 
-def corr_tags(s):
+def corr_tags(text):
     global prev_tail
     # print('corr_tags(%r)' % s)
     li = []
@@ -1844,7 +1846,7 @@ def corr_tags(s):
     set_indices = set()
     capitalize_indices = set()
     inflect_next = set()
-    for i, item in enumerate(parse_tags(s)):
+    for i, item in enumerate(parse_tags(text)):
         # print(repr(item))
         if not item.strip():
             pass
@@ -1866,7 +1868,7 @@ def corr_tags(s):
 
                 if 'get-form' in tags:
                     if get_index is not None:
-                        raise ValueError('Duplicate <get-form> tag in %r' % s)
+                        raise ValueError('Duplicate <get-form> tag in %r' % text)
                     get_index = len(li)
                     tags.remove('get-form')
                 elif 'set-form' in tags:
@@ -1973,19 +1975,19 @@ contextual_replace = dict(
 )
 
 
-def corr_contextual(s):
+def corr_contextual(text):
     global context
-    if s in contexts:
-        context = contexts[s]
+    if text in contexts:
+        context = contexts[text]
     else:
         for pattern in contexts:
-            if not isinstance(pattern, str) and pattern.search(s):
+            if not isinstance(pattern, str) and pattern.search(text):
                 context = contexts[pattern]
                 break
 
     current_context = context
     if context and context in contextual_replace:
-        return contextual_replace[context].get(s, None)
+        return contextual_replace[context].get(text, None)
 
 
 ############################################################################
@@ -2021,132 +2023,132 @@ def init():
 init()
 
 
-def change_text_internal(s):
+def change_text_internal(text):
     global prev_tail
     if prev_tail:
-        s = prev_tail + s
+        text = prev_tail + text
         prev_tail = ''
 
     result = None
     # preprocessing:
-    if s in phrases:
-        result = phrases[s]
+    if text in phrases:
+        result = phrases[text]
 
-    while re_ending_s.search(s):
-        s1 = corr_ending_s(s)
+    while re_ending_s.search(text):
+        s1 = corr_ending_s(text)
         if s1 is None:
             break
-        s = s1
-        result = s
+        text = s1
+        result = text
 
-    if re_werebeast.search(s):
-        s = corr_werebeast(s)
-        result = s
-    if re_with_his.search(s):
-        s = corr_with_his(s)
-        result = s
+    if re_werebeast.search(text):
+        text = corr_werebeast(text)
+        result = text
+    if re_with_his.search(text):
+        text = corr_with_his(text)
+        result = text
 
-    if 'Я ' in s and 'колодец' in s:
-        s = corr_well(s)
-        result = s
+    if 'Я ' in text and 'колодец' in text:
+        text = corr_well(text)
+        result = text
 
-    if 'рублены' in s and 'рубленый ' not in s:
-        s = corr_minced(s)
-        result = s
+    if 'рублены' in text and 'рубленый ' not in text:
+        text = corr_minced(text)
+        result = text
 
     for item in replaced_parts:
-        if item in s:
-            s = s.replace(item, replaced_parts[item])
-            result = s
+        if item in text:
+            text = text.replace(item, replaced_parts[item])
+            result = text
 
-    result = corr_in_ending(s) or result
+    result = corr_in_ending(text) or result
     if result:
-        s = result
+        text = result
 
-    result = corr_contextual(s) or result
+    result = corr_contextual(text) or result
     if result:
-        s = result
+        text = result
 
-    if re_animal_gender.search(s):
-        new_string = corr_animal_gender(s)
+    if re_animal_gender.search(text):
+        new_string = corr_animal_gender(text)
         if new_string is not None:
-            s = new_string
-            result = s
+            text = new_string
+            result = text
 
-    if re_someone_has.search(s):
-        s = corr_someone_has(s)
-        result = s
+    if re_someone_has.search(text):
+        text = corr_someone_has(text)
+        result = text
 
-    result = corr_has_verb(s) or result
+    result = corr_has_verb(text) or result
     if result:
-        s = result
+        text = result
 
-    result = corr_color_of_color(s) or result
+    result = corr_color_of_color(text) or result
     if result:
-        s = result
+        text = result
 
-    if '<' in s and '>' in s and '<нет ' not in s and not '<#' in s:
+    if '<' in text and '>' in text and '<нет ' not in text and not '<#' in text:
         try:
-            result = corr_tags(s)
+            result = corr_tags(text)
         except (AssertionError, ValueError) as err:
             print('corr_tags() raises exception %r:' % err)
             print(traceback.format_exc())
             result = ' '.join(part.strip(' ') if not part.startswith('<')
                               else part.strip('<>').partition(':')[2]
-                              for part in parse_tags(s))
-    elif re_histories_of.search(s):
-        result = corr_histories_of(s)
-    elif re_container.search(s):
-        result = corr_container(s)
-    elif re_item_general.search(s) and 'пол' not in s:
+                              for part in parse_tags(text))
+    elif re_histories_of.search(text):
+        result = corr_histories_of(text)
+    elif re_container.search(text):
+        result = corr_container(text)
+    elif re_item_general.search(text) and 'пол' not in text:
         print('re_item_general passed')
-        result = corr_item_general(s)
-    elif re_clothes.search(s):
-        result = corr_clothes(s)
-    elif re_prepared.search(s):
-        result = corr_prepared(s)
-    elif re_skin.search(s):
-        result = corr_item_skin(s)
-    elif re_forge.search(s):
-        result = corr_forge(s)
-    elif re_weapon_trap_parts.search(s):
-        result = corr_weapon_trap_parts(s)
-    elif re_3.search(s):
-        result = corr_item_3(s)
-    elif re_wooden_logs.search(s):
-        result = corr_wooden_logs(s)
-    elif re_craft_glass.search(s):
-        result = corr_craft_glass(s)
-    elif re_gem_cutting.search(s):
-        result = corr_gem_cutting(s)
-    elif re_animal.search(s):
-        result = corr_animal(s)
-    elif re_stopped_construction.search(s):
-        result = corr_stopped_construction(s)
-    elif re_corr_relief.search(s):
-        result = corr_relief(s)
-    elif re_13_1.search(s):
-        result = corr_item_13(s)
-    elif re_jewelers_shop.search(s):
-        result = corr_jewelers_shop(s)
-    elif re_settlement.search(s):
-        result = corr_settlement(s)
-        # elif re_material_selection.search(s): # Отключено: дает ложные срабатывания в логе
-        # result = corr_material_selection(s)
-    elif re_clothiers_shop.search(s):
-        result = corr_clothiers_shop(s)
-    elif re_craft_general.search(s):
-        result = corr_craft_general(s)
-    elif re_body_parts.search(s):
-        result = corr_item_body_parts(s)
-    elif re_animal_material.search(s):
-        result = corr_animal_material(s)
-    elif re_rings.search(s):
-        result = corr_rings(s)
-    elif s.startswith('Вы нашли из '):
-        result = corr_you_struck(s)
-    elif re_become.search(s):
-        result = corr_become(s)
+        result = corr_item_general(text)
+    elif re_clothes.search(text):
+        result = corr_clothes(text)
+    elif re_prepared.search(text):
+        result = corr_prepared(text)
+    elif re_skin.search(text):
+        result = corr_item_skin(text)
+    elif re_forge.search(text):
+        result = corr_forge(text)
+    elif re_weapon_trap_parts.search(text):
+        result = corr_weapon_trap_parts(text)
+    elif re_3.search(text):
+        result = corr_item_3(text)
+    elif re_wooden_logs.search(text):
+        result = corr_wooden_logs(text)
+    elif re_craft_glass.search(text):
+        result = corr_craft_glass(text)
+    elif re_gem_cutting.search(text):
+        result = corr_gem_cutting(text)
+    elif re_animal.search(text):
+        result = corr_animal(text)
+    elif re_stopped_construction.search(text):
+        result = corr_stopped_construction(text)
+    elif re_corr_relief.search(text):
+        result = corr_relief(text)
+    elif re_13_1.search(text):
+        result = corr_item_13(text)
+    elif re_jewelers_shop.search(text):
+        result = corr_jewelers_shop(text)
+    elif re_settlement.search(text):
+        result = corr_settlement(text)
+        # elif re_material_selection.search(text): # Отключено: дает ложные срабатывания в логе
+        # result = corr_material_selection(text)
+    elif re_clothiers_shop.search(text):
+        result = corr_clothiers_shop(text)
+    elif re_craft_general.search(text):
+        result = corr_craft_general(text)
+    elif re_body_parts.search(text):
+        result = corr_item_body_parts(text)
+    elif re_animal_material.search(text):
+        result = corr_animal_material(text)
+    elif re_rings.search(text):
+        result = corr_rings(text)
+    elif text.startswith('Вы нашли из '):
+        result = corr_you_struck(text)
+    elif re_become.search(text):
+        result = corr_become(text)
 
     assert result != ''  # Empty string may cause game crash
     return result
