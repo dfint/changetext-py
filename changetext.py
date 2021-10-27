@@ -752,7 +752,6 @@ re_clothes = re.compile(r'^[Xx\(+*-«☼]*((.+)\s'
 @open_brackets
 def corr_clothes(s):
     # print('corr_clothes')
-    # print(myrepr(s))
     hst = re_clothes.search(s)
     # print(hst.group(1))
     s = s.replace(hst.group(1), hst.group(4) + " " + hst.group(3) + " " + genitive_case(hst.group(2)))
@@ -1822,14 +1821,11 @@ def _inflect_enumeration(s, form):
             try:
                 part = inflect_collocation(part, form)
             except ValueError as err:
-                # print('inflect_collocation() raises %r. Leaving %s without changes.' %
-                #     (err, myrepr(part)))
                 do_not_inflect = True
             yield part
 
 
 def inflect_enumeration(s, form):
-    # print('inflect_enumeration(%s, %r)' % (myrepr(s), form))
     li = list(_inflect_enumeration(s, form))
     # print(li)
     return smart_join(li)
@@ -2181,11 +2177,3 @@ def ChangeText(text):
         logger.write(text, output)
 
     return output
-
-
-def myrepr(s):
-    text = repr(s)
-    if sys.stdout:
-        b = text.encode(sys.stdout.encoding, 'backslashreplace')
-        text = b.decode(sys.stdout.encoding, 'strict')
-    return text

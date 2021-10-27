@@ -1,9 +1,10 @@
 #! py
 
 import pytest
-import sys
 
-from changetext import ChangeText, myrepr
+from changetext import ChangeText
+
+from myrepr import myrepr
 
 # Спецсимволы: ≡ ♀ ♂
 
