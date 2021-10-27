@@ -1,10 +1,6 @@
-#! py
-
 import pytest
 
 from changetext import ChangeText
-
-from myrepr import myrepr
 
 # Спецсимволы: ≡ ♀ ♂
 
@@ -1010,4 +1006,4 @@ test_strings = {
 
 @pytest.mark.parametrize(('string', 'result'), test_strings.items())
 def test_old_tests(string, result):
-    assert myrepr(ChangeText(string)) == myrepr(result)
+    assert ChangeText(string) == result
