@@ -1973,28 +1973,32 @@ def corr_contextual(s):
 
 
 ############################################################################
-prev_tail = None
-log = None
-logged = None
-log_file = None
+class Logger:
+    def __init__(self):
+        self.logged = set()
+        self.log_file = open('changetext.log', 'a', 1, encoding='utf-8')
+
+    def write(self, text, output):
+        if text not in self.logged:
+            print('%r --> %r' % (text, output), file=self.log_file)
+            self.log_file.flush()
+            self.logged.add(text)
+
+
+prev_tail = ''
 context = None
+logger = None
 
 
 def init():
-    global prev_tail, log, logged, log_file, context
+    global prev_tail, logger, context
     log = True
     if log:
-        log_file = open('changetext.log', 'a', 1, encoding='utf-8')
-        from datetime import datetime
-
-        print('\n', datetime.today(), '\n', file=log_file)
+        logger = Logger()
     else:
-        log_file = None
-
-    logged = set()
+        logger = None
 
     prev_tail = ''
-
     context = None
 
 
@@ -2144,10 +2148,8 @@ def _change_text(s):
         print("", file=sys.stderr)
         output = None
 
-    if log and s not in logged:
-        print('%r --> %r' % (s, output), file=log_file)
-        log_file.flush()
-        logged.add(s)
+    if isinstance(logger, Logger):
+        logger.write(s, output)
 
     return output
 
