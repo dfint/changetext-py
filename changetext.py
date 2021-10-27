@@ -2136,31 +2136,36 @@ def change_text_internal(s):
     return result
 
 
-def _change_text(s):
+def utf16_codec(func):
+    @functools.wraps(func)
+    def wrapper(data):
+        if isinstance(data, bytes):
+            data = data.decode("utf-16-le")
+            output = func(data)
+            return output if output is None else output.encode("utf-16-le") + bytes(2)  # Add b'\0\0' to the end
+        else:
+            return func(data)
+
+    return wrapper
+
+
+@utf16_codec
+def ChangeText(text):
     try:
-        output = change_text_internal(s)
+        output = change_text_internal(text)
     except Exception:
         if sys.stdout:
             sys.stdout.flush()
         print('An error occured.', file=sys.stderr)
-        print('Initial string: %r' % s, file=sys.stderr)
+        print('Initial string: %r' % text, file=sys.stderr)
         print(traceback.format_exc(), file=sys.stderr)
         print("", file=sys.stderr)
         output = None
 
     if isinstance(logger, Logger):
-        logger.write(s, output)
+        logger.write(text, output)
 
     return output
-
-
-def ChangeText(s):
-    if isinstance(s, bytes):
-        output = _change_text(s.decode("utf-16-le"))
-        # Return None if output is None or encoded output otherwise
-        return output and output.encode("utf-16-le") + bytes(2)  # Add b'\0\0' to the end
-    else:
-        return _change_text(s)
 
 
 def myrepr(s):
