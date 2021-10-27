@@ -469,7 +469,7 @@ gent_case_except = {
 }
 
 
-def inflect_noun(word: str, case, orig_form=None) -> str:
+def inflect_noun(word: str, case: str, orig_form=None):
     # print('inflect_noun(%r, %r, %r)' % (word, case, orig_form))
     parse = list(filter(lambda x: x.tag.POS == 'NOUN', custom_parse(word)))
 
@@ -551,8 +551,8 @@ def open_brackets(func):
             else:
                 break
 
-        if (start_i > 0 and s[start_i - 1] == 'р' and (end_i == len(s) - 1 or s[end_i + 1] != 'р') and
-            not s[start_i:].startswith('из')) and not s[start_i].isupper():
+        if (start_i > 0 and s[start_i - 1] == 'р' and (end_i == len(s) - 1 or s[end_i + 1] != 'р')
+           and not s[start_i:].startswith('из')) and not s[start_i].isupper():
             start_i -= 1
 
         leading_symbols = s[:start_i].replace('р', '≡')
@@ -572,7 +572,7 @@ corr_item_general_except = {
 }
 
 
-def any_in_tag(gram: set, parse):
+def any_in_tag(gram, parse):
     return any(gram in p.tag for p in parse)
 
 
@@ -662,8 +662,9 @@ def corr_item_general(s):
     return s
 
 
-re_3 = re.compile(
-    r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольца|серьги|амулеты|браслеты|скипетры|коронаы|статуэтки\b)')
+re_3 = re.compile(r'(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольца|серьги|амулеты|браслеты'
+                  r'|скипетры|коронаы|статуэтки\b)')
+
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 
 
@@ -727,8 +728,10 @@ def corr_item_skin(s):
 
 
 # выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
-re_clothes = re.compile(
-    r'^[Xx\(+*-«☼]*((.+)\s(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рога|из рогов|из бивней|из панциря|из зубов)\s(\w+\s?\w+))')
+re_clothes = re.compile(r'^[Xx\(+*-«☼]*((.+)\s'
+                        r'(из волокон|из шёлка|из шерсти|из кожи|из копыт|из кости|из рога|из рогов|из бивней'
+                        r'|из панциря|из зубов)'
+                        r'\s(\w+\s?\w+))')
 
 
 @open_brackets
@@ -1079,8 +1082,8 @@ def corr_item_13(s):
 
 
 # "Скелет, останки и тп"
-re_body_parts = re.compile(
-    r'^[{]?((\w+\s?\w+?|)\s(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|труп|голень))\}?\b')
+re_body_parts = re.compile(r'^{?((\w+\s?\w+?|)\s(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть'
+                           r'|мех|хвост|голень))}?\b')
 
 
 def corr_item_body_parts(s):
@@ -1180,8 +1183,7 @@ def corr_craft_general(s):
             result = "%s %s из %s" % (verb, product, material)
         else:
             adjectives = [make_adjective[word] if word in make_adjective
-                          else word if is_adjective(word)
-            else None
+                          else word if is_adjective(word) else None
                           for word in words]
             assert all(adj is not None for adj in adjectives)
             adjectives = [inflect_adjective(adj, product_gender, 'accs', animated=False) for adj in adjectives]
@@ -1276,8 +1278,10 @@ def instrumental_case(word):
     return word
 
 
-re_jewelers_shop = re.compile(
-    r"(^Инкрустировать Готовые товары с|^Инкрустировать Предметы обстановки с|^Инкрустировать Снаряды с|^Огранить)\s(.+)")
+re_jewelers_shop = re.compile(r"^(Инкрустировать Готовые товары с"
+                              r"|Инкрустировать Предметы обстановки с"
+                              r"|Инкрустировать Снаряды с"
+                              r"|Огранить)\s(.+)")
 
 
 # Ювелирная мастерская
@@ -1397,29 +1401,30 @@ def corr_stopped_construction(s):
 re_ending_s = re.compile(r'(\d+\s)?([а-яёА-ЯЁ][а-яёА-ЯЁ\s]*)e?s\b')
 
 
+def corr_ending_s_internal(s):
+    parse = [x for x in custom_parse(s)
+             if {'NOUN', 'nomn', 'sing'} in x.tag or {'VERB', '2per'} in x.tag]
+
+    if not parse:
+        # print('Cannot determine part of speech of %r' % s)
+        return None
+
+    new_forms = set()
+    for item in parse:  # FIXME: unused variable item
+        if parse[0].tag.POS == 'NOUN':
+            new_forms.add(parse[0].inflect({'plur'}).word)
+        else:  # parse[0].tag.POS == 'VERB':
+            new_forms.add(parse[0].inflect({'3per', 'sing'}).word)
+
+    if len(new_forms) > 1:
+        # print('Cannot determine part of speech of %r because of ambiguity:' % s)
+        # print(parse)
+        return None
+
+    return new_forms.pop()
+
+
 def corr_ending_s(s):
-    def corr_ending_s_internal(s):
-        parse = [x for x in custom_parse(s)
-                 if {'NOUN', 'nomn', 'sing'} in x.tag or {'VERB', '2per'} in x.tag]
-
-        if not parse:
-            # print('Cannot determine part of speech of %r' % s)
-            return None
-
-        new_forms = set()
-        for item in parse:
-            if parse[0].tag.POS == 'NOUN':
-                new_forms.add(parse[0].inflect({'plur'}).word)
-            else:  # parse[0].tag.POS == 'VERB':
-                new_forms.add(parse[0].inflect({'3per', 'sing'}).word)
-
-        if len(new_forms) > 1:
-            # print('Cannot determine part of speech of %r because of ambiguity:' % s)
-            # print(parse)
-            return None
-
-        return new_forms.pop()
-
     # print("corr_ending_s")
     hst = re_ending_s.search(s)
     number = hst.group(1)
@@ -1725,7 +1730,7 @@ def inflect_collocation(s, tags):
         else:
             tags.add(main_word.tag.gender)
 
-        if 'accs' in tags and not 'plur' in tags and 'masc' in tags:
+        if 'accs' in tags and 'plur' not in tags and 'masc' in tags:
             tags.add(main_word.tag.animacy)
 
     for i, word in enumerate(words[:j]):
@@ -1778,7 +1783,7 @@ re_number = re.compile(r'^(\d+)(.*)')
 
 def cut_number(s):
     hst = re_number.search(s)
-    return (hst.group(1), hst.group(2))
+    return hst.group(1), hst.group(2)
 
 
 def smart_join(li):
@@ -1797,22 +1802,23 @@ def smart_join(li):
     return ''.join(add_spaces(li))
 
 
+def _inflect_enumeration(s, form):
+    do_not_inflect = False
+    for part in split_enumeration(s):
+        if is_delimiter(part) or do_not_inflect:
+            yield part
+        else:
+            try:
+                part = inflect_collocation(part, form)
+            except ValueError as err:
+                # print('inflect_collocation() raises %r. Leaving %s without changes.' %
+                #     (err, myrepr(part)))
+                do_not_inflect = True
+            yield part
+
+
 def inflect_enumeration(s, form):
     # print('inflect_enumeration(%s, %r)' % (myrepr(s), form))
-    def _inflect_enumeration(s, form):
-        do_not_inflect = False
-        for part in split_enumeration(s):
-            if is_delimiter(part) or do_not_inflect:
-                yield part
-            else:
-                try:
-                    part = inflect_collocation(part, form)
-                except ValueError as err:
-                    # print('inflect_collocation() raises %r. Leaving %s without changes.' %
-                    #     (err, myrepr(part)))
-                    do_not_inflect = True
-                yield part
-
     li = list(_inflect_enumeration(s, form))
     # print(li)
     return smart_join(li)
@@ -1881,7 +1887,7 @@ def corr_tags(s):
             item = item.lstrip(' ')
             if not any_cyr(item.split(' ')[0]):
                 if item.strip()[0].isdigit():
-                    if 'loct' in tags:
+                    if 'loct' in tags:  # FIXME: possible uninitialized variable tags
                         tags.remove('loct')
                         tags.add('loc2')  # inflect into 'году' instead of 'годе'
                     item, tail1 = cut_number(item)
@@ -1971,6 +1977,11 @@ def corr_contextual(s):
 
 
 ############################################################################
+prev_tail = None
+log = None
+logged = None
+log_file = None
+context = None
 
 
 def init():
@@ -1994,139 +2005,140 @@ def init():
 init()
 
 
-def _ChangeText(s):
-    def ChangeText_internal(s):
-        global prev_tail
-        if prev_tail:
-            s = prev_tail + s
-            prev_tail = ''
+def change_text_internal(s):
+    global prev_tail
+    if prev_tail:
+        s = prev_tail + s
+        prev_tail = ''
 
-        result = None
-        # preprocessing:
-        if s in phrases:
-            result = phrases[s]
+    result = None
+    # preprocessing:
+    if s in phrases:
+        result = phrases[s]
 
-        while re_ending_s.search(s):
-            s1 = corr_ending_s(s)
-            if s1 is None:
-                break
-            s = s1
+    while re_ending_s.search(s):
+        s1 = corr_ending_s(s)
+        if s1 is None:
+            break
+        s = s1
+        result = s
+
+    if re_werebeast.search(s):
+        s = corr_werebeast(s)
+        result = s
+    if re_with_his.search(s):
+        s = corr_with_his(s)
+        result = s
+
+    if 'Я ' in s and 'колодец' in s:
+        s = corr_well(s)
+        result = s
+
+    if 'рублены' in s and 'рубленый ' not in s:
+        s = corr_minced(s)
+        result = s
+
+    for item in replaced_parts:
+        if item in s:
+            s = s.replace(item, replaced_parts[item])
             result = s
 
-        if re_werebeast.search(s):
-            s = corr_werebeast(s)
-            result = s
-        if re_with_his.search(s):
-            s = corr_with_his(s)
-            result = s
+    result = corr_in_ending(s) or result
+    if result:
+        s = result
 
-        if 'Я ' in s and 'колодец' in s:
-            s = corr_well(s)
-            result = s
+    result = corr_contextual(s) or result
+    if result:
+        s = result
 
-        if 'рублены' in s and 'рубленый ' not in s:
-            s = corr_minced(s)
-            result = s
-
-        for item in replaced_parts:
-            if item in s:
-                s = s.replace(item, replaced_parts[item])
-                result = s
-
-        result = corr_in_ending(s) or result
-        if result:
-            s = result
-
-        result = corr_contextual(s) or result
-        if result:
-            s = result
-
-        if re_animal_gender.search(s):
-            new_string = corr_animal_gender(s)
-            if new_string is not None:
-                s = new_string
-                result = s
-
-        if re_someone_has.search(s):
-            s = corr_someone_has(s)
+    if re_animal_gender.search(s):
+        new_string = corr_animal_gender(s)
+        if new_string is not None:
+            s = new_string
             result = s
 
-        result = corr_has_verb(s) or result
-        if result:
-            s = result
+    if re_someone_has.search(s):
+        s = corr_someone_has(s)
+        result = s
 
-        result = corr_color_of_color(s) or result
-        if result:
-            s = result
+    result = corr_has_verb(s) or result
+    if result:
+        s = result
 
-        if '<' in s and '>' in s and '<нет ' not in s and not '<#' in s:
-            try:
-                result = corr_tags(s)
-            except (AssertionError, ValueError) as err:
-                print('corr_tags() raises exception %r:' % err)
-                print(traceback.format_exc())
-                result = ' '.join(part.strip(' ') if not part.startswith('<')
-                                  else part.strip('<>').partition(':')[2]
-                                  for part in parse_tags(s))
-        elif re_histories_of.search(s):
-            result = corr_histories_of(s)
-        elif re_container.search(s):
-            result = corr_container(s)
-        elif re_item_general.search(s) and 'пол' not in s:
-            print('re_item_general passed')
-            result = corr_item_general(s)
-        elif re_clothes.search(s):
-            result = corr_clothes(s)
-        elif re_prepared.search(s):
-            result = corr_prepared(s)
-        elif re_skin.search(s):
-            result = corr_item_skin(s)
-        elif re_forge.search(s):
-            result = corr_forge(s)
-        elif re_weapon_trap_parts.search(s):
-            result = corr_weapon_trap_parts(s)
-        elif re_3.search(s):
-            result = corr_item_3(s)
-        elif re_wooden_logs.search(s):
-            result = corr_wooden_logs(s)
-        elif re_craft_glass.search(s):
-            result = corr_craft_glass(s)
-        elif re_gem_cutting.search(s):
-            result = corr_gem_cutting(s)
-        elif re_animal.search(s):
-            result = corr_animal(s)
-        elif re_stopped_construction.search(s):
-            result = corr_stopped_construction(s)
-        elif re_corr_relief.search(s):
-            result = corr_relief(s)
-        elif re_13_1.search(s):
-            result = corr_item_13(s)
-        elif re_jewelers_shop.search(s):
-            result = corr_jewelers_shop(s)
-        elif re_settlement.search(s):
-            result = corr_settlement(s)
-            # elif re_material_selection.search(s): # Отключено: дает ложные срабатывания в логе
-            # result = corr_material_selection(s)
-        elif re_clothiers_shop.search(s):
-            result = corr_clothiers_shop(s)
-        elif re_craft_general.search(s):
-            result = corr_craft_general(s)
-        elif re_body_parts.search(s):
-            result = corr_item_body_parts(s)
-        elif re_animal_material.search(s):
-            result = corr_animal_material(s)
-        elif re_rings.search(s):
-            result = corr_rings(s)
-        elif s.startswith('Вы нашли из '):
-            result = corr_you_struck(s)
-        elif re_become.search(s):
-            result = corr_become(s)
+    result = corr_color_of_color(s) or result
+    if result:
+        s = result
 
-        assert result != ''  # Empty string may cause game crash
-        return result
+    if '<' in s and '>' in s and '<нет ' not in s and not '<#' in s:
+        try:
+            result = corr_tags(s)
+        except (AssertionError, ValueError) as err:
+            print('corr_tags() raises exception %r:' % err)
+            print(traceback.format_exc())
+            result = ' '.join(part.strip(' ') if not part.startswith('<')
+                              else part.strip('<>').partition(':')[2]
+                              for part in parse_tags(s))
+    elif re_histories_of.search(s):
+        result = corr_histories_of(s)
+    elif re_container.search(s):
+        result = corr_container(s)
+    elif re_item_general.search(s) and 'пол' not in s:
+        print('re_item_general passed')
+        result = corr_item_general(s)
+    elif re_clothes.search(s):
+        result = corr_clothes(s)
+    elif re_prepared.search(s):
+        result = corr_prepared(s)
+    elif re_skin.search(s):
+        result = corr_item_skin(s)
+    elif re_forge.search(s):
+        result = corr_forge(s)
+    elif re_weapon_trap_parts.search(s):
+        result = corr_weapon_trap_parts(s)
+    elif re_3.search(s):
+        result = corr_item_3(s)
+    elif re_wooden_logs.search(s):
+        result = corr_wooden_logs(s)
+    elif re_craft_glass.search(s):
+        result = corr_craft_glass(s)
+    elif re_gem_cutting.search(s):
+        result = corr_gem_cutting(s)
+    elif re_animal.search(s):
+        result = corr_animal(s)
+    elif re_stopped_construction.search(s):
+        result = corr_stopped_construction(s)
+    elif re_corr_relief.search(s):
+        result = corr_relief(s)
+    elif re_13_1.search(s):
+        result = corr_item_13(s)
+    elif re_jewelers_shop.search(s):
+        result = corr_jewelers_shop(s)
+    elif re_settlement.search(s):
+        result = corr_settlement(s)
+        # elif re_material_selection.search(s): # Отключено: дает ложные срабатывания в логе
+        # result = corr_material_selection(s)
+    elif re_clothiers_shop.search(s):
+        result = corr_clothiers_shop(s)
+    elif re_craft_general.search(s):
+        result = corr_craft_general(s)
+    elif re_body_parts.search(s):
+        result = corr_item_body_parts(s)
+    elif re_animal_material.search(s):
+        result = corr_animal_material(s)
+    elif re_rings.search(s):
+        result = corr_rings(s)
+    elif s.startswith('Вы нашли из '):
+        result = corr_you_struck(s)
+    elif re_become.search(s):
+        result = corr_become(s)
 
+    assert result != ''  # Empty string may cause game crash
+    return result
+
+
+def _change_text(s):
     try:
-        output = ChangeText_internal(s)
+        output = change_text_internal(s)
     except Exception:
         if sys.stdout:
             sys.stdout.flush()
@@ -2146,11 +2158,11 @@ def _ChangeText(s):
 
 def ChangeText(s):
     if isinstance(s, bytes):
-        output = _ChangeText(s.decode("utf-16"))
+        output = _change_text(s.decode("utf-16"))
         # Return None if output is None or encoded output otherwise
         return output and output.encode("utf-16")[2:] + bytes(2)  # Truncate BOM marker and add b'\0\0' to the end
     else:
-        return _ChangeText(s)
+        return _change_text(s)
 
 
 def myrepr(s):
