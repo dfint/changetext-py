@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 import functools
 import sys
 import re
 import traceback
-import heapq
 import pymorphy2
 
 from collections import OrderedDict
@@ -18,26 +16,6 @@ def custom_parse(s):
         return morph.parse(s)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
     else:
         return [p for p in morph.parse(s) if all(tag not in p.tag for tag in unwanted_tags)]
-
-
-# Cut'n'paste from pymorphy2 with some modifications to ignore forms with extra tags
-def custom_inflect(form, required_grammemes):
-    self = form._morph
-    possible_results = [f for f in self.get_lexeme(form)
-                        if required_grammemes <= f[1].grammemes]
-
-    if not possible_results:
-        required_grammemes = self.TagClass.fix_rare_cases(required_grammemes)
-        possible_results = [f for f in self.get_lexeme(form)
-                            if required_grammemes <= f[1].grammemes]
-
-    grammemes = form[1].updated_grammemes(required_grammemes)
-
-    def similarity(frm):
-        tag = frm[1]
-        return len(grammemes & tag.grammemes) - len(grammemes ^ tag.grammemes) * 0.1  # The more extra tags, the less the similarity
-    res = heapq.nlargest(1, possible_results, key=similarity)
-    return None if not res else res[0]
 
 
 phrases = {
@@ -477,11 +455,11 @@ def inflect_adjective(adjective: str, gender: int, case='nomn', animated=None):
     if animated is not None and gender in {masculine, plural}:
         form_set.add('anim' if animated else 'inan')
     # print('form_set:', form_set)
-    new_form = custom_inflect(parse, form_set)
+    new_form = parse.inflect(form_set)
     if new_form is None:
         form_set = {gender_names[gender], case}
         # print('form_set:', form_set)
-        new_form = custom_inflect(parse, form_set)
+        new_form = parse.inflect(form_set)
     ret = new_form.word
     # print('%s -> %s' % (adjective, ret))
     return ret
@@ -506,7 +484,7 @@ def inflect_noun(word: str, case, orig_form=None) -> str:
         # print('Failed to set %r to %s case.' % (word, case))
         return None
     
-    new_form = custom_inflect(parse[0], {case})
+    new_form = parse[0].inflect({case})
     
     return new_form.word
 
@@ -1326,11 +1304,11 @@ def corr_jewelers_shop(s):
         if item == 'адамантина':
             item = 'адамантин'
         else:
-            item = custom_inflect(parse[0], {'accs'}).word
+            item = parse[0].inflect({'accs'}).word
         words.append(item)
     else:
         # instrumental/ablative case ('incrust with smth')
-        words = [custom_inflect(custom_parse(word)[0], {'ablt'}).word for word in words if word != 'из']
+        words = [custom_parse(word)[0].inflect({'ablt'}).word for word in words if word != 'из']
     # print(words)
     if first_part.endswith(' с'):
         first_part = first_part[:-2]
@@ -1433,9 +1411,9 @@ def corr_ending_s(s):
         new_forms = set()
         for item in parse:
             if parse[0].tag.POS == 'NOUN':
-                new_forms.add(custom_inflect(parse[0], {'plur'}).word)
+                new_forms.add(parse[0].inflect({'plur'}).word)
             else:  # parse[0].tag.POS == 'VERB':
-                new_forms.add(custom_inflect(parse[0], {'3per', 'sing'}).word)
+                new_forms.add(parse[0].inflect({'3per', 'sing'}).word)
         
         if len(new_forms) > 1:
             # print('Cannot determine part of speech of %r because of ambiguity:' % s)
@@ -1504,10 +1482,10 @@ def corr_clothiers_shop(s):
         parse = custom_parse(material)[0]
         if material == 'пряжа':
             verb = 'Вязать'
-            material = custom_inflect(parse, {'gent'}).word
+            material = parse.inflect({'gent'}).word
             return '%s %s из %s' % (verb, product, material)
         else:
-            material = custom_inflect(parse, {'loct'}).word
+            material = parse.inflect({'loct'}).word
             return '%s %s на %s' % (verb, product, material)
     else:
         if product in {'щит', 'баклер'}:
@@ -1680,7 +1658,7 @@ def corr_has_verb(s):
         parse = [p for p in custom_parse(word) if p.tag.POS == 'VERB']
         if parse:
             if not any({'past'} in p.tag for p in parse):
-                word = custom_inflect(parse[0], {'past'}).word
+                word = parse[0].inflect({'past'}).word
             return s.replace(hst.group(0), word)
 
 
@@ -1737,7 +1715,7 @@ def inflect_collocation(s, tags):
         parse = custom_parse(word)
         if any_in_tag({'NOUN'}, parse):
             p = next(p for p in parse if {'NOUN'} in p.tag)
-            p = custom_inflect(p, tags)
+            p = p.inflect(tags)
             words[i] = p.word if word[0].islower() else p.word.capitalize()
             j = i
             main_word = p
@@ -1759,7 +1737,7 @@ def inflect_collocation(s, tags):
         p = next(p for p in parse if {'ADJF'} in p.tag)
         # print(p)
         # print(tags)
-        p = custom_inflect(p, tags)
+        p = p.inflect(tags)
         words[i] = p.word
     
     # print(words)
@@ -1877,7 +1855,7 @@ def corr_tags(s):
                         item = inflect_collocation(word, tags)
                     else:
                         p = custom_parse(word)[0]
-                        item = custom_inflect(p, tags).word
+                        item = p.inflect(tags).word
                         # if not make_lower and word[0].isupper():
                         if word[0].isupper():
                             item = item.capitalize()
@@ -1902,7 +1880,7 @@ def corr_tags(s):
                         tags.remove('loct')
                         tags.add('loc2')  # inflect into 'году' instead of 'годе'
                     item, tail1 = cut_number(item)
-                    item += ' ' + custom_inflect(custom_parse('год')[0], inflect_next).word + tail1.lstrip(',')
+                    item += ' ' + custom_parse('год')[0].inflect(inflect_next).word + tail1.lstrip(',')
                 elif (not li or not any_cyr(li[-1].rstrip().split(' ')[-1])) and tags == {'gent'}:
                     li.append('of ')
                 pass
@@ -1913,7 +1891,7 @@ def corr_tags(s):
                     item = inflect_collocation(item, inflect_next)
                 else:
                     p = custom_parse(item)[0]
-                    item = custom_inflect(p, tags).word
+                    item = p.inflect(tags).word
             item += tail
             inflect_next = set()
         else:
@@ -1936,7 +1914,7 @@ def corr_tags(s):
                 item = inflect_collocation(word, form)
             else:
                 p = custom_parse(word)[0]
-                item = custom_inflect(p, form).word
+                item = p.inflect(form).word
                 if word[0].isupper():
                     item = item.capitalize()
             li[i] = item
