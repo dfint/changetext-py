@@ -2158,9 +2158,9 @@ def _change_text(s):
 
 def ChangeText(s):
     if isinstance(s, bytes):
-        output = _change_text(s.decode("utf-16"))
+        output = _change_text(s.decode("utf-16-le"))
         # Return None if output is None or encoded output otherwise
-        return output and output.encode("utf-16")[2:] + bytes(2)  # Truncate BOM marker and add b'\0\0' to the end
+        return output and output.encode("utf-16-le") + bytes(2)  # Add b'\0\0' to the end
     else:
         return _change_text(s)
 
