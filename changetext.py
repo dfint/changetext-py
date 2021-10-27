@@ -874,7 +874,7 @@ re_animal = re.compile(r'(охотничий|боевой|сырой) (\w+)(\(Р
 def corr_animal(s):
     # print('corr_animal')
     s = s.replace("сырой", "сырая")
-    if any(s.find(item) != -1 for item in animals_female):
+    if any(item in s for item in animals_female):
         s = s.replace("(Ручной)", "(Ручная)")
         s = s.replace("боевой", "боевая")
         s = s.replace("Ничей", "Ничья")
