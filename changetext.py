@@ -1766,11 +1766,7 @@ re_sentence = re.compile(r'^([^\.!"]*)([\.!"].*)$')
 re_split_enumeration = re.compile(r'(,| и )')
 
 
-def split_enumeration(s):
-    return re_split_enumeration.split(s)
-
-
-def is_delimiter(s):
+def is_enumeration_delimiter(s):
     return s in {',', ' и '}
 
 
@@ -1804,8 +1800,8 @@ def smart_join(li):
 
 def _inflect_enumeration(s, form):
     do_not_inflect = False
-    for part in split_enumeration(s):
-        if is_delimiter(part) or do_not_inflect:
+    for part in re_split_enumeration.split(s):
+        if is_enumeration_delimiter(part) or do_not_inflect:
             yield part
         else:
             try:
