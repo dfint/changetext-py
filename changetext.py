@@ -2170,7 +2170,7 @@ def log_exceptions(func):
     @functools.wraps(func)
     def wrapper(text):
         try:
-            result = func(text)
+            return func(text)
         except Exception:
             if sys.stdout:
                 sys.stdout.flush()
@@ -2178,9 +2178,6 @@ def log_exceptions(func):
             print('Initial string: %r' % text, file=sys.stderr)
             print(traceback.format_exc(), file=sys.stderr)
             print("", file=sys.stderr)
-            result = None
-
-        return result
 
     return wrapper
 
