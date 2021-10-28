@@ -14,8 +14,8 @@ def test_double_write():
     file = io.StringIO()
 
     get_logger(file).write(text, result)
-    assert file.getvalue() == f"{text!r} --> {result!r}\n"
+    assert file.getvalue() == "{!r} --> {!r}\n".format(text, result)
 
     # Try to write the same again
     get_logger(file).write(text, result)
-    assert file.getvalue() == f"{text!r} --> {result!r}\n"
+    assert file.getvalue() == "{!r} --> {!r}\n".format(text, result)
