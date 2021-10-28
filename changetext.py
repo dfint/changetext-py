@@ -2003,18 +2003,17 @@ class Logger:
             self.logged.add(text)
 
 
+@functools.lru_cache()
+def get_logger():
+    return Logger()
+
+
 prev_tail = ''
 context = None
-logger = None
 
 
 def init():
-    global prev_tail, logger, context
-    log = True
-    if log:
-        logger = Logger()
-    else:
-        logger = None
+    global prev_tail, context
 
     prev_tail = ''
     context = None
@@ -2023,44 +2022,7 @@ def init():
 init()
 
 
-def utf16_codec(func):
-    @functools.wraps(func)
-    def wrapper(data):
-        if isinstance(data, bytes):
-            data = data.decode("utf-16-le")
-            output = func(data)
-            return output if output is None else output.encode("utf-16-le") + b"\0\0"
-        else:
-            return func(data)
-
-    return wrapper
-
-
-def log_exceptions_and_result(func):
-    @functools.wraps(func)
-    def wrapper(text):
-        try:
-            result = func(text)
-        except Exception:
-            if sys.stdout:
-                sys.stdout.flush()
-            print('An error occured.', file=sys.stderr)
-            print('Initial string: %r' % text, file=sys.stderr)
-            print(traceback.format_exc(), file=sys.stderr)
-            print("", file=sys.stderr)
-            result = None
-
-        if isinstance(logger, Logger):
-            logger.write(text, result)
-
-        return result
-
-    return wrapper
-
-
-@utf16_codec
-@log_exceptions_and_result
-def ChangeText(text):
+def change_text(text):
     global prev_tail
     if prev_tail:
         text = prev_tail + text
@@ -2189,3 +2151,43 @@ def ChangeText(text):
 
     assert result != ''  # Empty string may cause game crash
     return result
+
+
+def utf16_codec(func):
+    @functools.wraps(func)
+    def wrapper(data):
+        if isinstance(data, bytes):
+            data = data.decode("utf-16-le")
+            output = func(data)
+            return output if output is None else output.encode("utf-16-le") + b"\0\0"
+        else:
+            return func(data)
+
+    return wrapper
+
+
+def log_exceptions_and_result(func):
+    @functools.wraps(func)
+    def wrapper(text):
+        try:
+            result = func(text)
+        except Exception:
+            if sys.stdout:
+                sys.stdout.flush()
+            print('An error occurred.', file=sys.stderr)
+            print('Initial string: %r' % text, file=sys.stderr)
+            print(traceback.format_exc(), file=sys.stderr)
+            print("", file=sys.stderr)
+            result = None
+
+        get_logger().write(text, result)
+
+        return result
+
+    return wrapper
+
+
+@utf16_codec
+@log_exceptions_and_result
+def ChangeText(text):
+    return change_text(text)

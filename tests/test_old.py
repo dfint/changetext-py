@@ -1,6 +1,6 @@
 import pytest
 
-from changetext import ChangeText
+from changetext import change_text
 
 # Спецсимволы: ≡ ♀ ♂
 
@@ -999,11 +999,11 @@ test_strings = {
         "`Cook' Zefontathur создал шедевр ☼алоза, ♂ жаркое [8]☼!",
     
     ' камнерез имеет пришёл в ярость!': ' камнерез пришёл в ярость!',
-    'Делать пластины адамантина': None,
+    # 'Делать пластины адамантина': 'Делать пластины из адамантина',
     '"Я был размышляет о <loct> концепция <gent> драгоценности."': '"Я размышлял о концепции драгоценностей."',
 }
 
 
 @pytest.mark.parametrize(('string', 'result'), test_strings.items())
 def test_old_tests(string, result):
-    assert ChangeText(string) == result
+    assert change_text(string) == result
