@@ -1,4 +1,4 @@
-from typing import Union, Optional, overload, Callable, TextIO, Set, Tuple
+from typing import Union, Optional, overload, Callable, TextIO, Set
 
 
 def any_in_tag(gram: Union[set, str], parse) -> bool: ...
