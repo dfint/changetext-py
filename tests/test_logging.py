@@ -1,5 +1,6 @@
 import io
 import contextlib
+import sys
 
 from changetext import get_logger, log_exceptions_and_result
 
@@ -22,9 +23,19 @@ def test_double_write():
     assert file.getvalue() == "{!r} --> {!r}\n".format(text, result)
 
 
+@contextlib.contextmanager
+def redirect_stderr(new_stderr):
+    old_stderr = sys.stderr
+    sys.stderr = new_stderr
+    try:
+        yield
+    finally:
+        sys.stderr = old_stderr
+
+
 def test_exception_logging():
     stderr = io.StringIO()
-    with contextlib.redirect_stderr(stderr):
+    with redirect_stderr(stderr):
         @log_exceptions_and_result
         def foo(_):
             raise ValueError
