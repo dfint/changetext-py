@@ -1991,23 +1991,6 @@ def corr_contextual(text):
 
 
 ############################################################################
-class Logger:
-    def __init__(self):
-        self.logged = set()
-        self.log_file = open('changetext.log', 'a', 1, encoding='utf-8')
-
-    def write(self, text, output):
-        if text not in self.logged:
-            print('%r --> %r' % (text, output), file=self.log_file)
-            self.log_file.flush()
-            self.logged.add(text)
-
-
-@functools.lru_cache()
-def get_logger():
-    return Logger()
-
-
 prev_tail = ''
 context = None
 
@@ -2164,6 +2147,23 @@ def utf16_codec(func):
             return func(data)
 
     return wrapper
+
+
+class Logger:
+    def __init__(self, log_file=None):
+        self.logged = set()
+        self.log_file = log_file or open('changetext.log', 'a', 1, encoding='utf-8')
+
+    def write(self, text, output):
+        if text not in self.logged:
+            print('%r --> %r' % (text, output), file=self.log_file)
+            self.log_file.flush()
+            self.logged.add(text)
+
+
+@functools.lru_cache()
+def get_logger(log_file=None):
+    return Logger(log_file)
 
 
 def log_exceptions_and_result(func):
