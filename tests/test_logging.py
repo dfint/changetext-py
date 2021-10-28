@@ -2,7 +2,7 @@ import io
 import contextlib
 import sys
 
-from changetext import get_logger, log_exceptions_and_result
+from changetext import get_logger, log_exceptions
 
 
 def test_cache():
@@ -36,7 +36,7 @@ def redirect_stderr(new_stderr):
 def test_exception_logging():
     stderr = io.StringIO()
     with redirect_stderr(stderr):
-        @log_exceptions_and_result
+        @log_exceptions
         def foo(_):
             raise ValueError
 

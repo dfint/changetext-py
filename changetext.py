@@ -2166,7 +2166,7 @@ def get_logger(log_file=None):
     return Logger(log_file)
 
 
-def log_exceptions_and_result(func):
+def log_exceptions(func):
     @functools.wraps(func)
     def wrapper(text):
         try:
@@ -2180,14 +2180,14 @@ def log_exceptions_and_result(func):
             print("", file=sys.stderr)
             result = None
 
-        get_logger().write(text, result)
-
         return result
 
     return wrapper
 
 
 @utf16_codec
-@log_exceptions_and_result
+@log_exceptions
 def ChangeText(text):
-    return change_text(text)
+    result = change_text(text)
+    get_logger().write(text, result)
+    return result
