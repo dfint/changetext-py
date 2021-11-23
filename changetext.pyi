@@ -1,3 +1,4 @@
+import logging
 from typing import Union, Optional, overload, Callable, TextIO, Set
 
 
@@ -10,7 +11,7 @@ def change_text(text: str) -> Optional[str]: ...
 
 class Logger:
     logged: Set[str]
-    log_file: TextIO
+    logger: logging.Logger
     def __init__(self, log_file: Optional[TextIO]=None): ...
     def write(self, text: str, result: str) -> None: ...
 
