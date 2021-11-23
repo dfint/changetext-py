@@ -2167,7 +2167,7 @@ class LoggerWrapper:
 
     def write(self, text, output):
         if text not in self.logged:
-            self.logger.debug(f"{text!r} --> {output!r}")
+            self.logger.debug("{!r} --> {!r}".format(text, output))
             self.logged.add(text)
 
 
@@ -2182,7 +2182,7 @@ def log_exceptions(func):
         try:
             return func(text)
         except Exception:
-            get_logger().logger.exception(f"An exception occurred. Initial string: {text!r}")
+            get_logger().logger.exception("An exception occurred. Initial string: {!r}".format(text))
 
     return wrapper
 
