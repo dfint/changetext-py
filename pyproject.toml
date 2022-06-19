@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "changetext"
+version = "0.1.0"
+description = ""
+authors = ["insolor <insolor@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+pymorphy2 = "^0.9.1"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^4.0.1"
+pytest = "^7.1.2"
+pytest-cov = "^3.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
