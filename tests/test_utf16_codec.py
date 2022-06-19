@@ -1,4 +1,4 @@
-from changetext import utf16_codec
+from changetext.utf16_codec import utf16_codec
 
 
 def test_none():

@@ -1,8 +1,9 @@
-.idea
-.venv
-venv
-htmlcov
-.pytest_cache
+.idea/
+.venv/
+venv/
+htmlcov/
+.pytest_cache/
+dist/
 *.pyc
 .coverage
 changetext.log

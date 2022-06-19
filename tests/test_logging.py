@@ -1,7 +1,7 @@
 import contextlib
 import io
 
-from changetext import get_logger, log_exceptions
+from changetext.logging_tools import get_logger, log_exceptions
 
 
 def test_cache():
