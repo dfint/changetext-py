@@ -1267,17 +1267,13 @@ re_has_verb = re.compile(r"(имеете?|был)\s+(\w+)")
 
 def corr_has_verb(text):
     """
-    >>> corr_someone_has(" имеет создал ")
+    >>> corr_has_verb(" имеет создал ")
     ' создал '
-    >>> corr_someone_has(" имеет создать ")
-    ' создал '
-    >>> corr_someone_has(" был создать ")
-    ' создал '
-    >>> corr_someone_has(" имеет пришёл ")
+    >>> corr_has_verb(" имеет пришёл ")
     ' пришёл '
-    >>> corr_someone_has(" имеет упал ")
+    >>> corr_has_verb(" имеет упал ")
     ' упал '
-    >>> corr_someone_has(" имеет стрямкал ")
+    >>> corr_has_verb(" имеет стрямкал ")
     ' стрямкал '
     """
     search_result = re_has_verb.search(text)
