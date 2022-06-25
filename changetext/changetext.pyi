@@ -1,5 +1,5 @@
 import logging
-from typing import Union, Optional, overload, Callable, TextIO, Set
+from typing import Callable, Optional, Set, TextIO, Union, overload
 
 def any_in_tag(gram: Union[set, str], parse) -> bool: ...
 def inflect_noun(word: str, case: str, orig_form: Union[str, set, None] = None) -> Optional[str]: ...

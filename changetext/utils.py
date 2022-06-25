@@ -1,8 +1,6 @@
-import functools
 import re
 
 import pymorphy2
-
 
 morph = pymorphy2.MorphAnalyzer()
 unwanted_tags = ("Name", "Surn", "Infr")
@@ -37,6 +35,7 @@ def is_adjective(word: str, parse=None):
 
 
 def inflect_collocation(s, tags):
+    tags = tags - {"masc", "femn", "neut", "plur"}
     # print('inflect_collocation(%r, %r)' % (s, tags))
     words = [x for x in s.split(" ") if x]  # skip empty strings
     j = None
@@ -44,8 +43,9 @@ def inflect_collocation(s, tags):
     for i, word in enumerate(words):
         parse = custom_parse(word)
         if any_in_tag({"NOUN"}, parse):
-            p = next(p for p in parse if {"NOUN"} in p.tag)
-            p = p.inflect(tags)
+            p0 = next(p for p in parse if {"NOUN"} in p.tag)
+            p = p0.inflect(tags)
+            assert p is not None, (p0, tags)
             words[i] = p.word if word[0].islower() else p.word.capitalize()
             j = i
             main_word = p
@@ -67,8 +67,9 @@ def inflect_collocation(s, tags):
         p = next(p for p in parse if {"ADJF"} in p.tag)
         # print(p)
         # print(tags)
-        p = p.inflect(tags)
-        words[i] = p.word
+        p1 = p.inflect(tags)
+        assert p1 is not None, (p, tags)
+        words[i] = p1.word
 
     # print(words)
     return " ".join(words) + (" " if s.endswith(" ") else "")
@@ -83,7 +84,14 @@ def cut_number(text):
 
 
 re_sentence = re.compile(r'^([^\.!"]*)([\.!"].*)$')
-re_split_enumeration = re.compile(r"(,| и )")
+
+
+def split_sentence(text):
+    sentence = re_sentence.search(text)
+    if sentence:
+        return sentence.groups()
+    else:
+        return text, ""
 
 
 def is_enumeration_delimiter(text):
@@ -94,20 +102,24 @@ def any_cyr(text):
     return any("а" <= x <= "я" or x == "ё" for x in text.lower())
 
 
-def smart_join(li):
-    def add_spaces(text):
-        add_space = False
-        for part in text:
-            part = part.strip()
-            if part:
-                if add_space and part[0].isalnum():
-                    part = " " + part
+def add_spaces(text_parts):
+    add_space = False
+    for part in text_parts:
+        part = part.strip()
+        if part:
+            if add_space and part[0].isalnum():
+                part = " " + part
 
-                yield part
-                if part[-1] not in set('"('):
-                    add_space = True
+            yield part
+            if part[-1] not in set('"('):
+                add_space = True
 
-    return "".join(add_spaces(li))
+
+def smart_join(text_parts):
+    return "".join(add_spaces(text_parts))
+
+
+re_split_enumeration = re.compile(r"(,| и )")
 
 
 def _inflect_enumeration(text, form):
@@ -124,9 +136,7 @@ def _inflect_enumeration(text, form):
 
 
 def inflect_enumeration(s, form):
-    li = list(_inflect_enumeration(s, form))
-    # print(li)
-    return smart_join(li)
+    return smart_join(_inflect_enumeration(s, form))
 
 
 def get_form(word):
@@ -177,7 +187,8 @@ make_adjective = {
     "из берёзы": "берёзовый",
     "из лумбанга": "лумбанговый",
     # неорганическое
-    "из кремня": "кремневый",
+    "из кремня": "кремнёвый",
+    "кремень": "кремнёвый",
     "из аргиллита": "аргилитовый",
     "из песчаника": "песчаниковый",
     "из алевролита": "алевролитовый",
@@ -351,27 +362,6 @@ make_adjective = {
     "зелeное стекло": "из зеленого стекла",
     "прозрачное стекло": "из прозрачного стекла",
     "белый халцедон": "из белого халцедона",
-    # размеры и др
-    "большой": "большой",
-    "гигантский": "гигантский",
-    "заточенный": "заточенный",
-    "огромный": "огромный",
-    "шипованный": "шипованный",
-    "зазубренный": "зазубренный",
-    "кольчужный": "кольчужный",
-    "изысканный": "изысканный",
-    "большой,": "большой",
-    "грубый": "грубый",
-    # Формы огранки
-    "бриолетовый": "бриолетовый",
-    "огранённый розой": "огранённый розой",
-    "огранённый подушечкой": "огранённый подушечкой",
-    "плоскогранный": "плоскогранный",
-    "прямоугольный": "прямоугольный",
-    "гладкий": "гладкий",
-    "овальный": "овальный",
-    "круглый": "круглый",
-    "сглаженный": "сглаженный",
     # кожа, шёлк
     "из кожи": "кожаный",
     "из шёлка": "шёлковый",
@@ -384,6 +374,7 @@ make_adjective = {
     "кость": "костяной",
     "камень": "каменный",
 }
+
 dict_ending_s = {
     "готовая еда": "готовая еда",
     "питьё": "питьё",
@@ -516,7 +507,7 @@ def inflect_noun(word: str, case: str, orig_form=None):
     return new_form.word
 
 
-def genitive_case_single_noun(word: str):
+def to_genitive_case_single_noun(word: str):
     # print('genitive_case_single_noun')
     # print(word)
     if word.lower() in gent_case_except:
@@ -525,7 +516,7 @@ def genitive_case_single_noun(word: str):
         return inflect_noun(word, case="gent")
 
 
-def genitive_case_list(words: list):
+def to_genitive_case_list(words: list):
     # print("genitive_case_list(%r)" % words)
     if len(words) == 1:
         gender = get_gender(words[0], {"nomn"})
@@ -541,43 +532,25 @@ def genitive_case_list(words: list):
         if is_adjective(word):
             word = inflect_adjective(word, gender, "gent")
         else:
-            word = genitive_case_single_noun(word)
+            word = to_genitive_case_single_noun(word)
         assert word is not None
         yield word
 
 
-def genitive_case(word: str):
-    return " ".join(genitive_case_list(word.split()))
+def to_genitive_case(word: str):
+    return " ".join(to_genitive_case_list(word.split()))
 
 
-opening = {"!", "(", "*", "+", "-", "[", "{", "«", "р", "☼", "X", "x"}
-closing = {"«": "»", "[": "]", "(": ")", "{": "}"}
+def inflect_as_adjective(adj, gender):
+    if adj in make_adjective:
+        new_adj = inflect_adjective(make_adjective[adj], gender)
+    elif " " in adj:
+        adj_words = adj.split()
+        new_words = [inflect_as_adjective(word, gender) for word in adj_words]
+        new_adj = " ".join(new_words)
+    elif is_adjective(adj):
+        new_adj = inflect_adjective(adj, gender)
+    else:
+        raise ValueError("Cannot inflect {} as adjective".format(adj))
 
-
-def open_brackets(func):
-    @functools.wraps(func)
-    def wrapper(text):
-        start_i = 0
-        end_i = len(text) - 1
-        for c in text:
-            if c in opening:
-                start_i += 1
-                if text[end_i] == closing.get(c, c):
-                    end_i -= 1
-            else:
-                break
-
-        if (
-            start_i > 0
-            and text[start_i - 1] == "р"
-            and (end_i == len(text) - 1 or text[end_i + 1] != "р")
-            and not text[start_i:].startswith("из")
-        ) and not text[start_i].isupper():
-            start_i -= 1
-
-        leading_symbols = text[:start_i].replace("р", "≡")
-        trailing_symbols = text[end_i + 1 :].replace("р", "≡")
-
-        return leading_symbols + func(text[start_i : end_i + 1]) + trailing_symbols
-
-    return wrapper
+    return new_adj
