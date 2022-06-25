@@ -346,6 +346,8 @@ def corr_gem_cutting(text):
     """
     >>> corr_gem_cutting("(бриолетовый восковые опалы)")
     '(бриолетовые восковые опалы)'
+    >>> corr_gem_cutting("большой шерлы")
+    'большие шерлы'
     """
     # print('corr_gem_cutting')
     search_result = re_gem_cutting.search(text)
@@ -363,6 +365,8 @@ def corr_gem_cutting(text):
         if word in make_adjective:
             adj = make_adjective[word]
             word = inflect_adjective(adj, gender)
+        elif is_adjective(word):
+            word = inflect_adjective(word, gender)
         new_list.append(word)
 
     new_list.append(words[-1])
@@ -380,6 +384,8 @@ def corr_weapon_trap_parts(text):
     """
     >>> corr_weapon_trap_parts('гигантский из меди лезвия топоров')
     'гигантские медные лезвия топоров'
+    >>> corr_weapon_trap_parts('большой зазубренный из берёзы диски')
+    'большие зазубренные берёзовые диски'
     """
     # print('corr_weapon_trap_parts')
     search_result = re_weapon_trap_parts.search(text)

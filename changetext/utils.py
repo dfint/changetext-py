@@ -362,27 +362,7 @@ make_adjective = {
     "зелeное стекло": "из зеленого стекла",
     "прозрачное стекло": "из прозрачного стекла",
     "белый халцедон": "из белого халцедона",
-    # размеры и др
-    "большой": "большой",
-    "гигантский": "гигантский",
-    "заточенный": "заточенный",
-    "огромный": "огромный",
-    "шипованный": "шипованный",
-    "зазубренный": "зазубренный",
-    "кольчужный": "кольчужный",
-    "изысканный": "изысканный",
-    "большой,": "большой",
-    "грубый": "грубый",
-    # Формы огранки
-    "бриолетовый": "бриолетовый",
-    "огранённый розой": "огранённый розой",
-    "огранённый подушечкой": "огранённый подушечкой",
-    "плоскогранный": "плоскогранный",
-    "прямоугольный": "прямоугольный",
-    "гладкий": "гладкий",
-    "овальный": "овальный",
-    "круглый": "круглый",
-    "сглаженный": "сглаженный",
+
     # кожа, шёлк
     "из кожи": "кожаный",
     "из шёлка": "шёлковый",
@@ -395,6 +375,7 @@ make_adjective = {
     "кость": "костяной",
     "камень": "каменный",
 }
+
 dict_ending_s = {
     "готовая еда": "готовая еда",
     "питьё": "питьё",
@@ -595,12 +576,17 @@ def open_brackets(func):
 
 
 def inflect_as_adjective(adj, gender):
-    if adj not in make_adjective and " " in adj:
-        adj_words = adj.split()
-        new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
-        new_adj = " ".join(new_words)
-    else:
+    if adj in make_adjective:
         new_adj = inflect_adjective(make_adjective[adj], gender)
+    elif " " in adj:
+        adj_words = adj.split()
+        new_words = [inflect_as_adjective(word, gender) for word in adj_words]
+        new_adj = " ".join(new_words)
+    elif is_adjective(adj):
+        new_adj = inflect_adjective(adj, gender)
+    else:
+        raise ValueError("Cannot inflect {} as adjective".format(adj))
+
     return new_adj
 
 
