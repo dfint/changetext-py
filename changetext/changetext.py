@@ -1156,13 +1156,24 @@ def corr_minced(text):
 
 
 def corr_you_struck(text):
-    # print('corr_you_struck')
-    i = text.find('из ')
-    you_struck = text[:i]
-    words = text[i:-1].split()
-    assert len(words) == 2
-    parse = custom_parse(words[1])
-    return you_struck + parse[0].normal_form + '!'
+    """
+    >>> corr_you_struck('Вы нашли из пиролюзита!')
+    'Вы нашли пиролюзит!'
+    >>> corr_you_struck('Вы нашли из каменного угля!')
+    'Вы нашли каменный уголь!'
+    """
+    text = text.rstrip("!")
+    you_struck, of, material = text.partition(" из ")
+
+    words = material.split()
+    assert len(words) >= 1
+    if len(words) == 1:
+        parse = custom_parse(words[0])
+        result = parse[0].normal_form
+    else:
+        result = inflect_collocation(material, {"accs"})
+
+    return you_struck + " " + result + "!"
 
 
 re_someone_has = re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE)
