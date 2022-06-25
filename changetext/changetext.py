@@ -1218,8 +1218,7 @@ def corr_you_struck(text):
     words = material.split()
     assert len(words) >= 1
     if len(words) == 1:
-        parse = custom_parse(words[0])
-        result = parse[0].normal_form
+        result = inflect_noun(words[0], "accs")
     else:
         result = inflect_collocation(material, {"accs"})
 
