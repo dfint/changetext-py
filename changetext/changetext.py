@@ -229,7 +229,6 @@ re_3 = re.compile(
 re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 
 
-# выражения типа "рогатый филин яйцо"
 def corr_item_3(text):
     """
     >>> corr_item_3('рогатый филин яйцо')
@@ -326,6 +325,13 @@ re_clothes = re.compile(
 
 @open_brackets
 def corr_clothes(text):
+    """
+    >>> corr_clothes("(-«пещерный паук из шёлка левый варежка»-)")
+    '(-«левая варежка из шёлка пещерного паука»-)'
+    >>> corr_clothes("(гигантский пещерный паук из шёлка шапка)")
+    '(шапка из шёлка гигантского пещерного паука)'
+    """
+
     # print('corr_clothes')
     search_result = re_clothes.search(text)
     # print(search_result.group(1))
@@ -360,11 +366,14 @@ def corr_wooden_logs(text):
     return text
 
 
-# выражения типа "(бриолетовый восковые опалы)"
 re_gem_cutting = re.compile(r"((бриолетовый|большой|огранённый|грубый)\s[\w\s-]+)")
 
 
 def corr_gem_cutting(text):
+    """
+    >>> corr_gem_cutting("(бриолетовый восковые опалы)")
+    '(бриолетовые восковые опалы)'
+    """
     # print('corr_gem_cutting')
     search_result = re_gem_cutting.search(text)
     words = search_result.group(1).split()
@@ -478,12 +487,15 @@ replace_containment = {
 materials = {"волокон", "шёлка", "шерсти", "кожи"}
 
 
-# выражения типа "(дварфийское пиво бочка (из ольхи))"
 @open_brackets
 def corr_container(text):
     """
     >>> corr_container('(дварфийское пиво бочка (из ольхи))')
     '(Бочка дварфийского пива (ольховая))'
+    >>> corr_container("(дварфийское вино бочка (из клёна) <#8>)")
+    '(Бочка дварфийского вина (кленовая) <#8>)'
+    >>> corr_container("(Семя бочка (из лумбанга) <#10>)")
+    '(Бочка семян (лумбанговая) <#10>)'
     """
     # print("corr_container")
     search_result = re_container.search(text)
@@ -577,10 +589,6 @@ re_corr_relief = re.compile(
 )
 
 
-#    (прилагательное) (первое дополнение) (второе дополнение) =>
-# => (прилагательное) (второе дополнение) из (первое дополнение)
-
-
 def corr_relief(text):
     # print('corr_relief')
     search_result = re_corr_relief.search(text)
@@ -638,7 +646,11 @@ re_13_1 = re.compile(r"\b(Густой|Редкий|Заснеженный)\s(.+
 
 
 # "Густой и тп"
-def corr_item_13(text):
+def corr_adjective_relief(text):
+    """
+    >>> corr_adjective_relief("Заснеженный Густой овсяница")
+    'Заснеженная густая овсяница'
+    """
     # print(13)
     search_result = re_13_1.search(text)
     adjective = search_result.group(1)
@@ -1404,7 +1416,7 @@ def change_text(text):
     elif re_corr_relief.search(text):
         result = corr_relief(text)
     elif re_13_1.search(text):
-        result = corr_item_13(text)
+        result = corr_adjective_relief(text)
     elif re_jewelers_shop.search(text):
         result = corr_jewelers_shop(text)
     elif re_settlement.search(text):
