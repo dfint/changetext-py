@@ -103,7 +103,7 @@ def corr_tags(text):
                     item = inflect_collocation(item, inflect_next)
                 else:
                     p = custom_parse(item)[0]
-                    item = p.inflect(tags).word
+                    item = p.inflect(inflect_next).word
             item += tail
             inflect_next = set()
         else:
