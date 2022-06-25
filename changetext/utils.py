@@ -592,3 +592,29 @@ def open_brackets(func):
         return leading_symbols + func(text[start_i : end_i + 1]) + trailing_symbols
 
     return wrapper
+
+
+def inflect_as_adjective(adj, gender):
+    if adj not in make_adjective and " " in adj:
+        adj_words = adj.split()
+        new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
+        new_adj = " ".join(new_words)
+    else:
+        new_adj = inflect_adjective(make_adjective[adj], gender)
+    return new_adj
+
+
+def instrumental_case(word):
+    # print("instrumental_case(%s)" % repr(word))
+    assert " " not in word
+    gender = get_gender(word)
+    if gender is None:
+        # print("Assuming gender of '%s' is masculine" % word)
+        gender = "masc"
+
+    if is_adjective(word):
+        word = inflect_adjective(word, gender, "ablt")
+    else:
+        word = inflect_noun(word, "ablt")
+
+    return word

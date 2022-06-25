@@ -1,12 +1,12 @@
 from changetext.common_state import get_state
 from changetext.utils import (
-    inflect_collocation,
     any_cyr,
-    cut_number,
-    inflect_enumeration,
-    get_form,
-    smart_join,
     custom_parse,
+    cut_number,
+    get_form,
+    inflect_collocation,
+    inflect_enumeration,
+    smart_join,
     split_sentence,
 )
 

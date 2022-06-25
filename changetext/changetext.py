@@ -2,24 +2,26 @@ import re
 import traceback
 from collections import OrderedDict
 
-from .common_state import get_state
-from .logging_tools import get_logger, log_exceptions
-from .tag_correction import parse_tags, corr_tags
-from .utf16_codec import utf16_codec
-from .utils import (
-    inflect_collocation,
-    custom_parse,
-    is_adjective,
+from changetext.common_state import get_state
+from changetext.contextual import corr_contextual
+from changetext.logging_tools import get_logger, log_exceptions
+from changetext.tag_correction import corr_tags, parse_tags
+from changetext.utf16_codec import utf16_codec
+from changetext.utils import (
     any_in_tag,
-    make_adjective,
+    custom_parse,
     dict_ending_s,
+    genitive_case,
+    genitive_case_list,
+    genitive_case_single_noun,
     get_gender,
     get_main_word_gender,
     inflect_adjective,
+    inflect_as_adjective,
+    inflect_collocation,
     inflect_noun,
-    genitive_case_single_noun,
-    genitive_case_list,
-    genitive_case,
+    is_adjective,
+    make_adjective,
     open_brackets,
 )
 
@@ -426,16 +428,6 @@ def corr_weapon_trap_parts(text):
         # print(adj, ":", new_adj)
         text = text.replace(search_result.group(0), "%s %s %s" % (new_adj, obj, material))
     return text
-
-
-def inflect_as_adjective(adj, gender):
-    if adj not in make_adjective and " " in adj:
-        adj_words = adj.split()
-        new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
-        new_adj = " ".join(new_words)
-    else:
-        new_adj = inflect_adjective(make_adjective[adj], gender)
-    return new_adj
 
 
 animal_genders = {"собака": ("пёс", "собака"), "кошка": ("кот", "кошка"), "лошадь": ("конь", "лошадь")}
@@ -858,22 +850,6 @@ def corr_forge(text):
         text = verb + " " + " ".join(obj) + " " + of_material
 
     return text.capitalize()
-
-
-def instrumental_case(word):
-    # print("instrumental_case(%s)" % repr(word))
-    assert " " not in word
-    gender = get_gender(word)
-    if gender is None:
-        # print("Assuming gender of '%s' is masculine" % word)
-        gender = "masc"
-
-    if is_adjective(word):
-        word = inflect_adjective(word, gender, "ablt")
-    else:
-        word = inflect_noun(word, "ablt")
-
-    return word
 
 
 re_jewelers_shop = re.compile(
@@ -1317,33 +1293,6 @@ def corr_color_of_color(text):
             color = search_result.group(1).strip()
             replacement = "%s цвет" % inflect_collocation(color, {"nomn", "masc"})
         return text.replace(search_result.group(0), replacement)
-
-
-contexts = {
-    "  Dwarf Fortress  ": "main",
-    "Овощи/фрукты/листья": "kitchen",
-    re.compile(r"Граждане \(\d+\)"): "units",
-    "Создано:": "status",
-}
-
-contextual_replace = dict(
-    kitchen={"Повар": "Готовить"},
-    units={"Рыба": "Рыбачить"},
-)
-
-
-def corr_contextual(text):
-    state = get_state()
-    if text in contexts:
-        state.context = contexts[text]
-    else:
-        for pattern in contexts:
-            if not isinstance(pattern, str) and pattern.search(text):
-                state.context = contexts[pattern]
-                break
-
-    if state.context and state.context in contextual_replace:
-        return contextual_replace[state.context].get(text, None)
 
 
 ############################################################################
