@@ -588,19 +588,3 @@ def inflect_as_adjective(adj, gender):
         raise ValueError("Cannot inflect {} as adjective".format(adj))
 
     return new_adj
-
-
-def instrumental_case(word):
-    # print("instrumental_case(%s)" % repr(word))
-    assert " " not in word
-    gender = get_gender(word)
-    if gender is None:
-        # print("Assuming gender of '%s' is masculine" % word)
-        gender = "masc"
-
-    if is_adjective(word):
-        word = inflect_adjective(word, gender, "ablt")
-    else:
-        word = inflect_noun(word, "ablt")
-
-    return word
