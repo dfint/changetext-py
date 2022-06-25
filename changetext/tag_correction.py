@@ -88,12 +88,12 @@ def corr_tags(text):
             item = item.lstrip(" ")
             if not any_cyr(item.split(" ")[0]):
                 if item.strip()[0].isdigit():
-                    if "loct" in tags:  # FIXME: possible uninitialized variable tags
-                        tags.remove("loct")
-                        tags.add("loc2")  # inflect into 'году' instead of 'годе'
+                    if "loct" in inflect_next:
+                        inflect_next.remove("loct")
+                        inflect_next.add("loc2")  # inflect into 'году' instead of 'годе'
                     item, tail1 = cut_number(item)
                     item += " " + custom_parse("год")[0].inflect(inflect_next).word + tail1.lstrip(",")
-                elif (not li or not any_cyr(li[-1].rstrip().split(" ")[-1])) and tags == {"gent"}:
+                elif (not li or not any_cyr(li[-1].rstrip().split(" ")[-1])) and inflect_next == {"gent"}:
                     li.append("of ")
                 pass
             else:
