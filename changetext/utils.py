@@ -36,6 +36,7 @@ def is_adjective(word: str, parse=None):
 
 
 def inflect_collocation(s, tags):
+    tags = tags - {"masc", "femn", "neut", "plur"}
     # print('inflect_collocation(%r, %r)' % (s, tags))
     words = [x for x in s.split(" ") if x]  # skip empty strings
     j = None
@@ -45,7 +46,7 @@ def inflect_collocation(s, tags):
         if any_in_tag({"NOUN"}, parse):
             p0 = next(p for p in parse if {"NOUN"} in p.tag)
             p = p0.inflect(tags)
-            assert p is not None, p0
+            assert p is not None, (p0, tags)
             words[i] = p.word if word[0].islower() else p.word.capitalize()
             j = i
             main_word = p
@@ -67,8 +68,9 @@ def inflect_collocation(s, tags):
         p = next(p for p in parse if {"ADJF"} in p.tag)
         # print(p)
         # print(tags)
-        p = p.inflect(tags)
-        words[i] = p.word
+        p1 = p.inflect(tags)
+        assert p1 is not None, (p, tags)
+        words[i] = p1.word
 
     # print(words)
     return " ".join(words) + (" " if s.endswith(" ") else "")

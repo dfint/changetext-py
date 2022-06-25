@@ -94,10 +94,11 @@ def corr_tags(text):
                     text_parts.append("of ")
                 pass
             else:
+                tags = inflect_next - {"masc", "femn", "neut", "plur"}
                 if "," in item:
-                    item = inflect_enumeration(item, inflect_next)
+                    item = inflect_enumeration(item, tags)
                 elif " " in item:
-                    item = inflect_collocation(item, inflect_next)
+                    item = inflect_collocation(item, tags)
                 else:
                     p = custom_parse(item)[0]
                     item = p.inflect(inflect_next).word
