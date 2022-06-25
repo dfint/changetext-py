@@ -199,8 +199,6 @@ re_3 = re.compile(
     r"|скипетры|коронаы|статуэтки\b)"
 )
 
-re_3_1 = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
-
 
 def corr_item_3(text):
     """
@@ -209,29 +207,28 @@ def corr_item_3(text):
     """
     # print(3)
     search_result = re_3.search(text)
-    if re_3_1.search(text):
-        # print(3.1)
-        search_result = re_3_1.search(text)
-        text = search_result.group(1) + " " + genitive_case(search_result.group(3) + " " + search_result.group(2))
-        return text.capitalize()
-    if search_result.group(3) in replaced_parts:
-        # print(3.2)
-        new_word = replaced_parts[search_result.group(3)]
-    else:
-        # print(3.3)
-        new_word = search_result.group(3)
+
+    group_3 = search_result.group(3)
+    if group_3 in replaced_parts:
+        group_3 = replaced_parts[group_3]
+
     if search_result.group(2) in make_adjective:
-        # print(3.4)
-        text = text.replace(
-            search_result.group(0), search_result.group(1) + new_word + " " + make_adjective[search_result.group(2)]
-        )
+        group_2 = make_adjective[search_result.group(2)]
     else:
-        # print(3.5)
-        text = text.replace(
-            search_result.group(0), search_result.group(1) + new_word + " " + genitive_case(search_result.group(2))
-        )
-    # print(3.0)
+        group_2 = genitive_case(search_result.group(2))
+
+    text = text.replace(search_result.group(0), search_result.group(1) + group_3 + " " + group_2)
+
     return text
+
+
+re_puddle = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
+
+
+def corr_puddle(text):
+    search_result = re_puddle.search(text)
+    text = search_result.group(1) + " " + genitive_case(search_result.group(3) + " " + search_result.group(2))
+    return text.capitalize()
 
 
 # выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
@@ -806,7 +803,7 @@ def corr_forge(text):
     if len(obj) == 1:
         item_index = 0
         parse = custom_parse(obj[item_index])
-        p = list(filter(lambda x: {"NOUN"} in x.tag and "Surn" not in x.tag, parse))
+        p = parse_as_noun(parse)
         gender = get_gender(obj[item_index], known_tags={"nomn"})
         if not any_in_tag({"accs"}, p):
             obj[0] = p[0].inflect({"accs"}).word
@@ -815,7 +812,7 @@ def corr_forge(text):
         gender = None
         for i, word in enumerate(obj):
             parse = custom_parse(word)
-            p = list(filter(lambda x: {"NOUN"} in x.tag and "Surn" not in x.tag, parse))
+            p = parse_as_noun(parse)
             if p:
                 item_index = i
                 gender = get_gender(obj[item_index])
@@ -841,6 +838,10 @@ def corr_forge(text):
         text = verb + " " + " ".join(obj) + " " + of_material
 
     return text.capitalize()
+
+
+def parse_as_noun(parse):
+    return list(filter(lambda x: {"NOUN"} in x.tag and "Surn" not in x.tag, parse))
 
 
 re_jewelers_shop = re.compile(
@@ -1391,6 +1392,8 @@ def change_text(text):
         result = corr_forge(text)
     elif re_weapon_trap_parts.search(text):
         result = corr_weapon_trap_parts(text)
+    elif re_puddle.search(text):
+        result = corr_puddle(text)
     elif re_3.search(text):
         result = corr_item_3(text)
     elif re_wooden_logs.search(text):
