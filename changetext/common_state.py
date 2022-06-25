@@ -1,6 +1,6 @@
 class ChangeTextState:
     def __init__(self):
-        self.prev_tail = ''
+        self.prev_tail = ""
         self.context = None
 
 

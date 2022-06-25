@@ -26,11 +26,12 @@ def test_exception_logging():
     stdout = io.StringIO()
 
     with contextlib.redirect_stdout(stdout):
+
         @log_exceptions
         def foo(_):
             raise ValueError
 
-        foo('text')
+        foo("text")
 
     stderr_text = stdout.getvalue().splitlines(keepends=False)
     assert stderr_text[0] == "An exception occurred. Initial string: 'text'"
