@@ -1,20 +1,12 @@
+import pytest
+
 import changetext
 from changetext import change_text
 
 
-def test_not_tags():
-    # проверка ложных срабатываний:
-    assert change_text("<-") is None
-    assert change_text("<1в") is None
-    assert change_text(" <> ") is None
-
-
-def test_invalid_tags():
-    assert change_text("asdfa <aeger:etrhrt> ehsge") == "asdfa etrhrt ehsge"
-
-
-def test_skip_unknown_tags():
-    assert change_text("asdfa <aeger> ehsge") == "asdfa ehsge"
+@pytest.fixture
+def init_change_text():
+    changetext.init()
 
 
 def test_tag_wrap():
@@ -22,24 +14,7 @@ def test_tag_wrap():
     assert change_text("голова") == "головы"
 
 
-def test_capitalize_tag():
-    assert change_text("<capitalize>капитан ополчения встаёт.") == "Капитан ополчения встаёт."
-
-
-def test_consecutive_tags():
-    assert (
-        change_text("Она   гражданин   <gent>   <capitalize>    Ochre   Girders.   Она   член   <gent>")
-        == "Она   гражданин Ochre   Girders.   Она   член"
-    )
-    changetext.init()
-    assert (
-        change_text("Она  гражданин  <gent>  <capitalize>  Livid Dyes.  Она  член <gent>  <capitalize>")
-        == "Она  гражданин Livid Dyes.  Она  член"
-    )
-
-
-def test_tag_spaces():
-    changetext.init()
+def test_tag_spaces(init_change_text):
     assert (
         change_text("Lyrical Wisp. По  возможности она предпочитает употреблять<accs>  ячий сыр и")
         == "Lyrical Wisp. По  возможности она предпочитает употреблять ячий сыр и"
@@ -51,8 +26,36 @@ def test_tag_spaces():
     assert change_text('Anurnir, " <capitalize> Wondrous Land"') == 'Anurnir, "Wondrous Land"'
 
 
-def test_commas():
-    assert (
-        change_text("летящий {+железный болт+} бьёт <accs> индюк в <accs> голова, разрывая <accs>")
-        == "летящий {+железный болт+} бьёт индюка в голову, разрывая"
-    )
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("<-", None),
+        ("<1в", None),
+        (" <> ", None),
+        ("asdfa <aeger:etrhrt> ehsge", "asdfa etrhrt ehsge"),
+        ("asdfa <aeger> ehsge", "asdfa ehsge"),
+        ("<capitalize>капитан ополчения встаёт.", "Капитан ополчения встаёт."),
+        (
+            "летящий {+железный болт+} бьёт <accs> индюк в <accs> голова, разрывая <accs>",
+            "летящий {+железный болт+} бьёт индюка в голову, разрывая",
+        ),
+        (
+            "летящий {+железный болт+} бьёт <accs> индюк в <accs> голова, разрывая <accs>",
+            "летящий {+железный болт+} бьёт индюка в голову, разрывая",
+        ),
+        (
+            "Lyrical Wisp. По  возможности она предпочитает употреблять<accs>  ячий сыр и",
+            "Lyrical Wisp. По  возможности она предпочитает употреблять ячий сыр и",
+        ),
+        (
+            "Она   гражданин   <gent>   <capitalize>    Ochre   Girders.   Она   член   <gent>",
+            "Она   гражданин Ochre   Girders.   Она   член",
+        ),
+        (
+            "Она  гражданин  <gent>  <capitalize>  Livid Dyes.  Она  член <gent>  <capitalize>",
+            "Она  гражданин Livid Dyes.  Она  член",
+        ),
+    ],
+)
+def test_tags_general(init_change_text, text, expected):
+    assert change_text(text) == expected
