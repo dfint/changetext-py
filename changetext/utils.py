@@ -507,7 +507,7 @@ def inflect_noun(word: str, case: str, orig_form=None):
     return new_form.word
 
 
-def genitive_case_single_noun(word: str):
+def to_genitive_case_single_noun(word: str):
     # print('genitive_case_single_noun')
     # print(word)
     if word.lower() in gent_case_except:
@@ -516,7 +516,7 @@ def genitive_case_single_noun(word: str):
         return inflect_noun(word, case="gent")
 
 
-def genitive_case_list(words: list):
+def to_genitive_case_list(words: list):
     # print("genitive_case_list(%r)" % words)
     if len(words) == 1:
         gender = get_gender(words[0], {"nomn"})
@@ -532,13 +532,13 @@ def genitive_case_list(words: list):
         if is_adjective(word):
             word = inflect_adjective(word, gender, "gent")
         else:
-            word = genitive_case_single_noun(word)
+            word = to_genitive_case_single_noun(word)
         assert word is not None
         yield word
 
 
-def genitive_case(word: str):
-    return " ".join(genitive_case_list(word.split()))
+def to_genitive_case(word: str):
+    return " ".join(to_genitive_case_list(word.split()))
 
 
 def inflect_as_adjective(adj, gender):

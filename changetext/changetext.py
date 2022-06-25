@@ -12,9 +12,9 @@ from changetext.utils import (
     any_in_tag,
     custom_parse,
     dict_ending_s,
-    genitive_case,
-    genitive_case_list,
-    genitive_case_single_noun,
+    to_genitive_case,
+    to_genitive_case_list,
+    to_genitive_case_single_noun,
     get_gender,
     get_main_word_gender,
     inflect_adjective,
@@ -222,7 +222,7 @@ def corr_item_3(text):
     if search_result.group(2) in make_adjective:
         group_2 = make_adjective[search_result.group(2)]
     else:
-        group_2 = genitive_case(search_result.group(2))
+        group_2 = to_genitive_case(search_result.group(2))
 
     text = text.replace(search_result.group(0), search_result.group(1) + group_3 + " " + group_2)
 
@@ -234,7 +234,7 @@ re_puddle = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь
 
 def corr_puddle(text):
     search_result = re_puddle.search(text)
-    text = search_result.group(1) + " " + genitive_case(search_result.group(3) + " " + search_result.group(2))
+    text = search_result.group(1) + " " + to_genitive_case(search_result.group(3) + " " + search_result.group(2))
     return text.capitalize()
 
 
@@ -257,7 +257,7 @@ def corr_prepared(text):
 
     search_result = re_prepared.search(text)
     groups = search_result.groups()
-    result = text.replace(groups[0], "{} {} {}".format(groups[1], groups[3], genitive_case(groups[2])))
+    result = text.replace(groups[0], "{} {} {}".format(groups[1], groups[3], to_genitive_case(groups[2])))
     return result
 
 
@@ -277,7 +277,7 @@ def corr_item_skin(text):
     search_result = re_skin.search(text)
     material = inflect_noun(search_result.group(3).split()[-1], "nomn")  # кожа, шерсть и т.д.
     text = text.replace(
-        search_result.group(0), search_result.group(1) + material + " " + genitive_case(search_result.group(2))
+        search_result.group(0), search_result.group(1) + material + " " + to_genitive_case(search_result.group(2))
     )
     return text
 
@@ -314,7 +314,7 @@ def corr_clothes(text):
     # print(search_result.group(1))
     text = text.replace(
         search_result.group(1),
-        search_result.group(4) + " " + search_result.group(3) + " " + genitive_case(search_result.group(2)),
+        search_result.group(4) + " " + search_result.group(3) + " " + to_genitive_case(search_result.group(2)),
     )
     text = text.replace("левый", "левая")
     text = text.replace("правый", "правая")
@@ -491,9 +491,9 @@ def corr_container(text):
         words = containment.split()
         if words[0] in posessive_adjectives:
             words[0] = posessive_adjectives[words[0]]
-            words = genitive_case_list(words)
+            words = to_genitive_case_list(words)
         else:
-            words = [genitive_case_single_noun(words[-1])] + list(genitive_case_list(words[:-1]))
+            words = [to_genitive_case_single_noun(words[-1])] + list(to_genitive_case_list(words[:-1]))
         containment = " ".join(words)
     elif containment.startswith("из "):
         containment = containment[3:]  # Words after 'из' are already in genitive case
@@ -501,10 +501,10 @@ def corr_container(text):
         pass  # Already in genitive case
     elif containment.startswith("семена"):
         words = containment.split()
-        words[0] = genitive_case(words[0])
+        words[0] = to_genitive_case(words[0])
         containment = " ".join(words)
     else:
-        containment = genitive_case(containment)
+        containment = to_genitive_case(containment)
     container = search_result.group(2)
     of_material = search_result.group(3)
     if not of_material:
@@ -551,9 +551,9 @@ def corr_container(text):
                     material = of_material  # Partial name is not recognized (too short)
 
             if not material:
-                material = " ".join(words[-2:] + list(genitive_case_list(words[:-2])))
+                material = " ".join(words[-2:] + list(to_genitive_case_list(words[:-2])))
         else:
-            gen_case = list(genitive_case_list(of_material.split()))
+            gen_case = list(to_genitive_case_list(of_material.split()))
             if None not in gen_case:
                 material = "из " + " ".join(gen_case)
             else:
@@ -607,7 +607,7 @@ def corr_relief(text):
         if words[0] == "из":
             words = words[1:]
         else:
-            words = genitive_case_list(words)
+            words = to_genitive_case_list(words)
 
         if not first_words:
             # print("12.1.1")
@@ -618,7 +618,7 @@ def corr_relief(text):
     else:
         # print('one word')
         material = group1
-        text = "%s из %s" % (obj, genitive_case(material))
+        text = "%s из %s" % (obj, to_genitive_case(material))
 
     if "иза" in text:
         text = text.replace(" иза", "")
@@ -672,11 +672,11 @@ def corr_item_body_parts(text):
     initial_string = search_result.group(1)
     words = search_result.group(2).split()
     if words[-1] in {"частичный", "искалеченный"}:
-        replacement_string = "%s %s %s" % (words[-1], search_result.group(3), " ".join(genitive_case_list(words[:-1])))
+        replacement_string = "%s %s %s" % (words[-1], search_result.group(3), " ".join(to_genitive_case_list(words[:-1])))
     else:
         if any("GRND" in custom_parse(word)[0].tag for word in words):  # Ignore participles
             return None
-        replacement_string = search_result.group(3) + " " + " ".join(genitive_case_list(words))
+        replacement_string = search_result.group(3) + " " + " ".join(to_genitive_case_list(words))
     return text.replace(initial_string, replacement_string.capitalize())
 
 
@@ -954,7 +954,7 @@ re_animal_material = re.compile(r"(.+)\s(кожа|кость|волокно|шё
 def corr_animal_material(text):
     # print(21)
     search_result = re_animal_material.search(text)
-    text = search_result.group(2) + " " + genitive_case(search_result.group(1))
+    text = search_result.group(2) + " " + to_genitive_case(search_result.group(1))
     return text
 
 
@@ -970,10 +970,10 @@ def corr_stopped_construction(text):
 
     if "Ремесленник мастерская" in obj:
         gen_case_obj = " ".join(
-            genitive_case(word) for word in reversed(obj.split())
+            to_genitive_case(word) for word in reversed(obj.split())
         )  # Put words into genitive case separately
     else:
-        gen_case_obj = genitive_case(obj)
+        gen_case_obj = to_genitive_case(obj)
 
     return ("%s приостановили строительство %s." % (subj, gen_case_obj)).capitalize()
 
@@ -1141,7 +1141,7 @@ def corr_rings(text):
     search_result = re_rings.search(text)
     obj = search_result.group(2)
     description = search_result.group(1)
-    return text.replace(search_result.group(0), "%s из %s" % (obj, genitive_case(description)))
+    return text.replace(search_result.group(0), "%s из %s" % (obj, to_genitive_case(description)))
 
 
 # Title eg. "Histories of Greed and Avarice" for the Linux version
