@@ -1,6 +1,6 @@
 import pytest
 
-import changetext_new
+from changetext import changetext_new
 
 
 @pytest.mark.parametrize("text,result", [

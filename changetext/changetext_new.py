@@ -1,8 +1,8 @@
 import re
 from collections import OrderedDict
 
-from corrector import Corrector
-from tools import genitive_case
+from changetext.corrector import Corrector
+from changetext.utils import genitive_case
 
 corrector = Corrector()
 
@@ -291,6 +291,16 @@ make_adjective = {
 # выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
 @corrector.final_change(r"\W((приготовленные|рубленная)\s(.+)\s(\w+))")
 def corr_prepared(text, search_result):
+    """
+    >>> corr_prepared("(приготовленные северный олень почки [5])")
+    '(приготовленные почки северного оленя [5])'
+    >>> corr_prepared("(приготовленные панда лёгкие [5])")
+    '(приготовленные лёгкие панды [5])'
+    """
+    # TODO:
+    # >>> corr_prepared("(приготовленный волк мозг [5])")
+    # '(приготовленный мозг волка [5])'
+
     # print('corr_prepared(%r)' % s)
     groups = search_result.groups()
     result = text.replace(groups[0], "{} {} {}".format(groups[1], groups[3], genitive_case(groups[2])))

@@ -1,3 +1,4 @@
+import functools
 import re
 
 
@@ -32,10 +33,17 @@ class Corrector:
 
                 predicate = lambda text: regex.search(text)
 
+            @functools.wraps(func)
+            def wrapper(text, predicate_result=None):
+                if predicate_result is None:
+                    predicate_result = predicate(text)
+
+                return func(text, predicate_result)
+
             assert predicate is not None
             self.final_changes.append((predicate, func))
 
-            return func
+            return wrapper
         return decorator
 
     def change_text(self, text):
