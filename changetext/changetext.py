@@ -1303,6 +1303,12 @@ re_color_of_color = re.compile(r"цвет ([\w\s]*)цвета")
 
 
 def corr_color_of_color(text):
+    """
+    >>> corr_color_of_color("цвет серебристого цвета")
+    'серебристый цвет'
+    >>> corr_color_of_color("цвет цвета морской волны")
+    'цвет морской волны'
+    """
     search_result = re_color_of_color.search(text)
     if search_result:
         if not search_result.group(1):
