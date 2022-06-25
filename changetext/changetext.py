@@ -3,9 +3,9 @@ import traceback
 from collections import OrderedDict
 
 from .common_state import get_state
+from .logging_tools import get_logger, log_exceptions
 from .tag_correction import parse_tags, corr_tags
 from .utf16_codec import utf16_codec
-from .logging_tools import get_logger, log_exceptions
 from .utils import (
     inflect_collocation,
     custom_parse,
@@ -398,12 +398,7 @@ def corr_weapon_trap_parts(text):
         # print("object:", obj)
         gender = get_main_word_gender(obj)
         # print("object gender:", gender)
-        if adj not in make_adjective and " " in adj:
-            adj_words = adj.split()
-            new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
-            new_adj = " ".join(new_words)
-        else:
-            new_adj = inflect_adjective(make_adjective[adj], gender)
+        new_adj = inflect_as_adjective(adj, gender)
         # print(adj, ":", new_adj)
         new_word_2 = inflect_adjective(make_adjective[material], gender)
         # print(material, ":", new_word_2)
@@ -416,15 +411,20 @@ def corr_weapon_trap_parts(text):
         # print("object:", obj)
         gender = get_main_word_gender(obj)
         assert gender is not None
-        if adj not in make_adjective and " " in adj:
-            adj_words = adj.split()
-            new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
-            new_adj = " ".join(new_words)
-        else:
-            new_adj = inflect_adjective(make_adjective[adj], gender)
+        new_adj = inflect_as_adjective(adj, gender)
         # print(adj, ":", new_adj)
         text = text.replace(search_result.group(0), "%s %s %s" % (new_adj, obj, material))
     return text
+
+
+def inflect_as_adjective(adj, gender):
+    if adj not in make_adjective and " " in adj:
+        adj_words = adj.split()
+        new_words = [inflect_adjective(make_adjective[word], gender) for word in adj_words]
+        new_adj = " ".join(new_words)
+    else:
+        new_adj = inflect_adjective(make_adjective[adj], gender)
+    return new_adj
 
 
 animal_genders = {"собака": ("пёс", "собака"), "кошка": ("кот", "кошка"), "лошадь": ("конь", "лошадь")}
