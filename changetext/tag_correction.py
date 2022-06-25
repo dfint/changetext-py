@@ -63,16 +63,8 @@ def corr_tags(text):
                     tags.remove("set-form")
 
                 if tags:
-                    if " " in word:
-                        item = inflect_collocation(word, tags)
-                    else:
-                        p = custom_parse(word)[0]
-                        item = p.inflect(tags).word
-                        # if not make_lower and word[0].isupper():
-                        if word[0].isupper():
-                            item = item.capitalize()
+                    item = inflect_text(tags, word)
                 else:
-                    # item = word if not make_lower else word.lower()
                     item = word
             else:
                 # Inflect a part of text after the tag till the ending point of the sentence.
@@ -120,14 +112,7 @@ def corr_tags(text):
         # print(form)
         for i in set_indices:
             word = text_parts[i]
-            if " " in word:
-                item = inflect_collocation(word, form)
-            else:
-                p = custom_parse(word)[0]
-                item = p.inflect(form).word
-                if word[0].isupper():
-                    item = item.capitalize()
-            text_parts[i] = item
+            text_parts[i] = inflect_text(form, word)
 
     if capitalize_indices:
         for i in capitalize_indices:
@@ -146,3 +131,14 @@ def corr_tags(text):
 
     # print(li)
     return smart_join(text_parts)
+
+
+def inflect_text(tags, text):
+    if " " in text:
+        item = inflect_collocation(text, tags)
+    else:
+        p = custom_parse(text)[0]
+        item = p.inflect(tags).word
+        if text[0].isupper():
+            item = item.capitalize()
+    return item
