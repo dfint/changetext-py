@@ -1089,6 +1089,12 @@ re_werebeast = re.compile(r"были(\w+)")
 
 
 def corr_werebeast(text):
+    """
+    >>> corr_werebeast("Ura Wuspinicen, былимуравьед")
+    'Ura Wuspinicen, муравьед-оборотень'
+    >>> corr_werebeast(" былимуравьед крепко держится!")
+    ' муравьед-оборотень крепко держится!'
+    """
     search_result = re_werebeast.search(text)
     return text.replace(search_result.group(0), search_result.group(1) + "-оборотень")
 
