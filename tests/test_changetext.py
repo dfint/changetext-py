@@ -21,6 +21,7 @@ def test_corr_contextual():
 def test_corr_has_verb():
     # Test 'has' + verb fix
     assert change_text(" имеет создал ") == " создал "
+    assert change_text(" был создать ") == " создал "
     assert change_text(" имеет пришёл ") == " пришёл "
     assert change_text(" имеет упал ") == " упал "
     assert change_text(" имеет стрямкал ") == " стрямкал "

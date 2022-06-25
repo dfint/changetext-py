@@ -1269,6 +1269,10 @@ def corr_has_verb(text):
     """
     >>> corr_has_verb(" имеет создал ")
     ' создал '
+    >>> corr_has_verb(" был создал ")
+    ' создал '
+    >>> corr_has_verb(" был создать ")
+    ' создал '
     >>> corr_has_verb(" имеет пришёл ")
     ' пришёл '
     >>> corr_has_verb(" имеет упал ")
@@ -1279,10 +1283,10 @@ def corr_has_verb(text):
     search_result = re_has_verb.search(text)
     if search_result:
         word = search_result.group(2)
-        parse = [p for p in custom_parse(word) if p.tag.POS == "VERB"]
+        parse = [p for p in custom_parse(word) if p.tag.POS in ("VERB", "INFN")]
         if parse:
             if not any({"past"} in p.tag for p in parse):
-                word = parse[0].inflect({"past"}).word
+                word = parse[0].inflect({"VERB", "past", "sing"}).word
             return text.replace(search_result.group(0), word)
 
 
