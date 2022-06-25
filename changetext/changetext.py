@@ -723,7 +723,7 @@ def corr_craft_glass(text):  # TODO: Combine into single crafting-related functi
     return text.replace(search_result.group(0), result)
 
 
-re_craft_general = re.compile(r"(Делать|Изготовить|Украшать)([\w\s]+)$")
+re_craft_general = re.compile(r"(Делать|Изготовить|Украшать)([\w\s/]+)$")
 
 
 def corr_craft_general(text):
