@@ -3,7 +3,6 @@ import re
 
 import pymorphy2
 
-
 morph = pymorphy2.MorphAnalyzer()
 unwanted_tags = ("Name", "Surn", "Infr")
 
@@ -44,8 +43,9 @@ def inflect_collocation(s, tags):
     for i, word in enumerate(words):
         parse = custom_parse(word)
         if any_in_tag({"NOUN"}, parse):
-            p = next(p for p in parse if {"NOUN"} in p.tag)
-            p = p.inflect(tags)
+            p0 = next(p for p in parse if {"NOUN"} in p.tag)
+            p = p0.inflect(tags)
+            assert p is not None, p0
             words[i] = p.word if word[0].islower() else p.word.capitalize()
             j = i
             main_word = p
