@@ -265,7 +265,16 @@ re_prepared = re.compile(r"\W((приготовленные|рубленная)\
 
 
 def corr_prepared(text):
-    # print('corr_prepared(%r)' % s)
+    """
+    >>> corr_prepared("(приготовленные северный олень почки [5])")
+    '(приготовленные почки северного оленя [5])'
+    >>> corr_prepared("(приготовленные панда лёгкие [5])")
+    '(приготовленные лёгкие панды [5])'
+    """
+    # TODO:
+    # >>> corr_prepared("(приготовленный волк мозг [5])")
+    # '(приготовленный мозг волка [5])'
+
     search_result = re_prepared.search(text)
     groups = search_result.groups()
     result = text.replace(groups[0], "{} {} {}".format(groups[1], groups[3], genitive_case(groups[2])))
@@ -1197,6 +1206,10 @@ def corr_well(text):
 
 
 def corr_minced(text):
+    """
+    >>> corr_minced("(рубленная гризли печень [5])")
+    '(рубленная печень гризли [5])'
+    """
     s1 = ""
     while "рублены" in text and "рубленый" not in text:
         x, _, text = text.partition("рублены")
