@@ -2,7 +2,7 @@ import re
 from collections import OrderedDict
 
 from changetext.corrector import Corrector
-from changetext.utils import genitive_case
+from changetext.utils import to_genitive_case
 
 corrector = Corrector()
 
@@ -305,7 +305,7 @@ def corr_prepared(text, search_result):
 
     # print('corr_prepared(%r)' % s)
     groups = search_result.groups()
-    result = text.replace(groups[0], "{} {} {}".format(groups[1], groups[3], genitive_case(groups[2])))
+    result = text.replace(groups[0], "{} {} {}".format(groups[1], groups[3], to_genitive_case(groups[2])))
     return result
 
 
@@ -323,7 +323,7 @@ def corr_item_3(text, search_result):
     if re_3_1.search(text):
         # print(3.1)
         search_result = re_3_1.search(text)
-        text = search_result.group(1) + " " + genitive_case(search_result.group(3) + " " + search_result.group(2))
+        text = search_result.group(1) + " " + to_genitive_case(search_result.group(3) + " " + search_result.group(2))
         return text.capitalize()
     if search_result.group(3) in replaced_parts:
         # print(3.2)
@@ -338,7 +338,7 @@ def corr_item_3(text, search_result):
     else:
         # print(3.5)
         text = text.replace(search_result.group(0),
-                            search_result.group(1) + new_word + " " + genitive_case(search_result.group(2)))
+                            search_result.group(1) + new_word + " " + to_genitive_case(search_result.group(2)))
     # print(3.0)
     return text
 
