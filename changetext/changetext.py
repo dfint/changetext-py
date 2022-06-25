@@ -95,7 +95,7 @@ body_parts = {
     "хвост",
 }
 
-re_item_general = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
+re_item_general = re.compile(r"^[(+*-«☼р]*(из\s[\w\s\-/]+\b)")
 
 # corr_item_general_except = {
 #     # "боевой",  # Avoid recognition "боевой" as a female surname in genitive
@@ -105,11 +105,18 @@ re_item_general = re.compile(r"^[(+*-«☼]*((р?)(из\s[\w\s\-/]+\b))")
 
 
 @open_brackets
-def corr_item_general(text):
-    # print('corr_item_general')
+def corr_of_material_item(text):
+    """
+    >>> corr_of_material_item("риз алевролита мемориал")
+    '≡алевролитовый мемориал'
+    >>> corr_of_material_item("из алевролита доспешная стойка")
+    'алевролитовая доспешная стойка'
+    >>> corr_of_material_item("(из висмутовой бронзы короткие мечи [3])")
+    '(короткие мечи из висмутовой бронзы [3])'
+    """
     search_result = re_item_general.search(text)
     initial_string = search_result.group(1)
-    words = search_result.group(3).split()
+    words = initial_string.split()
 
     # print(words)
     if len(words) == 2:
@@ -1381,7 +1388,7 @@ def change_text(text):
         result = corr_container(text)
     elif re_item_general.search(text) and "пол" not in text:
         print("re_item_general passed")
-        result = corr_item_general(text)
+        result = corr_of_material_item(text)
     elif re_clothes.search(text):
         result = corr_clothes(text)
     elif re_prepared.search(text):
