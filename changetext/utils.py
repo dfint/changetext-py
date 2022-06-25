@@ -83,7 +83,14 @@ def cut_number(text):
 
 
 re_sentence = re.compile(r'^([^\.!"]*)([\.!"].*)$')
-re_split_enumeration = re.compile(r"(,| и )")
+
+
+def split_sentence(text):
+    sentence = re_sentence.search(text)
+    if sentence:
+        return sentence.groups()
+    else:
+        return text, ""
 
 
 def is_enumeration_delimiter(text):
@@ -94,20 +101,24 @@ def any_cyr(text):
     return any("а" <= x <= "я" or x == "ё" for x in text.lower())
 
 
-def smart_join(li):
-    def add_spaces(text):
-        add_space = False
-        for part in text:
-            part = part.strip()
-            if part:
-                if add_space and part[0].isalnum():
-                    part = " " + part
+def add_spaces(text_parts):
+    add_space = False
+    for part in text_parts:
+        part = part.strip()
+        if part:
+            if add_space and part[0].isalnum():
+                part = " " + part
 
-                yield part
-                if part[-1] not in set('"('):
-                    add_space = True
+            yield part
+            if part[-1] not in set('"('):
+                add_space = True
 
-    return "".join(add_spaces(li))
+
+def smart_join(text_parts):
+    return "".join(add_spaces(text_parts))
+
+
+re_split_enumeration = re.compile(r"(,| и )")
 
 
 def _inflect_enumeration(text, form):
@@ -124,9 +135,7 @@ def _inflect_enumeration(text, form):
 
 
 def inflect_enumeration(s, form):
-    li = list(_inflect_enumeration(s, form))
-    # print(li)
-    return smart_join(li)
+    return smart_join(_inflect_enumeration(s, form))
 
 
 def get_form(word):
