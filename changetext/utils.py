@@ -542,7 +542,7 @@ def genitive_case(word: str):
     return " ".join(genitive_case_list(word.split()))
 
 
-opening = {"!", "(", "*", "+", "-", "[", "{", "«", "р", "☼", "X", "x"}
+opening = "!(*+-[{«р☼Xx"
 closing = {"«": "»", "[": "]", "(": ")", "{": "}"}
 
 
