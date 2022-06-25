@@ -5,6 +5,7 @@ from collections import OrderedDict
 from changetext.common_state import get_state
 from changetext.contextual import corr_contextual
 from changetext.logging_tools import get_logger, log_exceptions
+from changetext.open_brackets import open_brackets
 from changetext.tag_correction import corr_tags, parse_tags
 from changetext.utf16_codec import utf16_codec
 from changetext.utils import (
@@ -22,7 +23,6 @@ from changetext.utils import (
     inflect_noun,
     is_adjective,
     make_adjective,
-    open_brackets,
 )
 from changetext.whole_phrases import whole_phrases
 

@@ -1,6 +1,6 @@
 import pytest
 
-from changetext.utils import open_brackets
+from changetext.open_brackets import open_brackets
 
 
 @pytest.mark.parametrize(
