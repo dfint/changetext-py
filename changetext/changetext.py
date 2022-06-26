@@ -676,7 +676,11 @@ def corr_item_body_parts(text):
     initial_string = search_result.group(1)
     words = search_result.group(2).split()
     if words[-1] in {"частичный", "искалеченный"}:
-        replacement_string = "%s %s %s" % (words[-1], search_result.group(3), " ".join(to_genitive_case_list(words[:-1])))
+        replacement_string = "{} {} {}".format(
+            words[-1],
+            search_result.group(3),
+            " ".join(to_genitive_case_list(words[:-1])),
+        )
     else:
         if any("GRND" in custom_parse(word)[0].tag for word in words):  # Ignore participles
             return None
@@ -966,11 +970,17 @@ re_stopped_construction = re.compile(r"(\w+) приостановили стро
 
 
 def corr_stopped_construction(text):
-    # print("corr_stopped_construction")
+    """
+    >>> corr_stopped_construction(" дварфы приостановили строительство Стена.")
+    'Дварфы приостановили строительство стены.'
+    >>> corr_stopped_construction(" дварфы приостановили строительство Ремесленник мастерская.")
+    'Дварфы приостановили строительство мастерской ремесленника.'
+    >>> corr_stopped_construction(" дварфы приостановили строительство Ювелирная мастерская.")
+    'Дварфы приостановили строительство ювелирной мастерской.'
+    """
     search_result = re_stopped_construction.search(text)
     subj = search_result.group(1)
     obj = search_result.group(2)
-    # print(obj)
 
     if "Ремесленник мастерская" in obj:
         gen_case_obj = " ".join(
@@ -979,7 +989,7 @@ def corr_stopped_construction(text):
     else:
         gen_case_obj = to_genitive_case(obj)
 
-    return ("%s приостановили строительство %s." % (subj, gen_case_obj)).capitalize()
+    return ("{} приостановили строительство {}.".format(subj, gen_case_obj)).capitalize()
 
 
 # Корректировка для окончания s - перевод существительного во множественное число или глагола в 3-е лицо ед.ч.
@@ -1018,7 +1028,7 @@ def corr_ending_s(text):
         parse = [x for x in custom_parse(group2) if {"NOUN", "nomn", "sing"} in x.tag]
         # print(parse)
         assert len(parse) == 1
-        replacement_string = "%d %s" % (number, parse[0].make_agree_with_number(number).word)
+        replacement_string = "{:d} {}".format(number, parse[0].make_agree_with_number(number).word)
     elif group2 in dict_ending_s:
         replacement_string = dict_ending_s[group2]
     elif " " not in group2:
@@ -1026,7 +1036,6 @@ def corr_ending_s(text):
         if new_form:
             replacement_string = new_form
         else:
-            # print("Couldn't find correct -s form for %s." % group2)
             return None
     else:
         words = group2.split()
@@ -1039,7 +1048,6 @@ def corr_ending_s(text):
                 words[-1] = new_form
                 replacement_string = " ".join(words)
             else:
-                # print("Couldn't find correct -s form for %s." % words[-1])
                 return None
 
     return text.replace(search_result.group(0), replacement_string)
@@ -1071,10 +1079,10 @@ def corr_clothiers_shop(text):
         if material == "пряжа":
             verb = "Вязать"
             material = parse.inflect({"gent"}).word
-            return "%s %s из %s" % (verb, product, material)
+            return "{} {} из {}".format(verb, product, material)
         else:
             material = parse.inflect({"loct"}).word
-            return "%s %s на %s" % (verb, product, material)
+            return "{} {} на {}".format(verb, product, material)
     else:
         if product in {"щит", "баклер"}:
             of_material = cloth_subst[material][1]  # Leave 'Делать'/'Изготовить' verb
