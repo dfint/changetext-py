@@ -15,7 +15,7 @@ def init():
 init()
 
 
-def get_state() -> ChangeTextState:
+def get_state():
     global _change_text_state
     if _change_text_state is None:
         _change_text_state = ChangeTextState()

@@ -11,7 +11,6 @@ from changetext.utf16_codec import utf16_codec
 from changetext.utils import (
     any_in_tag,
     custom_parse,
-    dict_ending_s,
     to_genitive_case,
     to_genitive_case_list,
     to_genitive_case_single_noun,
@@ -192,7 +191,7 @@ def corr_of_material_item(text):
         else:
             replacement_string = " ".join(words) + " " + of_material
     else:
-        raise ValueError("Unknown case: %r" % text)
+        raise ValueError("Unknown case: {!r}".format(text))
 
     text = text.replace(initial_string, replacement_string)
     return text
@@ -944,6 +943,33 @@ def corr_ending_s_internal(text):
     return new_forms.pop()
 
 
+dict_ending_s = {
+    "готовая еда": "готовая еда",
+    "питьё": "питьё",
+    "стул": "стулья",
+    "доспешная стойка": "доспешные стойки",
+    "оружейная стойка": "оружейные стойки",
+    "дублёная шкура": "дублёные шкуры",
+    "большой самоцвет": "большие самоцветы",
+    "баклер": "баклеры",
+    "оружие": "оружие",
+    "крышка люка": "крышки люка",
+    "ручная мельница": "ручные мельницы",
+    "ловушка для животных": "ловушки для животных",
+    "часть ловушки": "части ловушек",
+    "музыкальный инструмент": "музыкальные инструменты",
+    "наконечник стрелы баллисты": "наконечники стрелы баллисты",
+    "часть тела": "части тела",
+    "конечность/тело гипс": "гипс для конечностей тела",
+    "Элитный борец": "Элитные борцы",
+    "Лорд топора": "Лорды топора",
+    "Лорд булавы": "Лорды булавы",
+    "Лорд молота": "Лорды молота",
+    "Мастер меча": "Мастера меча",
+    "Мастер копья": "Мастера копья",
+}
+
+
 def corr_ending_s(text):
     search_result = re_ending_s.search(text)
     number = search_result.group(1)
@@ -1327,7 +1353,7 @@ def change_text(text):
         try:
             result = corr_tags(text)
         except (AssertionError, ValueError) as err:
-            print("corr_tags() raises exception %r:" % err)
+            print("corr_tags() raises exception {!r}:".format(err))
             print(traceback.format_exc())
             result = " ".join(
                 part.strip(" ") if not part.startswith("<") else part.strip("<>").partition(":")[2]

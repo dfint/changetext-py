@@ -25,7 +25,7 @@ class LoggerWrapper:
 
 
 @functools.lru_cache()
-def get_logger(stream=None) -> LoggerWrapper:
+def get_logger(stream=None):
     return LoggerWrapper(stream)
 
 
