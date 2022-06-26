@@ -229,11 +229,15 @@ def corr_item_3(text):
     return text
 
 
-re_puddle = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
+re_blood_stain = re.compile(r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 
 
-def corr_puddle(text):
-    search_result = re_puddle.search(text)
+def corr_blood_stain(text):
+    """
+    >>> corr_blood_stain("Лужа кот кровь")
+    'Лужа крови кота'
+    """
+    search_result = re_blood_stain.search(text)
     text = search_result.group(1) + " " + to_genitive_case(search_result.group(3) + " " + search_result.group(2))
     return text.capitalize()
 
@@ -1399,8 +1403,8 @@ def change_text(text):
         result = corr_forge(text)
     elif re_weapon_trap_parts.search(text):
         result = corr_weapon_trap_parts(text)
-    elif re_puddle.search(text):
-        result = corr_puddle(text)
+    elif re_blood_stain.search(text):
+        result = corr_blood_stain(text)
     elif re_3.search(text):
         result = corr_item_3(text)
     elif re_wooden_logs.search(text):
