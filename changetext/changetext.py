@@ -931,11 +931,11 @@ def corr_ending_s_internal(text):
         return None
 
     new_forms = set()
-    for item in parse:  # FIXME: unused variable item
-        if parse[0].tag.POS == "NOUN":
-            new_forms.add(parse[0].inflect({"plur"}).word)
-        else:  # parse[0].tag.POS == 'VERB':
-            new_forms.add(parse[0].inflect({"3per", "sing"}).word)
+
+    if parse[0].tag.POS == "NOUN":
+        new_forms.add(parse[0].inflect({"plur"}).word)
+    else:  # parse[0].tag.POS == 'VERB':
+        new_forms.add(parse[0].inflect({"3per", "sing"}).word)
 
     if len(new_forms) > 1:
         # Cannot determine part of speech because of ambiguity
@@ -1323,7 +1323,7 @@ def change_text(text):
     if result:
         text = result
 
-    if "<" in text and ">" in text and "<нет " not in text and not "<#" in text:
+    if "<" in text and ">" in text and "<нет " not in text and "<#" not in text:
         try:
             result = corr_tags(text)
         except (AssertionError, ValueError) as err:
