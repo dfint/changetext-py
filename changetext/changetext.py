@@ -200,7 +200,7 @@ def corr_of_material_item(text):
 
 re_3 = re.compile(
     r"(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольца|серьги|амулеты|браслеты"
-    r"|скипетры|коронаы|статуэтки\b)"
+    r"|скипетры|короны|статуэтки\b)"
 )
 
 
@@ -858,29 +858,29 @@ def corr_settlement(text):
     return "{} {} {}".format(adjective_2.capitalize(), settlement, name.capitalize())
 
 
-re_material_selection = re.compile(r"(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)")
-
-reagents = {
-    # реагенты
-    "сырой рыба": "свежая рыба",
-}
-
-
-# выбор материала
-def corr_material_selection(text):
-    search_result = re_material_selection.search(text)
-    if search_result.group(2) in reagents:
-        new_word = reagents[search_result.group(2)]
-    else:
-        new_word = search_result.group(2)
-    if search_result.group(1) == "пряжа" or search_result.group(1) == "растительное волокно":
-        material = make_adjective[search_result.group(1)]
-        text = new_word + " " + material
-        return text.capitalize()
-    gender = get_gender(new_word)
-    material = make_adjective[search_result.group(1)][gender]
-    text = material + " " + new_word
-    return text.capitalize()
+# re_material_selection = re.compile(r"(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)")
+#
+# reagents = {
+#     # реагенты
+#     "сырой рыба": "свежая рыба",
+# }
+#
+#
+# # выбор материала
+# def corr_material_selection(text):
+#     search_result = re_material_selection.search(text)
+#     if search_result.group(2) in reagents:
+#         new_word = reagents[search_result.group(2)]
+#     else:
+#         new_word = search_result.group(2)
+#     if search_result.group(1) == "пряжа" or search_result.group(1) == "растительное волокно":
+#         material = make_adjective[search_result.group(1)]
+#         text = new_word + " " + material
+#         return text.capitalize()
+#     gender = get_gender(new_word)
+#     material = make_adjective[search_result.group(1)][gender]
+#     text = material + " " + new_word
+#     return text.capitalize()
 
 
 re_animal_material = re.compile(r"(.+)\s(кожа|кость|волокно|шёлк)\b")
