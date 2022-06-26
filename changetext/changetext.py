@@ -162,7 +162,7 @@ def corr_of_material_item(text):
             obj = words[-1]
             gender = get_gender(obj, "NOUN")
             adjs = (inflect_adjective(adj, gender) or adj for adj in words[:-1])
-            first_part = "%s %s" % (" ".join(adjs), obj)
+            first_part = "{} {}".format(" ".join(adjs), obj)
         replacement_string = first_part + " " + of_material
     elif any_in_tag({"NOUN", "gent"}, custom_parse(words[1])) and words[1] != "древесины":
         # Simple case, eg. "из бронзы"
@@ -411,7 +411,7 @@ def corr_weapon_trap_parts(text):
         # print(adj, ":", new_adj)
         new_word_2 = inflect_adjective(make_adjective[material], gender)
         # print(material, ":", new_word_2)
-        text = text.replace(search_result.group(0), "%s %s %s" % (new_adj, new_word_2, obj))
+        text = text.replace(search_result.group(0), "{} {} {}".format(new_adj, new_word_2, obj))
     else:
         # print(9.2)
         material = " ".join(words[:3])
@@ -422,7 +422,7 @@ def corr_weapon_trap_parts(text):
         assert gender is not None
         new_adj = inflect_as_adjective(adj, gender)
         # print(adj, ":", new_adj)
-        text = text.replace(search_result.group(0), "%s %s %s" % (new_adj, obj, material))
+        text = text.replace(search_result.group(0), "{} {} {}".format(new_adj, obj, material))
     return text
 
 
@@ -533,7 +533,7 @@ def corr_container(text):
         gender = get_gender(container, {"nomn"})
         adjective = inflect_adjective(adjective, gender)
         # print([container, containment, adjective])
-        replacement_string = "%s %s (%s)" % (container, containment, adjective)
+        replacement_string = "{} {} ({})".format(container, containment, adjective)
     else:
         # print('Case 2')
         words = of_material.split()
@@ -562,7 +562,7 @@ def corr_container(text):
                 material = "из " + " ".join(gen_case)
             else:
                 material = of_material
-        replacement_string = "%s %s (%s" % (container, containment, material)
+        replacement_string = "{} {} ({}".format(container, containment, material)
         if initial_string[-1] == ")":
             replacement_string += ")"
     text = text.replace(initial_string, replacement_string.capitalize())
@@ -614,15 +614,12 @@ def corr_relief(text):
             words = to_genitive_case_list(words)
 
         if not first_words:
-            # print("12.1.1")
-            text = "%s из %s" % (obj, " ".join(words))
+            text = "{} из {}".format(obj, " ".join(words))
         else:
-            # print("12.1.2")
-            text = "%s %s из %s" % (" ".join(first_words), obj, " ".join(words))
+            text = "{} {} из {}".format(" ".join(first_words), obj, " ".join(words))
     else:
-        # print('one word')
         material = group1
-        text = "%s из %s" % (obj, to_genitive_case(material))
+        text = "{} из {}".format(obj, to_genitive_case(material))
 
     if "иза" in text:
         text = text.replace(" иза", "")
@@ -705,7 +702,7 @@ def corr_craft_glass(text):  # TODO: Combine into single crafting-related functi
     if not product:
         verb = "Варить"
         adjectives = (inflect_adjective(adj, material_gender, "accs", animated=False) for adj in words)
-        result = "%s %s %s" % (verb, " ".join(adjectives), material)
+        result = "{} {} {}".format(verb, " ".join(adjectives), material)
     else:
         index = next(
             (i for i, item in enumerate(words) if item in {"грубое", "зелёное", "прозрачное", "грубый"}), len(words)
@@ -729,9 +726,8 @@ def corr_craft_glass(text):  # TODO: Combine into single crafting-related functi
         material = inflect_noun(material, case="gent")
         product_words = product_adjectives + product
         material_words = material_adjectives + [material]
-        result = "%s %s из %s" % (verb, " ".join(product_words), " ".join(material_words))
+        result = "{} {} из {}".format(verb, " ".join(product_words), " ".join(material_words))
 
-    # print('result:', result)
     return text.replace(search_result.group(0), result)
 
 
@@ -771,7 +767,7 @@ def corr_craft_general(text):
         if len(words) == 1 and words[0] not in make_adjective and not is_adjective(words[0]):
             material = inflect_noun(words[0], "gent", orig_form={"nomn", "inan"})  # рог -> (из) рога
             assert material is not None
-            result = "%s %s из %s" % (verb, product, material)
+            result = "{} {} из {}".format(verb, product, material)
         else:
             adjectives = [
                 make_adjective[word] if word in make_adjective else word if is_adjective(word) else None
@@ -779,9 +775,9 @@ def corr_craft_general(text):
             ]
             assert all(adj is not None for adj in adjectives)
             adjectives = [inflect_adjective(adj, product_gender, "accs", animated=False) for adj in adjectives]
-            result = "%s %s %s" % (verb, " ".join(adjectives), product)
+            result = "{} {} {}".format(verb, " ".join(adjectives), product)
     else:
-        result = "%s %s" % (verb, product)
+        result = "{} {}".format(verb, product)
 
     return text.replace(search_result.group(0), result).capitalize()
 
@@ -846,7 +842,6 @@ def corr_forge(text):
         verb = "Ковать"
 
     if of_material in make_adjective:
-        # print('gender of "%s" is %s' % (obj[item_index], gender))
         material = inflect_adjective(make_adjective[of_material], gender, "accs", animated=False)
         text = verb + " " + material + " " + " ".join(obj)
     else:
@@ -911,7 +906,7 @@ def corr_settlement(text):
     name = search_result.group(3)
 
     if len(adjective) == 0:
-        return "%s %s" % (settlement.capitalize(), name.capitalize())
+        return "{} {}".format(settlement.capitalize(), name.capitalize())
 
     if adjective in {"Покинуть", "Разрушить"}:
         return
@@ -926,7 +921,7 @@ def corr_settlement(text):
     if adjective_2 is None:
         adjective_2 = adjective
 
-    return "%s %s %s" % (adjective_2.capitalize(), settlement, name.capitalize())
+    return "{} {} {}".format(adjective_2.capitalize(), settlement, name.capitalize())
 
 
 re_material_selection = re.compile(r"(металл|кожа|пряжа|растительное волокно|дерево|шёлк)\s(.+)")
@@ -1123,17 +1118,27 @@ re_become = re.compile(r"(.+)\s(стал)\s(.+)\.")
 
 
 def corr_become(text):
-    # print("corr_become")
+    """
+    >>> corr_become("Udil Vuthiltobul стал рекрут.")
+    'Udil Vuthiltobul стал рекрутом.'
+    >>> corr_become("Udil Vuthiltobul стал рыбник.")
+    'Udil Vuthiltobul стал рыбником.'
+    >>> corr_become("`***CLOTH' Rovodokir стал портной.")
+    "`***CLOTH' Rovodokir стал портным."
+    >>> corr_become("Животное вырос и стал Ничей козёл.")
+    'Животное выросло и стало ничьим козлом.'
+    >>> corr_become("Животное вырос и стал Ничей важенка.")
+    'Животное выросло и стало ничьей важенкой.'
+    """
     search_result = re_become.search(text)
     subj = search_result.group(1)
     verb = search_result.group(2)
-    # print(verb)
     words = search_result.group(3)
     words = inflect_collocation(words, {"ablt"})
     if subj.startswith("Животное"):
-        return "Животное выросло и стало %s." % words
+        return "Животное выросло и стало {}.".format(words)
     else:
-        return "%s %s %s." % (subj, verb, words)
+        return "{} {} {}.".format(subj, verb, words)
 
 
 re_with_his = re.compile(r"с (его|её|ваш) ([\w\s]*)")
