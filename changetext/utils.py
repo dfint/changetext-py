@@ -62,7 +62,7 @@ def inflect_collocation(s, tags):
     for i, word in enumerate(words[:j]):
         parse = custom_parse(word)
         if not is_adjective(word, parse):
-            raise ValueError("%s is not an adjective" % word)
+            raise ValueError("{} is not an adjective".format(word))
         p = next(p for p in parse if {"ADJF"} in p.tag)
         p1 = p.inflect(tags)
         assert p1 is not None, (p, tags)
@@ -427,7 +427,7 @@ def get_main_word_gender(text):
 
 def parse_as_adjective(adjective: str) -> list:
     parse = [p for p in custom_parse(adjective) if "ADJF" in p.tag or "PRTF" in p.tag]
-    assert len(parse) > 0, "parse: %r" % parse
+    assert len(parse) > 0, "parse: {!r}".format(parse)
     return parse
 
 
