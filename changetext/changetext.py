@@ -1128,13 +1128,20 @@ def corr_become(text):
         return "%s %s %s." % (subj, verb, words)
 
 
-re_with_his = re.compile(r"(с (его|её|ваш) (.*))[!]")
+re_with_his = re.compile(r"с (его|её|ваш) ([\w\s]*)")
 
 
 def corr_with_his(text):
-    # print("corr_with_his")
+    """
+    >>> corr_with_his("ладонь с его левое предплечье!")
+    'ладонь своим левым предплечьем!'
+    >>> corr_with_his("ладонь с ваш левое предплечье!")
+    'ладонь своим левым предплечьем!'
+    """
     search_result = re_with_his.search(text)
-    return text.replace(search_result.group(1), "своим %s" % (inflect_collocation(search_result.group(3), {"ablt"})))
+    return text.replace(
+        search_result.group(0), "своим {}".format(inflect_collocation(search_result.group(2), {"ablt"}))
+    )
 
 
 re_rings = re.compile(r"([\w\s]+) (кольцо|кольца)")
