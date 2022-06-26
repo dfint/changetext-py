@@ -94,13 +94,7 @@ body_parts = {
     "хвост",
 }
 
-re_item_general = re.compile(r"^[(+*-«☼р]*(из\s[\w\s\-/]+\b)")
-
-# corr_item_general_except = {
-#     # "боевой",  # Avoid recognition "боевой" as a female surname in genitive
-#     # "кирки",  # Avoid recognition "кирки" as a noun in genitive
-#     # "бочка",  # Avoid recognition "бочка" as "бочок" in genitive
-# }
+re_of_material_item = re.compile(r"^[(+*-«☼р]*(из\s[\w\s\-/]+\b)")
 
 
 @open_brackets
@@ -113,7 +107,7 @@ def corr_of_material_item(text):
     >>> corr_of_material_item("(из висмутовой бронзы короткие мечи [3])")
     '(короткие мечи из висмутовой бронзы [3])'
     """
-    search_result = re_item_general.search(text)
+    search_result = re_of_material_item.search(text)
     initial_string = search_result.group(1)
     words = initial_string.split()
 
@@ -237,12 +231,13 @@ def corr_blood_stain(text):
     return text.capitalize()
 
 
-# выражения типа "приготовленные(рубленная) гигантский крот лёгкие"
-re_prepared = re.compile(r"\W((приготовленные|рубленная)\s(.+)\s(\w+))")
+re_prepared = re.compile(r"[\^\W]((приготовленные|рубленная)\s(.+)\s(\w+))")
 
 
 def corr_prepared(text):
     """
+    >>> corr_prepared(" приготовленные гигантский крот лёгкие")
+    ' приготовленные лёгкие гигантского крота'
     >>> corr_prepared("(приготовленные северный олень почки [5])")
     '(приготовленные почки северного оленя [5])'
     >>> corr_prepared("(приготовленные панда лёгкие [5])")
@@ -253,6 +248,8 @@ def corr_prepared(text):
     # TODO:
     # >>> corr_prepared("(приготовленный волк мозг [5])")
     # '(приготовленный мозг волка [5])'
+    # >>> corr_prepared(" рубленная гигантский крот лёгкие")
+    # ' рубленные лёгкие гигантского крота'
 
     search_result = re_prepared.search(text)
     groups = search_result.groups()
@@ -263,7 +260,6 @@ def corr_prepared(text):
 re_skin = re.compile(r"(\(?)(.+)\s(из кожи|из шерсти)")
 
 
-# выражения типа "горный козёл из кожи"
 def corr_item_skin(text):
     """
     >>> corr_item_skin("горный козёл из кожи")
@@ -280,7 +276,6 @@ def corr_item_skin(text):
     return text
 
 
-# выражения типа "свинохвост из волокон (ткань+шёлк+шерсть)"
 re_clothes = re.compile(
     r"^[Xx\(+*-«☼]*((.+)\s"
     r"(из волокон"
@@ -301,6 +296,8 @@ re_clothes = re.compile(
 @open_brackets
 def corr_clothes(text):
     """
+    >>> corr_clothes("свинохвост из волокон ткань")
+    'ткань из волокон свинохвоста'
     >>> corr_clothes("(-«пещерный паук из шёлка левый варежка»-)")
     '(-«левая варежка из шёлка пещерного паука»-)'
     >>> corr_clothes("(гигантский пещерный паук из шёлка шапка)")
@@ -316,7 +313,6 @@ def corr_clothes(text):
     return text
 
 
-# выражения типа "древесина дуба брёвна"
 re_wooden_logs = re.compile(r"(древесина)\s(\w+)\s(брёвна)")
 
 
@@ -368,7 +364,6 @@ def corr_gem_cutting(text):
     return text.replace(search_result.group(0), " ".join(new_list))
 
 
-# выражения типа "гигантский из ясеня лезвия топоров"
 re_weapon_trap_parts = re.compile(
     r"(шипованный|огромный|большой|заточенный|гигантский|большой зазубренный)\s(из\s[\w\s]+\b)"
 )
@@ -1363,7 +1358,7 @@ def change_text(text):
         result = corr_histories_of(text)
     elif re_container.search(text):
         result = corr_container(text)
-    elif re_item_general.search(text) and "пол" not in text:
+    elif re_of_material_item.search(text) and "пол" not in text:
         print("re_item_general passed")
         result = corr_of_material_item(text)
     elif re_clothes.search(text):
