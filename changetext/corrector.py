@@ -7,7 +7,7 @@ class Corrector:
         self.preliminary_changes = list()
         self.final_changes = list()
 
-    def preliminary_change(self, regex=None, predicate=None):
+    def preliminary_corrector(self, regex=None, predicate=None):
         def decorator(func):
             nonlocal regex, predicate
 
@@ -33,7 +33,7 @@ class Corrector:
 
         return decorator
 
-    def final_change(self, regex=None, predicate=None):
+    def final_corrector(self, regex=None, predicate=None):
         def decorator(func):
             nonlocal regex, predicate
 

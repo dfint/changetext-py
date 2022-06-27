@@ -102,7 +102,7 @@ body_parts = {
 re_of_material_item = re.compile(r"^[(+*-«☼р]*(из\s[\w\s\-/]+\b)")
 
 
-@corrector.final_change(predicate=lambda text: "пол" not in text and re_of_material_item.search(text))
+@corrector.final_corrector(predicate=lambda text: "пол" not in text and re_of_material_item.search(text))
 @open_brackets
 def corr_of_material_item(text, search_result):
     """
@@ -196,7 +196,7 @@ def corr_of_material_item(text, search_result):
     return text
 
 
-@corrector.final_change(
+@corrector.final_corrector(
     regex=r"(\(?)(.+)\s(\bяйцо|требуха|железы|железа|мясо|кровь|сукровица|кольца|серьги|амулеты"
     r"|браслеты|скипетры|короны|статуэтки\b)"
 )
@@ -219,7 +219,7 @@ def corr_item_3(text, search_result):
     return text
 
 
-@corrector.final_change(regex=r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
+@corrector.final_corrector(regex=r"(\bЛужа|Брызги|Пятно)\s(.+)\s(кровь\b)")
 def corr_blood_stain(_text, search_result):
     """
     >>> corr_blood_stain("Лужа кот кровь")
@@ -229,7 +229,7 @@ def corr_blood_stain(_text, search_result):
     return text.capitalize()
 
 
-@corrector.final_change(regex=r"[\^\W]((приготовленные|рубленная)\s(.+)\s(\w+))")
+@corrector.final_corrector(regex=r"[\^\W]((приготовленные|рубленная)\s(.+)\s(\w+))")
 def corr_prepared(text, search_result):
     """
     >>> corr_prepared(" приготовленные гигантский крот лёгкие")
@@ -251,7 +251,7 @@ def corr_prepared(text, search_result):
     return result
 
 
-@corrector.final_change(regex=r"(\(?)(.+)\s(из кожи|из шерсти)")
+@corrector.final_corrector(regex=r"(\(?)(.+)\s(из кожи|из шерсти)")
 def corr_item_skin(text, search_result):
     """
     >>> corr_item_skin("горный козёл из кожи")
@@ -267,7 +267,7 @@ def corr_item_skin(text, search_result):
     return text
 
 
-@corrector.final_change(
+@corrector.final_corrector(
     regex=r"^[Xx\(+*-«☼]*((.+)\s"
     r"(из волокон"
     r"|из шёлка"
@@ -301,7 +301,7 @@ def corr_clothes(text, search_result):
     return text
 
 
-@corrector.final_change(regex=r"(древесина)\s(\w+)\s(брёвна)")
+@corrector.final_corrector(regex=r"(древесина)\s(\w+)\s(брёвна)")
 def corr_wooden_logs(text, search_result):
     """
     >>> corr_wooden_logs('древесина дуба брёвна')
@@ -318,7 +318,7 @@ def corr_wooden_logs(text, search_result):
     return text
 
 
-@corrector.final_change(regex=r"((бриолетовый|большой|огранённый|грубый)\s[\w\s-]+)")
+@corrector.final_corrector(regex=r"((бриолетовый|большой|огранённый|грубый)\s[\w\s-]+)")
 def corr_gem_cutting(text, search_result):
     """
     >>> corr_gem_cutting("(бриолетовый восковые опалы)")
@@ -346,7 +346,7 @@ def corr_gem_cutting(text, search_result):
     return text.replace(search_result.group(0), " ".join(new_list))
 
 
-@corrector.final_change(
+@corrector.final_corrector(
     regex=r"(шипованный|огромный|большой|заточенный|гигантский|большой зазубренный)\s(из\s[\w\s]+\b)"
 )
 def corr_weapon_trap_parts(text, search_result):
@@ -378,7 +378,7 @@ def corr_weapon_trap_parts(text, search_result):
 animal_genders = {"собака": ("пёс", "собака"), "кошка": ("кот", "кошка"), "лошадь": ("конь", "лошадь")}
 
 
-@corrector.preliminary_change(regex=r"(\w+), ([♂♀])")
+@corrector.preliminary_corrector(regex=r"(\w+), ([♂♀])")
 def corr_animal_gender(text, search_result):
     gender = "♂♀".index(search_result.group(2))
     animal = search_result.group(1)
@@ -388,7 +388,7 @@ def corr_animal_gender(text, search_result):
         return text.replace(search_result.group(0), animal_genders[animal][gender] + ", " + search_result.group(2))
 
 
-@corrector.final_change(regex=r"(охотничий|боевой|сырой) (\w+)(\(Ручной\))?")
+@corrector.final_corrector(regex=r"(охотничий|боевой|сырой) (\w+)(\(Ручной\))?")
 def corr_animal(text):
     text = text.replace("сырой", "сырая")
     if any(item in text for item in animals_female):
@@ -412,7 +412,7 @@ replace_containment = {
 materials = {"волокон", "шёлка", "шерсти", "кожи"}
 
 
-@corrector.final_change(regex=r"(\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$)")
+@corrector.final_corrector(regex=r"(\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$)")
 @open_brackets
 def corr_container(text, search_result):
     """
@@ -499,7 +499,7 @@ def corr_container(text, search_result):
     return text
 
 
-@corrector.final_change(
+@corrector.final_corrector(
     regex=r"(.+)\s(Подъем|Стена|Кластер|валун|склон|Пол Пещеры|лестница вверх/вниз|пол пещеры|"
     r"Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b"
 )
@@ -550,7 +550,7 @@ def corr_relief(_, search_result):
     return text.capitalize()
 
 
-@corrector.final_change(regex=re.compile(r"\b(Густой|Редкий|Заснеженный)\s(.+)"))
+@corrector.final_corrector(regex=re.compile(r"\b(Густой|Редкий|Заснеженный)\s(.+)"))
 def corr_adjective_relief(text, search_result):
     """
     >>> corr_adjective_relief("Заснеженный Густой овсяница")
@@ -576,7 +576,7 @@ def corr_adjective_relief(text, search_result):
     return text.capitalize()
 
 
-@corrector.final_change(
+@corrector.final_corrector(
     regex=r"^{?((\w+\s?\w+?|)\s" r"(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|голень))}?\b"
 )
 def corr_item_body_parts(text, search_result):
@@ -595,7 +595,7 @@ def corr_item_body_parts(text, search_result):
     return text.replace(initial_string, replacement_string.capitalize())
 
 
-@corrector.final_change(regex=r"\b(Делать|Изготовить)\s([\w\s]*)(стекло|хрусталь)([\w\s]*)")
+@corrector.final_corrector(regex=r"\b(Делать|Изготовить)\s([\w\s]*)(стекло|хрусталь)([\w\s]*)")
 def corr_craft_glass(text, search_result):  # TODO: Combine into single crafting-related function
     material = search_result.group(3)
     material_gender = get_gender(material)
@@ -634,7 +634,7 @@ def corr_craft_glass(text, search_result):  # TODO: Combine into single crafting
     return text.replace(search_result.group(0), result)
 
 
-@corrector.final_change(regex=r"(Делать|Изготовить|Украшать)([\w\s/]+)$")
+@corrector.final_corrector(regex=r"(Делать|Изготовить|Украшать)([\w\s/]+)$")
 def corr_craft_general(text, search_result):
     verb = search_result.group(1)
     words = search_result.group(2).split()
@@ -677,7 +677,7 @@ def corr_craft_general(text, search_result):
     return text.replace(search_result.group(0), result).capitalize()
 
 
-@corrector.final_change(regex=r"(^Ковать|^Делать|^Чеканить|^Изготовить|^Кузница)\s(из\s[\w\s?]+\b)")
+@corrector.final_corrector(regex=r"(^Ковать|^Делать|^Чеканить|^Изготовить|^Кузница)\s(из\s[\w\s?]+\b)")
 def corr_forge(_, search_result):
     verb = search_result.group(1)
     words = search_result.group(2).split()
@@ -730,7 +730,7 @@ def corr_forge(_, search_result):
     return text.capitalize()
 
 
-@corrector.final_change(
+@corrector.final_corrector(
     regex=r"^(Инкрустировать Готовые товары с"
     r"|Инкрустировать Предметы обстановки с"
     r"|Инкрустировать Снаряды с"
@@ -764,7 +764,7 @@ def corr_jewelers_shop(_, search_result):
     return text.capitalize()
 
 
-@corrector.final_change(regex=r"(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)")
+@corrector.final_corrector(regex=r"(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)")
 def corr_settlement(_, search_result):
     adjective = search_result.group(1).strip()
     settlement = search_result.group(2)
@@ -814,12 +814,12 @@ def corr_settlement(_, search_result):
 #     return text.capitalize()
 
 
-@corrector.final_change(regex=r"(.+)\s(кожа|кость|волокно|шёлк)\b")
+@corrector.final_corrector(regex=r"(.+)\s(кожа|кость|волокно|шёлк)\b")
 def corr_animal_material(_, search_result):
     return search_result.group(2) + " " + to_genitive_case(search_result.group(1))
 
 
-@corrector.final_change(regex=r"(\w+) приостановили строительство (.*)\.")
+@corrector.final_corrector(regex=r"(\w+) приостановили строительство (.*)\.")
 def corr_stopped_construction(_, search_result):
     """
     >>> corr_stopped_construction(" дварфы приостановили строительство Стена.")
@@ -927,7 +927,7 @@ def corr_ending_s(text):
     return text.replace(search_result.group(0), replacement_string)
 
 
-@corrector.preliminary_change(regex=re_ending_s)
+@corrector.preliminary_corrector(regex=re_ending_s)
 def corr_ending_s_loop(text, _search_result):
     result = text
     while re_ending_s.search(text):
@@ -948,7 +948,7 @@ cloth_subst = {
 }
 
 
-@corrector.final_change(regex=r"(Делать|Изготовить|Вышивать|Ткать) (ткань|шёлк|пряжа|кожа)(\s?\w*)")
+@corrector.final_corrector(regex=r"(Делать|Изготовить|Вышивать|Ткать) (ткань|шёлк|пряжа|кожа)(\s?\w*)")
 def corr_clothiers_shop(_, search_result):
     verb = search_result.group(1)
     material = search_result.group(2)
@@ -987,7 +987,7 @@ def corr_clothiers_shop(_, search_result):
             return " ".join([verb, product_accus, of_material])
 
 
-@corrector.preliminary_change(regex=r"были(\w+)")
+@corrector.preliminary_corrector(regex=r"были(\w+)")
 def corr_werebeast(text, search_result):
     """
     >>> corr_werebeast("Ura Wuspinicen, былимуравьед")
@@ -998,7 +998,7 @@ def corr_werebeast(text, search_result):
     return text.replace(search_result.group(0), search_result.group(1) + "-оборотень")
 
 
-@corrector.final_change(regex=r"(.+)\s(стал)\s(.+)\.")
+@corrector.final_corrector(regex=r"(.+)\s(стал)\s(.+)\.")
 def corr_become(_, search_result):
     """
     >>> corr_become("Udil Vuthiltobul стал рекрут.")
@@ -1022,7 +1022,7 @@ def corr_become(_, search_result):
         return "{} {} {}.".format(subj, verb, words)
 
 
-@corrector.preliminary_change(regex=r"с (его|её|ваш) ([\w\s]*)")
+@corrector.preliminary_corrector(regex=r"с (его|её|ваш) ([\w\s]*)")
 def corr_with_his(text, search_result):
     """
     >>> corr_with_his("ладонь с его левое предплечье!")
@@ -1035,7 +1035,7 @@ def corr_with_his(text, search_result):
     )
 
 
-@corrector.final_change(regex=r"([\w\s]+) (кольцо|кольца)")
+@corrector.final_corrector(regex=r"([\w\s]+) (кольцо|кольца)")
 def corr_rings(text, search_result):
     obj = search_result.group(2)
     description = search_result.group(1)
@@ -1064,12 +1064,12 @@ histories_adjs = {
 }
 
 
-@corrector.final_change(regex=r"Histories of (\w+) and (\w+)")
+@corrector.final_corrector(regex=r"Histories of (\w+) and (\w+)")
 def corr_histories_of(_, search_result):
     return "Истории о{} и {}".format(histories_adjs[search_result.group(1)], histories_adjs[search_result.group(2)])
 
 
-@corrector.preliminary_change(predicate=lambda text: "Я " in text and "колодец" in text)
+@corrector.preliminary_corrector(predicate=lambda text: "Я " in text and "колодец" in text)
 def corr_well(text, _):
     """
     >>> corr_well('Я колодец')  # I am well
@@ -1090,7 +1090,7 @@ def corr_well(text, _):
     return text
 
 
-@corrector.preliminary_change(predicate=lambda text: "рублены" in text and "рубленый " not in text)
+@corrector.preliminary_corrector(predicate=lambda text: "рублены" in text and "рубленый " not in text)
 def corr_minced(text, _):
     s1 = ""
     while "рублены" in text and "рубленый" not in text:
@@ -1100,7 +1100,7 @@ def corr_minced(text, _):
     return s1 + text
 
 
-@corrector.final_change(predicate=lambda text: text.startswith("Вы нашли из "))
+@corrector.final_corrector(predicate=lambda text: text.startswith("Вы нашли из "))
 def corr_you_struck(text, _):
     """
     >>> corr_you_struck('Вы нашли из пиролюзита!')
@@ -1121,7 +1121,7 @@ def corr_you_struck(text, _):
     return you_struck + " " + result + "!"
 
 
-@corrector.preliminary_change(regex=re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE))
+@corrector.preliminary_corrector(regex=re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE))
 def corr_someone_has(text, search_result):
     pronoun = search_result.group(1).lower()
     if pronoun == "он":
@@ -1144,7 +1144,7 @@ def corr_someone_has(text, search_result):
     return text
 
 
-@corrector.preliminary_change(regex=r"(имеете?|был)\s+(\w+)")
+@corrector.preliminary_corrector(regex=r"(имеете?|был)\s+(\w+)")
 def corr_has_verb(text, search_result):
     """
     >>> corr_has_verb(" имеет создал ")
@@ -1169,17 +1169,17 @@ def corr_has_verb(text, search_result):
             return text.replace(search_result.group(0), word)
 
 
-@corrector.preliminary_change(regex=r"[a-z](в <[a-z]+>)")
+@corrector.preliminary_corrector(regex=r"[a-z](в <[a-z]+>)")
 def corr_in_ending(text, search_result):
     return text.replace(search_result.group(1), "in")
 
 
-@corrector.preliminary_change(predicate=lambda text: text in whole_phrases)
+@corrector.preliminary_corrector(predicate=lambda text: text in whole_phrases)
 def corr_whole_phrases(text, _):
     return whole_phrases[text]
 
 
-@corrector.preliminary_change(regex=r"цвет ([\w\s]*)цвета")
+@corrector.preliminary_corrector(regex=r"цвет ([\w\s]*)цвета")
 def corr_color_of_color(text, search_result):
     """
     >>> corr_color_of_color("цвет серебристого цвета")
@@ -1196,7 +1196,7 @@ def corr_color_of_color(text, search_result):
         return text.replace(search_result.group(0), replacement)
 
 
-@corrector.preliminary_change(predicate=lambda text: any(item in text for item in replaced_parts))
+@corrector.preliminary_corrector(predicate=lambda text: any(item in text for item in replaced_parts))
 def corr_replace_parts(text, _):
     result = text
 
@@ -1208,17 +1208,17 @@ def corr_replace_parts(text, _):
     return result
 
 
-corrector.preliminary_change()(lambda text, _: corr_contextual(text))
+corrector.preliminary_corrector()(lambda text, _: corr_contextual(text))
 
 
-@corrector.preliminary_change(predicate=lambda _: get_state().prev_tail)
+@corrector.preliminary_corrector(predicate=lambda _: get_state().prev_tail)
 def add_prev_tail(text, prev_tail):
     text = prev_tail + text
     get_state().prev_tail = ""
     return text
 
 
-@corrector.preliminary_change(
+@corrector.preliminary_corrector(
     predicate=lambda text: "<" in text and ">" in text and "<нет " not in text and "<#" not in text
 )
 def corr_tags_outer(text, _):
