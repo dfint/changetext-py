@@ -764,7 +764,9 @@ def corr_jewelers_shop(_, search_result):
     return text.capitalize()
 
 
-@corrector.final_corrector(regex=r"(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)")
+@corrector.final_corrector(
+    regex=r"(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)"
+)
 def corr_settlement(_, search_result):
     adjective = search_result.group(1).strip()
     settlement = search_result.group(2)
