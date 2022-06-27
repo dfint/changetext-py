@@ -137,9 +137,9 @@ def test_tags_general(init_change_text, text, expected):
 @pytest.mark.parametrize(
     "text, expected",
     [
-        ("<-", None),
-        ("<1в", None),
-        (" <> ", None),
+        ("<-", "<-"),
+        ("<1в", "<1в"),
+        (" <> ", " <> "),
         ("asdfa <aeger:etrhrt> ehsge", "asdfa etrhrt ehsge"),
         ("asdfa <aeger> ehsge", "asdfa ehsge"),
         ('Golololв <accs>, "Golololв <accs>", ', 'Golololin, "Golololin", '),

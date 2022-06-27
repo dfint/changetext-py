@@ -11,6 +11,7 @@ def change_text(text):
     text = corr_contextual(text)
     assert text is not None
     text = final_changes.exclusive_changes(text)
+    assert text is not None
     return text
 
 

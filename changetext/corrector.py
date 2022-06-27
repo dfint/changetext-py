@@ -46,6 +46,6 @@ class CorrectorRegistry:
         for predicate, func in self.changes:
             predicate_result = predicate(text)
             if predicate_result:
-                return func(text, predicate_result)
+                return func(text, predicate_result) or text
 
         return text
