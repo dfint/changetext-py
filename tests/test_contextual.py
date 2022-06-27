@@ -1,5 +1,5 @@
 from changetext.changetext import change_text
-from changetext.contextual import corr_contextual
+from changetext.contextual_changes import corr_contextual
 
 
 def test_corr_contextual():

@@ -18,7 +18,7 @@ class Corrector:
                 predicate = lambda text: regex.search(text)
 
             if predicate is None:
-                predicate = lambda text: True
+                predicate = lambda _text: True
 
             self.preliminary_changes.append((predicate, func))
 
@@ -43,7 +43,9 @@ class Corrector:
 
                 predicate = lambda text: regex.search(text)
 
-            assert predicate is not None
+            if predicate is None:
+                predicate = lambda _text: True
+
             self.final_changes.append((predicate, func))
 
             @functools.wraps(func)
