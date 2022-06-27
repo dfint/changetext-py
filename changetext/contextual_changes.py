@@ -1,7 +1,6 @@
 import re
 
 from changetext.common_state import get_state
-from changetext.corrector import get_corrector
 
 contexts = {
     "  Dwarf Fortress  ": "main",
@@ -16,12 +15,9 @@ contextual_replace = dict(
 )
 
 
-corrector = get_corrector()
-
-
-@corrector.preliminary_corrector()
-def corr_contextual(text, _):
+def corr_contextual(text):
     state = get_state()
+
     if text in contexts:
         state.context = contexts[text]
     else:
@@ -31,4 +27,6 @@ def corr_contextual(text, _):
                 break
 
     if state.context and state.context in contextual_replace:
-        return contextual_replace[state.context].get(text, None)
+        return contextual_replace[state.context].get(text, text)
+
+    return text

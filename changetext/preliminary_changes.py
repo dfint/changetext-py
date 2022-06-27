@@ -2,23 +2,23 @@ import re
 import traceback
 
 from changetext.common_state import get_state
-from changetext.corrector import get_corrector
+from changetext.corrector import CorrectorRegistry
 from changetext.replaced_parts import replaced_parts
 from changetext.tag_correction import corr_tags, parse_tags
 from changetext.utils import custom_parse, inflect_collocation
 from changetext.whole_phrases import whole_phrases
 
-corrector = get_corrector()
+preliminary_changes = CorrectorRegistry()
 
 
-@corrector.preliminary_corrector(predicate=lambda _: get_state().prev_tail)
+@preliminary_changes.register(predicate=lambda _: get_state().prev_tail)
 def add_prev_tail(text, prev_tail):
     text = prev_tail + text
     get_state().prev_tail = ""
     return text
 
 
-@corrector.preliminary_corrector(predicate=lambda text: text in whole_phrases)
+@preliminary_changes.register(predicate=lambda text: text in whole_phrases)
 def corr_whole_phrases(text, _):
     return whole_phrases[text]
 
@@ -108,7 +108,7 @@ def corr_ending_s(text):
     return text.replace(search_result.group(0), replacement_string)
 
 
-@corrector.preliminary_corrector(regex=re_ending_s)
+@preliminary_changes.register(regex=re_ending_s)
 def corr_ending_s_loop(text, _search_result):
     result = text
     while re_ending_s.search(text):
@@ -120,7 +120,7 @@ def corr_ending_s_loop(text, _search_result):
     return result
 
 
-@corrector.preliminary_corrector(regex=r"были(\w+)")
+@preliminary_changes.register(regex=r"были(\w+)")
 def corr_werebeast(text, search_result):
     """
     >>> corr_werebeast("Ura Wuspinicen, былимуравьед")
@@ -131,7 +131,7 @@ def corr_werebeast(text, search_result):
     return text.replace(search_result.group(0), search_result.group(1) + "-оборотень")
 
 
-@corrector.preliminary_corrector(regex=r"с (его|её|ваш) ([\w\s]*)")
+@preliminary_changes.register(regex=r"с (его|её|ваш) ([\w\s]*)")
 def corr_with_his(text, search_result):
     """
     >>> corr_with_his("ладонь с его левое предплечье!")
@@ -144,7 +144,7 @@ def corr_with_his(text, search_result):
     )
 
 
-@corrector.preliminary_corrector(predicate=lambda text: "Я " in text and "колодец" in text)
+@preliminary_changes.register(predicate=lambda text: "Я " in text and "колодец" in text)
 def corr_well(text, _):
     """
     >>> corr_well('Я колодец')  # I am well
@@ -165,7 +165,7 @@ def corr_well(text, _):
     return text
 
 
-@corrector.preliminary_corrector(predicate=lambda text: "рублены" in text and "рубленый " not in text)
+@preliminary_changes.register(predicate=lambda text: "рублены" in text and "рубленый " not in text)
 def corr_minced(text, _):
     s1 = ""
     while "рублены" in text and "рубленый" not in text:
@@ -175,7 +175,7 @@ def corr_minced(text, _):
     return s1 + text
 
 
-@corrector.preliminary_corrector(predicate=lambda text: any(item in text for item in replaced_parts))
+@preliminary_changes.register(predicate=lambda text: any(item in text for item in replaced_parts))
 def corr_replace_parts(text, _):
     result = text
 
@@ -187,7 +187,7 @@ def corr_replace_parts(text, _):
     return result
 
 
-@corrector.preliminary_corrector(regex=r"[a-z](в <[a-z]+>)")
+@preliminary_changes.register(regex=r"[a-z](в <[a-z]+>)")
 def corr_in_ending(text, search_result):
     return text.replace(search_result.group(1), "in")
 
@@ -195,7 +195,7 @@ def corr_in_ending(text, search_result):
 animal_genders = {"собака": ("пёс", "собака"), "кошка": ("кот", "кошка"), "лошадь": ("конь", "лошадь")}
 
 
-@corrector.preliminary_corrector(regex=r"(\w+), ([♂♀])")
+@preliminary_changes.register(regex=r"(\w+), ([♂♀])")
 def corr_animal_gender(text, search_result):
     gender = "♂♀".index(search_result.group(2))
     animal = search_result.group(1)
@@ -205,7 +205,7 @@ def corr_animal_gender(text, search_result):
         return text.replace(search_result.group(0), animal_genders[animal][gender] + ", " + search_result.group(2))
 
 
-@corrector.preliminary_corrector(regex=re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE))
+@preliminary_changes.register(regex=re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE))
 def corr_someone_has(text, search_result):
     pronoun = search_result.group(1).lower()
     if pronoun == "он":
@@ -228,7 +228,7 @@ def corr_someone_has(text, search_result):
     return text
 
 
-@corrector.preliminary_corrector(regex=r"(имеете?|был)\s+(\w+)")
+@preliminary_changes.register(regex=r"(имеете?|был)\s+(\w+)")
 def corr_has_verb(text, search_result):
     """
     >>> corr_has_verb(" имеет создал ")
@@ -253,7 +253,7 @@ def corr_has_verb(text, search_result):
             return text.replace(search_result.group(0), word)
 
 
-@corrector.preliminary_corrector(regex=r"цвет ([\w\s]*)цвета")
+@preliminary_changes.register(regex=r"цвет ([\w\s]*)цвета")
 def corr_color_of_color(text, search_result):
     """
     >>> corr_color_of_color("цвет серебристого цвета")
@@ -270,7 +270,7 @@ def corr_color_of_color(text, search_result):
         return text.replace(search_result.group(0), replacement)
 
 
-@corrector.preliminary_corrector(
+@preliminary_changes.register(
     predicate=lambda text: "<" in text and ">" in text and "<нет " not in text and "<#" not in text
 )
 def corr_tags_outer(text, _):
