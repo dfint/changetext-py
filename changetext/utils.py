@@ -36,7 +36,6 @@ def is_adjective(word: str, parse=None):
 
 def inflect_collocation(s, tags):
     tags = tags - {"masc", "femn", "neut", "plur"}
-    # print('inflect_collocation(%r, %r)' % (s, tags))
     words = [x for x in s.split(" ") if x]  # skip empty strings
     j = None
     main_word = None
@@ -63,15 +62,12 @@ def inflect_collocation(s, tags):
     for i, word in enumerate(words[:j]):
         parse = custom_parse(word)
         if not is_adjective(word, parse):
-            raise ValueError("%s is not an adjective" % word)
+            raise ValueError("{} is not an adjective".format(word))
         p = next(p for p in parse if {"ADJF"} in p.tag)
-        # print(p)
-        # print(tags)
         p1 = p.inflect(tags)
         assert p1 is not None, (p, tags)
         words[i] = p1.word
 
-    # print(words)
     return " ".join(words) + (" " if s.endswith(" ") else "")
 
 
@@ -375,31 +371,6 @@ make_adjective = {
     "камень": "каменный",
 }
 
-dict_ending_s = {
-    "готовая еда": "готовая еда",
-    "питьё": "питьё",
-    "стул": "стулья",
-    "доспешная стойка": "доспешные стойки",
-    "оружейная стойка": "оружейные стойки",
-    "дублёная шкура": "дублёные шкуры",
-    "большой самоцвет": "большие самоцветы",
-    "баклер": "баклеры",
-    "оружие": "оружие",
-    "крышка люка": "крышки люка",
-    "ручная мельница": "ручные мельницы",
-    "ловушка для животных": "ловушки для животных",
-    "часть ловушки": "части ловушек",
-    "музыкальный инструмент": "музыкальные инструменты",
-    "наконечник стрелы баллисты": "наконечники стрелы баллисты",
-    "часть тела": "части тела",
-    "конечность/тело гипс": "гипс для конечностей тела",
-    "Элитный борец": "Элитные борцы",
-    "Лорд топора": "Лорды топора",
-    "Лорд булавы": "Лорды булавы",
-    "Лорд молота": "Лорды молота",
-    "Мастер меча": "Мастера меча",
-    "Мастер копья": "Мастера копья",
-}
 gender_exceptions = {
     "шпинель": "femn",
     "гризли": "masc",
@@ -408,27 +379,24 @@ gender_exceptions = {
 
 def pm_gender(parse):
     tag = parse.tag
-    # print(tag)
+
     if tag.number == "plur":
         gender = tag.number
     else:
         gender = tag.gender
-    # print(gender)
+
     return str(gender)  # explicitly convert to a string any internal types returned from pymorphy2
 
 
 def get_gender(obj, known_tags=None):
-    # print("get_gender(%r, known_tags=%r)" % (obj, known_tags))
     assert " " not in obj, "get_gender() is not suitable for word collocations"
 
     if "-" in obj:
         obj = obj.split("-")
         if obj[0] in {"мини"}:
             obj = obj[1]
-            # print('Using the second part of the hyphen-compound: %r' % obj)
         else:
             obj = obj[0]
-            # print('Using the first part of the hyphen-compound: %r' % obj)
 
     parse = custom_parse(obj)
     if known_tags is not None:
@@ -441,10 +409,9 @@ def get_gender(obj, known_tags=None):
             gender = pm_gender(parse[0])
             for p in parse:
                 if pm_gender(p) != gender:
-                    # print("Gender cannot be recognized definitely for %r. Try to specify known tags (eg. case)" % obj)
+                    # Gender cannot be recognized definitely
                     return None
         else:
-            # print("Gender not recoginzed for %r" % obj)
             return None
         return pm_gender(parse[0])
 
@@ -460,26 +427,22 @@ def get_main_word_gender(text):
 
 def parse_as_adjective(adjective: str) -> list:
     parse = [p for p in custom_parse(adjective) if "ADJF" in p.tag or "PRTF" in p.tag]
-    assert len(parse) > 0, "parse: %r" % parse
+    assert len(parse) > 0, "parse: {!r}".format(parse)
     return parse
 
 
 def inflect_adjective(adjective: str, gender: str, case="nomn", animated=None):
-    # print('inflect_adjective(%s, %s)' % (adjective, case))
     assert gender is not None
     parse = parse_as_adjective(adjective)
     p = parse[0]
     form_set = {gender, case}
     if animated is not None and gender in {"masc", "plur"}:
         form_set.add("anim" if animated else "inan")
-    # print('form_set:', form_set)
     new_form = p.inflect(form_set)
     if new_form is None:
         form_set = {gender, case}
-        # print('form_set:', form_set)
         new_form = p.inflect(form_set)
     ret = new_form.word
-    # print('%s -> %s' % (adjective, ret))
     return ret
 
 
@@ -492,14 +455,12 @@ gent_case_except = {
 
 
 def inflect_noun(word: str, case: str, orig_form=None):
-    # print('inflect_noun(%r, %r, %r)' % (word, case, orig_form))
     parse = list(filter(lambda x: x.tag.POS == "NOUN", custom_parse(word)))
 
     if orig_form:
         parse = [p for p in parse if orig_form in p.tag]
 
     if len(parse) == 0:
-        # print('Failed to set %r to %s case.' % (word, case))
         return None
 
     new_form = parse[0].inflect({case})
@@ -508,8 +469,6 @@ def inflect_noun(word: str, case: str, orig_form=None):
 
 
 def to_genitive_case_single_noun(word: str):
-    # print('genitive_case_single_noun')
-    # print(word)
     if word.lower() in gent_case_except:
         return gent_case_except[word.lower()]
     else:
@@ -517,7 +476,6 @@ def to_genitive_case_single_noun(word: str):
 
 
 def to_genitive_case_list(words: list):
-    # print("genitive_case_list(%r)" % words)
     if len(words) == 1:
         gender = get_gender(words[0], {"nomn"})
     else:
@@ -537,7 +495,7 @@ def to_genitive_case_list(words: list):
         yield word
 
 
-def to_genitive_case(word: str):
+def to_genitive_case(word: str) -> str:
     return " ".join(to_genitive_case_list(word.split()))
 
 
