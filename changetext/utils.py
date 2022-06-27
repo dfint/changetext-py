@@ -512,3 +512,7 @@ def inflect_as_adjective(adj, gender):
         raise ValueError("Cannot inflect {} as adjective".format(adj))
 
     return new_adj
+
+
+def parse_as_noun(parse):
+    return list(filter(lambda x: {"NOUN"} in x.tag and "Surn" not in x.tag, parse))

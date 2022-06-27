@@ -17,7 +17,9 @@ class Corrector:
 
                 predicate = lambda text: regex.search(text)
 
-            assert predicate is not None
+            if predicate is None:
+                predicate = lambda text: True
+
             self.preliminary_changes.append((predicate, func))
 
             @functools.wraps(func)
@@ -26,7 +28,9 @@ class Corrector:
                     predicate_result = predicate(text)
 
                 return func(text, predicate_result)
+
             return wrapper
+
         return decorator
 
     def final_change(self, regex=None, predicate=None):
@@ -48,7 +52,9 @@ class Corrector:
                     predicate_result = predicate(text)
 
                 return func(text, predicate_result)
+
             return wrapper
+
         return decorator
 
     def change_text(self, text):
@@ -64,3 +70,8 @@ class Corrector:
             predicate_result = predicate(text)
             if predicate_result:
                 return func(text, predicate_result)
+
+
+@functools.lru_cache()
+def get_corrector():
+    return Corrector()
