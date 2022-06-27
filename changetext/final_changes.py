@@ -148,12 +148,12 @@ def corr_container(text, search_result):
     return text
 
 
-re_of_material_item = re.compile(r"^[(+*-«☼р]*(из\s[\w\s\-/]+\b)")
+re_of_material_item = re.compile(r"^[(+*-«☼р]*(из [\w\s\-/]+\b)")
 
 
 @final_changes.register(predicate=lambda text: "пол" not in text and re_of_material_item.search(text))
 @open_brackets
-def corr_of_material_item(text, search_result):
+def corr_of_material_item(text, _):
     """
     >>> corr_of_material_item("риз алевролита мемориал")
     '≡алевролитовый мемориал'
@@ -161,7 +161,10 @@ def corr_of_material_item(text, search_result):
     'алевролитовая доспешная стойка'
     >>> corr_of_material_item("(из висмутовой бронзы короткие мечи [3])")
     '(короткие мечи из висмутовой бронзы [3])'
+    >>> corr_of_material_item("риз берёзы гробр")
+    '≡берёзовый гроб≡'
     """
+    search_result = re_of_material_item.search(text)
     initial_string = search_result.group(1)
     words = initial_string.split()
 
