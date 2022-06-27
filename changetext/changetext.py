@@ -541,9 +541,9 @@ def corr_relief(text):
     obj = search_result.group(2)
     if obj == "деревце":
         if group1.split(" ")[0] == "Мёртвый":
-            text = "Мёртвое деревце (" + "".join(search_result.group(0).split(" ")[1:-1]) + ")"
+            text = "Мёртвое деревце ({})".format("".join(search_result.group(0).split(" ")[1:-1]))
         else:
-            text = "Деревце (" + group1 + ")"
+            text = "Деревце ({})".format(group1)
         return text.capitalize()
 
     if " " in group1:
@@ -615,7 +615,7 @@ def corr_adjective_relief(text):
 
 # "Скелет, останки и тп"
 re_body_parts = re.compile(
-    r"^{?((\w+\s?\w+?|)\s(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть" r"|мех|хвост|голень))}?\b"
+    r"^{?((\w+\s?\w+?|)\s(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|голень))}?\b"
 )
 
 
