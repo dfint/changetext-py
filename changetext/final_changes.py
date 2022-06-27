@@ -60,10 +60,12 @@ replace_containment = {
 
 materials = {"волокон", "шёлка", "шерсти", "кожи"}
 
+re_container = re.compile(r"(\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$)")
 
-@final_changes.register(regex=r"(\b.+)\s(бочка|мешок|ящик)\s\((.*?)(\)|$)")
+
+@final_changes.register(regex=re_container)
 @open_brackets
-def corr_container(text, search_result):
+def corr_container(text, _):
     """
     >>> corr_container('(дварфийское пиво бочка (из ольхи))')
     '(Бочка дварфийского пива (ольховая))'
@@ -72,6 +74,7 @@ def corr_container(text, search_result):
     >>> corr_container("(Семя бочка (из лумбанга) <#10>)")
     '(Бочка семян (лумбанговая) <#10>)'
     """
+    search_result = re_container.search(text)
     initial_string = search_result.group(0)
     containment = search_result.group(1)
     if containment in replace_containment:
