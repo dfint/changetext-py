@@ -251,8 +251,8 @@ def corr_of_material_item(text, _):
     return text
 
 
-@final_changes.register(
-    regex=r"^[Xx\(+*-«☼]*((.+)\s"
+re_clothes = re.compile(
+    r"^[Xx\(+*-«☼]*((.+)\s"
     r"(из волокон"
     r"|из шёлка"
     r"|из шерсти"
@@ -266,8 +266,11 @@ def corr_of_material_item(text, _):
     r"|из зубов)"
     r"\s(\w+\s?\w+))"
 )
+
+
+@final_changes.register(regex=re_clothes)
 @open_brackets
-def corr_clothes(text, search_result):
+def corr_clothes(text, _):
     """
     >>> corr_clothes("свинохвост из волокон ткань")
     'ткань из волокон свинохвоста'
@@ -276,6 +279,7 @@ def corr_clothes(text, search_result):
     >>> corr_clothes("(гигантский пещерный паук из шёлка шапка)")
     '(шапка из шёлка гигантского пещерного паука)'
     """
+    search_result = re_clothes.search(text)
     text = text.replace(
         search_result.group(1),
         search_result.group(4) + " " + search_result.group(3) + " " + to_genitive_case(search_result.group(2)),
