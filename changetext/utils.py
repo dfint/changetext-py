@@ -463,7 +463,8 @@ def inflect_noun(word: str, case: str, orig_form=None):
     if len(parse) == 0:
         return None
 
-    new_form = parse[0].inflect({case})
+    p = parse[0]
+    new_form = p.inflect({case, p.tag.number})
 
     return new_form.word
 

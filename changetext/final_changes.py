@@ -282,7 +282,7 @@ def corr_clothes(text, _):
     search_result = re_clothes.search(text)
     text = text.replace(
         search_result.group(1),
-        search_result.group(4) + " " + search_result.group(3) + " " + to_genitive_case(search_result.group(2)),
+        "{} {} {}".format(search_result.group(4), search_result.group(3), to_genitive_case(search_result.group(2))),
     )
     text = text.replace("левый", "левая")
     text = text.replace("правый", "правая")
@@ -714,7 +714,7 @@ def corr_adjective_relief(text, search_result):
         gender = get_gender(obj)
         new_word = inflect_adjective(adjective, gender, "nomn")
         if new_word:
-            text = new_word + " " + obj
+            text = "{} {}".format(new_word, obj)
 
     return text.capitalize()
 
@@ -811,6 +811,8 @@ def corr_clothiers_shop(_, search_result):
     """
     >>> corr_clothiers_shop("Делать ткань роба")
     'Шить робу из ткани'
+    >>> corr_clothiers_shop("Делать шёлк роба")
+    'Шить шёлковую робу'
     >>> corr_clothiers_shop("Изготовить ткань мешок")
     'Шить мешок из ткани'
     >>> corr_clothiers_shop("Вышивать кожа изображение")
@@ -826,18 +828,14 @@ def corr_clothiers_shop(_, search_result):
 
     if not product:
         return None  # Leave as is eg. 'Ткать шёлк'
-    elif verb == "Вышивать":
-        parse = custom_parse(material)[0]
-
+    elif verb == "Вышивать":  # Sew
         if material == "пряжа":
             # вязать <product> из пряжи
-            verb = "Вязать"
-            material = parse.inflect({"gent"}).word
-            preposition = "из"
+            verb, preposition, material = "Вязать", "из", "пряжи"
         else:
             # вышивать <product> на <material>
-            material = parse.inflect({"loct"}).word
             preposition = "на"
+            material = inflect_noun(material, case="loct", orig_form={"nomn"})
 
         return "{} {} {} {}".format(verb, product, preposition, material)
     else:
@@ -849,17 +847,14 @@ def corr_clothiers_shop(_, search_result):
         if product == "верёвка":
             verb = "Вить"
 
-        gender = get_gender(product, {"nomn"})
-        if gender == "femn":
-            product_accus = inflect_noun(product, case="accs")
-        else:
-            product_accus = product
+        product_accus = inflect_noun(product, case="accs", orig_form={"nomn"})
 
-        if material in make_adjective:
+        if material in make_adjective:  # "шёлк" -> "шёлковый"
+            gender = get_gender(product, {"nomn"})
             material_adj = inflect_adjective(make_adjective[material], gender, "accs", animated=False)
-            return "{} {} {}".format(verb, material_adj, product_accus)
+            return "{} {} {}".format(verb, material_adj, product_accus)  # {Шить} {шёлковую} {робу}
         else:
-            return "{} {} {}".format(verb, product_accus, of_material)
+            return "{} {} {}".format(verb, product_accus, of_material)  # {Шить} {робу} {из ткани}
 
 
 @final_changes.register(regex=r"(Делать|Изготовить|Украшать)([\w\s/]+)$")
@@ -980,7 +975,7 @@ def corr_you_struck(text, _):
     else:
         result = inflect_collocation(material, {"accs"})
 
-    return you_struck + " " + result + "!"
+    return "{} {}!".format(you_struck, result)
 
 
 @final_changes.register(regex=r"(.+)\s(стал)\s(.+)\.")
