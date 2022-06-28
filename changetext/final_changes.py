@@ -815,6 +815,10 @@ def corr_clothiers_shop(_, search_result):
     'Шить мешок из ткани'
     >>> corr_clothiers_shop("Вышивать кожа изображение")
     'Вышивать изображение на коже'
+    >>> corr_clothiers_shop("Делать пряжа рубаха")
+    'Вязать рубаху из пряжи'
+    >>> corr_clothiers_shop("Делать ткань верёвка")
+    'Вить верёвку из ткани'
     """
     verb = search_result.group(1)
     material = search_result.group(2)
@@ -826,12 +830,16 @@ def corr_clothiers_shop(_, search_result):
         parse = custom_parse(material)[0]
 
         if material == "пряжа":
+            # вязать <product> из пряжи
             verb = "Вязать"
             material = parse.inflect({"gent"}).word
+            preposition = "из"
         else:
+            # вышивать <product> на <material>
             material = parse.inflect({"loct"}).word
+            preposition = "на"
 
-        return "{} {} на {}".format(verb, product, material)
+        return "{} {} {} {}".format(verb, product, preposition, material)
     else:
         if product in {"щит", "баклер"}:
             _, of_material = cloth_subst[material]  # Don't change the verb, leave 'Делать'/'Изготовить'
