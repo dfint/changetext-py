@@ -6,4 +6,5 @@ htmlcov/
 dist/
 *.pyc
 .coverage
-changetext.log
+*.log
+*.log.*
