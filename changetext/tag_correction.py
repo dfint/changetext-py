@@ -27,14 +27,12 @@ def parse_tags(text):
 
 
 def corr_tags(text):
-    # print('corr_tags(%r)' % s)
     text_parts = []
     get_index = None
     set_indices = set()
     capitalize_indices = set()
     inflect_next = set()
     for i, item in enumerate(parse_tags(text)):
-        # print(repr(item))
         if not item.strip():
             pass
         elif item[0] == "<":
@@ -43,7 +41,6 @@ def corr_tags(text):
                 return None
             tags, _, item = item.partition(":")
             tags = set(tags.split(","))
-            # print(tags)
 
             if "capitalize" in tags:
                 tags.remove("capitalize")
@@ -55,7 +52,7 @@ def corr_tags(text):
 
                 if "get-form" in tags:
                     if get_index is not None:
-                        raise ValueError("Duplicate <get-form> tag in %r" % text)
+                        raise ValueError("Duplicate <get-form> tag in {!r}".format(text))
                     get_index = len(text_parts)
                     tags.remove("get-form")
                 elif "set-form" in tags:
@@ -102,14 +99,12 @@ def corr_tags(text):
 
     delayed = ""
     if inflect_next:
-        delayed += "<%s>" % ",".join(inflect_next)
-        # print('Delay to the next string: %r' % prev_tail)
+        delayed += "<{}>".format(",".join(inflect_next))
 
     if get_index is not None:
-        # print(get_index)
         form = get_form(text_parts[get_index])
         form -= {"anim", "inan"}  # discard these two because they doesn't matter for the nominal case
-        # print(form)
+
         for i in set_indices:
             word = text_parts[i]
             text_parts[i] = inflect_text(form, word)
@@ -125,11 +120,9 @@ def corr_tags(text):
                         break
 
     if delayed:
-        # print('Delay to the next string: %r' % delayed)
         state = get_state()
         state.prev_tail += delayed
 
-    # print(li)
     return smart_join(text_parts)
 
 
