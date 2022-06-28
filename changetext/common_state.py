@@ -16,9 +16,6 @@ def init():
     _change_text_state = ChangeTextState()
 
 
-init()
-
-
 def get_state():
     global _change_text_state
     if _change_text_state is None:
