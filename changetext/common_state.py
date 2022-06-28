@@ -3,6 +3,10 @@ class ChangeTextState:
         self.prev_tail = ""
         self.context = None
 
+    def reset(self):
+        self.prev_tail = ""
+        self.context = None
+
 
 _change_text_state = None
 
@@ -18,5 +22,5 @@ init()
 def get_state():
     global _change_text_state
     if _change_text_state is None:
-        _change_text_state = ChangeTextState()
+        init()
     return _change_text_state

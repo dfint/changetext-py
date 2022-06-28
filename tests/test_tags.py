@@ -1,13 +1,13 @@
 import pytest
 
-import changetext
 from changetext import change_text
+from changetext.common_state import get_state
 from changetext.tag_correction import corr_tags
 
 
 @pytest.fixture
-def init_change_text():
-    changetext.init()
+def reset_global_state():
+    get_state().reset()
 
 
 def test_tag_wrap():
@@ -15,7 +15,7 @@ def test_tag_wrap():
     assert change_text("голова") == "головы"
 
 
-def test_tag_spaces(init_change_text):
+def test_tag_spaces(reset_global_state):
     assert (
         change_text("Lyrical Wisp. По  возможности она предпочитает употреблять<accs>  ячий сыр и")
         == "Lyrical Wisp. По  возможности она предпочитает употреблять ячий сыр и"
@@ -129,7 +129,7 @@ def test_tag_spaces(init_change_text):
         # ),
     ],
 )
-def test_tags_general(init_change_text, text, expected):
+def test_tags_general(reset_global_state, text, expected):
     assert corr_tags(text) == expected
     assert change_text(text) == expected
 
@@ -157,5 +157,5 @@ def test_tags_general(init_change_text, text, expected):
         ),
     ],
 )
-def test_tags_with_exceptions(init_change_text, text, expected):
+def test_tags_with_exceptions(reset_global_state, text, expected):
     assert change_text(text) == expected
