@@ -76,6 +76,10 @@ dict_ending_s = {
 
 
 def corr_ending_s(text):
+    """
+    >>> corr_ending_s("трупs [2]")
+    'трупы [2]'
+    """
     search_result = re_ending_s.search(text)
     number = search_result.group(1)
     group2 = search_result.group(2)
@@ -110,6 +114,14 @@ def corr_ending_s(text):
 
 @preliminary_changes.register(regex=re_ending_s)
 def corr_ending_s_loop(text, _search_result):
+    """
+    >>> corr_ending_s_loop("трупs [2]")
+    'трупы [2]'
+    >>> corr_ending_s_loop("из красного дерева щитs/баклерs")
+    'из красного дерева щиты/баклеры'
+    >>> corr_ending_s_loop("коза из копыт кольцоs")
+    'коза из копыт кольца'
+    """
     result = text
     while re_ending_s.search(text):
         s1 = corr_ending_s(text)
@@ -149,9 +161,10 @@ def corr_well(text, _):
     """
     >>> corr_well('Я колодец')  # I am well
     'Я в порядке'
-
     >>> corr_well('Я чувствую колодец')  # I am feeling well
     'Я чувствую себя хорошо'
+    >>> corr_well('"Я чувствую колодец"')
+    '"Я чувствую себя хорошо"'
     """
     text = text.replace("колодец", "хорошо")
     if "чувствую" in text and "себя" not in text:
@@ -177,6 +190,12 @@ def corr_minced(text, _):
 
 @preliminary_changes.register(predicate=lambda text: any(item in text for item in replaced_parts))
 def corr_replace_parts(text, _):
+    """
+    >>> corr_replace_parts("Ремесленникство")
+    'мастерство'
+    >>> corr_replace_parts("Ремесленник мастерская")
+    'Мастерская ремесленника'
+    """
     result = text
 
     for item in replaced_parts:
@@ -189,6 +208,10 @@ def corr_replace_parts(text, _):
 
 @preliminary_changes.register(regex=r"[a-z](в <[a-z]+>)")
 def corr_in_ending(text, search_result):
+    """
+    >>> corr_in_ending('Golololв <accs>, "Golololв <accs>", ')
+    'Golololin, "Golololin", '
+    """
     return text.replace(search_result.group(1), "in")
 
 
@@ -197,6 +220,14 @@ animal_genders = {"собака": ("пёс", "собака"), "кошка": ("к
 
 @preliminary_changes.register(regex=r"(\w+), ([♂♀])")
 def corr_animal_gender(text, search_result):
+    """
+    >>> corr_animal_gender("охотничий собака, ♀")
+    'охотничий собака, ♀'
+    >>> corr_animal_gender("охотничий собака, ♂")
+    'охотничий пёс, ♂'
+    >>> corr_animal_gender("Ничей боевой собака, ♀(Ручной)")
+    'Ничей боевой собака, ♀(Ручной)'
+    """
     gender = "♂♀".index(search_result.group(2))
     animal = search_result.group(1)
     if animal not in animal_genders:
@@ -207,6 +238,14 @@ def corr_animal_gender(text, search_result):
 
 @preliminary_changes.register(regex=re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE))
 def corr_someone_has(text, search_result):
+    """
+    >>> corr_someone_has("Она   имеет")
+    'У неё'
+    >>> corr_someone_has("он     имеет")
+    'у него'
+    >>> corr_someone_has("Вы не имеете")
+    'У вас нет'
+    """
     pronoun = search_result.group(1).lower()
     if pronoun == "он":
         replacement_string = "у него"

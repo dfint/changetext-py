@@ -329,6 +329,14 @@ def corr_item_skin(text, search_result):
 
 @final_changes.register(regex=r"(^Ковать|^Делать|^Чеканить|^Изготовить|^Кузница)\s(из\s[\w\s?]+\b)")
 def corr_forge(_, search_result):
+    """
+    >>> corr_forge("Ковать из меди болты")
+    'Ковать медные болты'
+    >>> corr_forge("Кузница из железа Наконечники стрел баллисты")
+    'Ковать железные наконечники стрел баллисты'
+    >>> corr_forge("Делать из адамантина Колчан")
+    'Делать адамантиновый колчан'
+    """
     verb = search_result.group(1)
     words = search_result.group(2).split()
     assert len(words) >= 3
@@ -414,6 +422,8 @@ def corr_blood_stain(_text, search_result):
     """
     >>> corr_blood_stain("Лужа кот кровь")
     'Лужа крови кота'
+    >>> corr_blood_stain("Пятно росомаха кровь")
+    'Пятно крови росомахи'
     """
     text = search_result.group(1) + " " + to_genitive_case(search_result.group(3) + " " + search_result.group(2))
     return text.capitalize()
@@ -427,6 +437,10 @@ def corr_item_3(text, search_result):
     """
     >>> corr_item_3('рогатый филин яйцо')
     'яйцо рогатого филина'
+    >>> corr_item_3("(киви мясо [5])")
+    '(мясо киви [5])'
+    >>> corr_item_3("(белый аист яйцо)")
+    '(яйцо белого аиста)'
     """
     group_3 = search_result.group(3)
     if group_3 in replaced_parts:
@@ -461,6 +475,12 @@ def corr_wooden_logs(text, search_result):
 
 @final_changes.register(regex=r"\b(Делать|Изготовить)\s([\w\s]*)(стекло|хрусталь)([\w\s]*)")
 def corr_craft_glass(text, search_result):  # TODO: Combine into single crafting-related function
+    """
+    >>> corr_craft_glass("Делать грубый зелёное стекло")
+    'Варить грубое зелёное стекло'
+    >>> corr_craft_glass("Делать гигантский хрусталь лезвие топора")
+    'Делать гигантское лезвие топора из хрусталя'
+    """
     material = search_result.group(3)
     material_gender = get_gender(material)
     words = search_result.group(2).split()
@@ -567,6 +587,13 @@ def corr_gem_cutting(text, search_result):
 
 @final_changes.register(regex=r"(охотничий|боевой|сырой) (\w+)(\(Ручной\))?")
 def corr_animal(text, _):
+    """
+    >>> corr_animal("охотничий собака, ♀")
+    'охотничья собака, ♀'
+    >>> corr_animal("Ничей боевой собака, ♀(Ручной)")
+    'Ничья боевая собака, ♀(Ручная)'
+    """
+
     text = text.replace("сырой", "сырая")
     if any(item in text for item in animals_female):
         text = text.replace("(Ручной)", "(Ручная)")
@@ -605,6 +632,15 @@ def corr_stopped_construction(_, search_result):
     r"Лестница Вверх|Лестница Вниз|галька|деревце|лестница вверх|лестница вниз|подъем|пол)\b"
 )
 def corr_relief(_, search_result):
+    """
+    >>> corr_relief("Мёртвый клён деревце")
+    'Мёртвое деревце (клён)'
+    >>> corr_relief("Глинистый суглинок Стена")
+    'Стена из глинистого суглинка'
+    >>> corr_relief("кремень подъем")
+    'Подъем из кремня'
+    """
+
     group1 = search_result.group(1)
     obj = search_result.group(2)
     if obj == "деревце":
@@ -656,6 +692,12 @@ def corr_adjective_relief(text, search_result):
     """
     >>> corr_adjective_relief("Заснеженный Густой овсяница")
     'Заснеженная густая овсяница'
+    >>> corr_adjective_relief("Густой мюленбергия")
+    'Густая мюленбергия'
+    >>> corr_adjective_relief("Густой морошка")
+    'Густая морошка'
+    >>> corr_adjective_relief("Заснеженный Густой куропаточья трава")
+    'Заснеженная густая куропаточья трава'
     """
     adjective = search_result.group(1)
     obj = search_result.group(2)
@@ -684,6 +726,15 @@ def corr_adjective_relief(text, search_result):
     r"|Огранить)\s(.+)"
 )
 def corr_jewelers_shop(_, search_result):
+    """
+    >>> corr_jewelers_shop("Огранить из необработанного адамантина")
+    'Огранить необработанный адамантин'
+    >>> corr_jewelers_shop("Инкрустировать Предметы обстановки с из необработанного адамантина")
+    'Инкрустировать предметы обстановки необработанным адамантином'
+    >>> corr_jewelers_shop("Огранить из фарфора")
+    'Огранить фарфор'
+    """
+
     first_part = search_result.group(1)
     words = search_result.group(2).split()
     if first_part == "Огранить":
@@ -713,6 +764,16 @@ def corr_jewelers_shop(_, search_result):
 
 @final_changes.register(regex=r"(.*)\s(лесное убежище|крепость|селение|горный город|городок|гробница|пригорки)\s(.+)")
 def corr_settlement(_, search_result):
+    """
+    >>> corr_settlement(" человеческий крепость Belrokalle")
+    'Человеческая крепость Belrokalle'
+    >>> corr_settlement(" эльфийский лесное убежище Etathuatha")
+    'Эльфийское лесное убежище Etathuatha'
+    >>> corr_settlement(" дварфийский горный город КилрудОстач")
+    'Дварфийский горный город Килрудостач'
+    >>> corr_settlement(" лесное убежище Cinilidisa")
+    'Лесное убежище Cinilidisa'
+    """
     adjective = search_result.group(1).strip()
     settlement = search_result.group(2)
     name = search_result.group(3)
@@ -747,6 +808,14 @@ cloth_subst = {
 
 @final_changes.register(regex=r"(Делать|Изготовить|Вышивать|Ткать) (ткань|шёлк|пряжа|кожа)(\s?\w*)")
 def corr_clothiers_shop(_, search_result):
+    """
+    >>> corr_clothiers_shop("Делать ткань роба")
+    'Шить робу из ткани'
+    >>> corr_clothiers_shop("Изготовить ткань мешок")
+    'Шить мешок из ткани'
+    >>> corr_clothiers_shop("Вышивать кожа изображение")
+    'Вышивать изображение на коже'
+    """
     verb = search_result.group(1)
     material = search_result.group(2)
     product = search_result.group(3).strip()
@@ -786,6 +855,16 @@ def corr_clothiers_shop(_, search_result):
 
 @final_changes.register(regex=r"(Делать|Изготовить|Украшать)([\w\s/]+)$")
 def corr_craft_general(text, search_result):
+    """
+    >>> corr_craft_general("Изготовить камень дверь")
+    'Изготовить каменную дверь'
+    >>> corr_craft_general("Делать деревянный ловушка для животных")
+    'Делать деревянную ловушку для животных'
+    >>> corr_craft_general("Украшать кость")
+    'Украшать кость'
+    >>> corr_craft_general("Делать деревянный изделия")
+    'Делать деревянные изделия'
+    """
     verb = search_result.group(1)
     words = search_result.group(2).split()
     product = None
@@ -831,6 +910,16 @@ def corr_craft_general(text, search_result):
     regex=r"^{?((\w+\s?\w+?|)\s" r"(панцирь|скелет|труп|останки|кость|кожа|шёлк|волокна|шерсть|мех|хвост|голень))}?\b"
 )
 def corr_item_body_parts(text, search_result):
+    """
+    >>> corr_item_body_parts("{крыса останки}")
+    '{Останки крысы}'
+    >>> corr_item_body_parts("мотылёк останки")
+    'Останки мотылька'
+    >>> corr_item_body_parts("кеа труп")
+    'Труп кеа'
+    >>> corr_item_body_parts("{сипуха голень}")
+    '{Голень сипухи}'
+    """
     initial_string = search_result.group(1)
     words = search_result.group(2).split()
     if words[-1] in {"частичный", "искалеченный"}:
@@ -848,6 +937,12 @@ def corr_item_body_parts(text, search_result):
 
 @final_changes.register(regex=r"(.+)\s(кожа|кость|волокно|шёлк)\b")
 def corr_animal_material(_, search_result):
+    """
+    >>> corr_animal_material("гигантская летучая мышь кожа")
+    'кожа гигантской летучей мыши'
+    >>> corr_animal_material("гигантский белый аист кожа")
+    'кожа гигантского белого аиста'
+    """
     return search_result.group(2) + " " + to_genitive_case(search_result.group(1))
 
 
