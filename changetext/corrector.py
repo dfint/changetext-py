@@ -37,8 +37,7 @@ class CorrectorRegistry:
             predicate_result = predicate(text)
             if predicate_result:
                 result = func(text, predicate_result)
-                if result:
-                    text = result
+                text = result or text
 
         return text
 
