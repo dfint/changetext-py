@@ -1,5 +1,9 @@
+import functools
+
+
 class ChangeTextState:
-    def __init__(self):
+    def __init__(self, object_id):
+        self.object_id = object_id
         self.prev_tail = ""
         self.context = None
 
@@ -8,16 +12,10 @@ class ChangeTextState:
         self.context = None
 
 
-_change_text_state = None
-
-
 def init():
-    global _change_text_state
-    _change_text_state = ChangeTextState()
+    pass
 
 
-def get_state():
-    global _change_text_state
-    if _change_text_state is None:
-        init()
-    return _change_text_state
+@functools.lru_cache
+def get_state(object_id=None):
+    return ChangeTextState(object_id)
