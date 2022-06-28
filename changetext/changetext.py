@@ -16,8 +16,8 @@ def change_text(text):
 
 
 @utf16_codec
-@log_exceptions
+@log_exceptions()
 def outer_change_text(text):
     result = change_text(text)
-    get_logger().write(text, result)
+    get_logger().write("{}({!r}) -> {!r}".format(outer_change_text.__name__, text, result))
     return result

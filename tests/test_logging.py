@@ -1,4 +1,3 @@
-import contextlib
 import io
 
 from changetext.logging_tools import get_logger, log_exceptions
@@ -14,24 +13,24 @@ def test_double_write():
     result = "result"
     file = io.StringIO()
 
-    get_logger(file).write(text, result)
-    assert file.getvalue() == "{!r} --> {!r}\n".format(text, result)
+    text = "{!r} --> {!r}".format(text, result)
+    get_logger(file).write(text)
+    assert file.getvalue().strip() == text
 
     # Try to write the same again
-    get_logger(file).write(text, result)
-    assert file.getvalue() == "{!r} --> {!r}\n".format(text, result)
+    get_logger(file).write(text)
+    assert file.getvalue().strip() == text
 
 
 def test_exception_logging():
-    stdout = io.StringIO()
+    file = io.StringIO()
 
-    with contextlib.redirect_stdout(stdout):
+    @log_exceptions(file)
+    def foo(_):
+        raise ValueError
 
-        @log_exceptions
-        def foo(_):
-            raise ValueError
+    arg = "text"
+    foo("text")
 
-        foo("text")
-
-    stderr_text = stdout.getvalue().splitlines(keepends=False)
-    assert stderr_text[0] == "An exception occurred. Initial string: 'text'"
+    stderr_text = file.getvalue().splitlines(keepends=False)
+    assert stderr_text[0] == "An exception occurred. Initial string: {!r}".format(arg)

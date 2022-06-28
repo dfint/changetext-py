@@ -1,6 +1,8 @@
 import functools
 import re
 
+from changetext.logging_tools import get_logger
+
 
 class CorrectorRegistry:
     def __init__(self):
@@ -37,6 +39,8 @@ class CorrectorRegistry:
             predicate_result = predicate(text)
             if predicate_result:
                 result = func(text, predicate_result)
+                if result:
+                    get_logger().write("{}({!r}) -> {!r}".format(func.__name__, text, result))
                 text = result or text
 
         return text
@@ -45,6 +49,9 @@ class CorrectorRegistry:
         for predicate, func in self.changes:
             predicate_result = predicate(text)
             if predicate_result:
-                return func(text, predicate_result) or text
+                result = func(text, predicate_result)
+                if result:
+                    get_logger().write("{}({!r}) -> {!r}".format(func.__name__, text, result))
+                return result or text
 
         return text

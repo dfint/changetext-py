@@ -18,9 +18,9 @@ class LoggerWrapper:
         self.logger.addHandler(file_handler)
         self.logger.addHandler(stream_handler)
 
-    def write(self, text, output):
+    def write(self, text):
         if text not in self.logged:
-            self.logger.debug("{!r} --> {!r}".format(text, output))
+            self.logger.debug(text)
             self.logged.add(text)
 
 
@@ -29,12 +29,15 @@ def get_logger(stream=None):
     return LoggerWrapper(stream)
 
 
-def log_exceptions(func):
-    @functools.wraps(func)
-    def wrapper(text):
-        try:
-            return func(text)
-        except Exception:
-            get_logger().logger.exception("An exception occurred. Initial string: {!r}".format(text))
+def log_exceptions(stream=None):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(text):
+            try:
+                return func(text)
+            except Exception:
+                get_logger(stream).logger.exception("An exception occurred. Initial string: {!r}".format(text))
 
-    return wrapper
+        return wrapper
+
+    return decorator
