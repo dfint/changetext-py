@@ -824,16 +824,17 @@ def corr_clothiers_shop(_, search_result):
         return None  # Leave as is eg. 'Ткать шёлк'
     elif verb == "Вышивать":
         parse = custom_parse(material)[0]
+
         if material == "пряжа":
             verb = "Вязать"
             material = parse.inflect({"gent"}).word
-            return "{} {} из {}".format(verb, product, material)
         else:
             material = parse.inflect({"loct"}).word
-            return "{} {} на {}".format(verb, product, material)
+
+        return "{} {} на {}".format(verb, product, material)
     else:
         if product in {"щит", "баклер"}:
-            of_material = cloth_subst[material][1]  # Leave 'Делать'/'Изготовить' verb
+            _, of_material = cloth_subst[material]  # Don't change the verb, leave 'Делать'/'Изготовить'
         else:
             verb, of_material = cloth_subst[material]
 
@@ -848,9 +849,9 @@ def corr_clothiers_shop(_, search_result):
 
         if material in make_adjective:
             material_adj = inflect_adjective(make_adjective[material], gender, "accs", animated=False)
-            return " ".join([verb, material_adj, product_accus])
+            return "{} {} {}".format(verb, material_adj, product_accus)
         else:
-            return " ".join([verb, product_accus, of_material])
+            return "{} {} {}".format(verb, product_accus, of_material)
 
 
 @final_changes.register(regex=r"(Делать|Изготовить|Украшать)([\w\s/]+)$")
