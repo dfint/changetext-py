@@ -13,7 +13,7 @@ class LoggerWrapper:
             stream = sys.stdout
 
         file_handler = RotatingFileHandler("changetext.log", encoding="utf-8", backupCount=1, maxBytes=1024**2)
-        file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
+        file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
         stream_handler = logging.StreamHandler(stream)
         self.logger.addHandler(file_handler)
         self.logger.addHandler(stream_handler)
