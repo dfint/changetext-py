@@ -50,7 +50,12 @@ jobs:
 
     - name: Upload coverage data to coveralls.io
       run: |
-        pip install coveralls==3.2.0
+        pip install coveralls==3.3.1
         coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#    - name: Test & publish code coverage
+#      uses: paambaati/codeclimate-action@v3.0.0
+#      with:
+#        coverageCommand: poetry run python -m pytest --doctest-modules changetext ./tests --cov=.
+#        debug: true
