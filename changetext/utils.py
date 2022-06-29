@@ -517,3 +517,14 @@ def inflect_as_adjective(adj, gender):
 
 def parse_as_noun(parse):
     return list(filter(lambda x: {"NOUN"} in x.tag and "Surn" not in x.tag, parse))
+
+
+def inflect_text(text: str, tags: set):
+    if " " in text:
+        item = inflect_collocation(text, tags)
+    else:
+        p = custom_parse(text)[0]
+        item = p.inflect(tags).word
+        if text[0].isupper():
+            item = item.capitalize()
+    return item

@@ -15,8 +15,8 @@ contextual_replace = dict(
 )
 
 
-def corr_contextual(text):
-    state = get_state()
+def corr_contextual(text, state=None):
+    state = state or get_state()
 
     if text in contexts:
         state.context = contexts[text]

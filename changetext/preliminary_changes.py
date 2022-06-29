@@ -11,10 +11,14 @@ from changetext.whole_phrases import whole_phrases
 preliminary_changes = CorrectorRegistry()
 
 
-@preliminary_changes.register(predicate=lambda _: get_state().prev_tail)
-def add_prev_tail(text, prev_tail):
-    text = prev_tail + text
-    get_state().prev_tail = ""
+@preliminary_changes.register()
+def add_prev_tail(text, _, state=None):
+    state = state or get_state()
+
+    if state.prev_tail:
+        text = state.prev_tail + text
+        state.prev_tail = ""
+
     return text
 
 

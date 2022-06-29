@@ -6,6 +6,7 @@ from changetext.utils import (
     get_form,
     inflect_collocation,
     inflect_enumeration,
+    inflect_text,
     smart_join,
     split_sentence,
 )
@@ -26,7 +27,8 @@ def parse_tags(text):
         yield text[start:]
 
 
-def corr_tags(text):
+def corr_tags(text, state=None):
+    state = state or get_state()
     text_parts = []
     get_index = None
     set_indices = set()
@@ -60,7 +62,7 @@ def corr_tags(text):
                     tags.remove("set-form")
 
                 if tags:
-                    item = inflect_text(tags, word)
+                    item = inflect_text(word, tags)
                 else:
                     item = word
             else:
@@ -103,11 +105,11 @@ def corr_tags(text):
 
     if get_index is not None:
         form = get_form(text_parts[get_index])
-        form -= {"anim", "inan"}  # discard these two because they doesn't matter for the nominal case
+        form -= {"anim", "inan"}  # discard these two because they don't matter for the nominal case
 
         for i in set_indices:
             word = text_parts[i]
-            text_parts[i] = inflect_text(form, word)
+            text_parts[i] = inflect_text(word, form)
 
     if capitalize_indices:
         for i in capitalize_indices:
@@ -120,18 +122,6 @@ def corr_tags(text):
                         break
 
     if delayed:
-        state = get_state()
         state.prev_tail += delayed
 
     return smart_join(text_parts)
-
-
-def inflect_text(tags, text):
-    if " " in text:
-        item = inflect_collocation(text, tags)
-    else:
-        p = custom_parse(text)[0]
-        item = p.inflect(tags).word
-        if text[0].isupper():
-            item = item.capitalize()
-    return item
