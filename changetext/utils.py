@@ -1,9 +1,13 @@
 import re
-from typing import Iterable, Iterator, Tuple, cast
+import typing
 
 import pymorphy2
-from pymorphy2.analyzer import Parse
-from pymorphy2.tagset import OpencorporaTag
+
+if typing.TYPE_CHECKING:
+    from typing import Iterable, Iterator, Tuple, cast
+
+    from pymorphy2.analyzer import Parse
+    from pymorphy2.tagset import OpencorporaTag
 
 morph = pymorphy2.MorphAnalyzer()
 unwanted_tags = ("Name", "Surn", "Infr")
