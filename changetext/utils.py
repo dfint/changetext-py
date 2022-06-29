@@ -2,14 +2,15 @@ import re
 from typing import Iterable, Iterator, Tuple, cast
 
 import pymorphy2
-import pymorphy2.tagset
+from pymorphy2.analyzer import Parse
+from pymorphy2.tagset import OpencorporaTag
 
 morph = pymorphy2.MorphAnalyzer()
 unwanted_tags = ("Name", "Surn", "Infr")
 
 
 def custom_parse(word):
-    # type: (str) -> list[pymorphy2.analyzer.Parse]
+    # type: (str) -> list[Parse]
     if word.lower().startswith("адамантин"):
         return morph.parse(word)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
     else:
@@ -17,12 +18,12 @@ def custom_parse(word):
 
 
 def tag_to_set(tag):
-    # type: (pymorphy2.tagset.OpencorporaTag) -> set[str]
+    # type: (OpencorporaTag) -> set[str]
     return set(sum((ss.split() for ss in str(tag).split(",")), list()))
 
 
 def common_tags(parse):
-    # type: (list[pymorphy2.analyzer.Parse]) -> set[str]
+    # type: (list[Parse]) -> set[str]
     common = tag_to_set(parse[0].tag)
     for p in parse[1:]:
         common &= tag_to_set(p.tag)
@@ -35,7 +36,7 @@ def any_in_tag(gram, parse):
 
 
 def is_adjective(word, parse=None):
-    # type: (str, None | list[pymorphy2.analyzer.Parse]) -> bool
+    # type: (str, None | list[Parse]) -> bool
     if parse is None:
         parse = custom_parse(word)
     return any("ADJF" in p.tag or "PRTF" in p.tag for p in parse)
@@ -396,7 +397,7 @@ gender_exceptions = {
 
 
 def pm_gender(parse):
-    # type: (pymorphy2.analyzer.Parse) -> str
+    # type: (Parse) -> str
     tag = parse.tag
 
     if tag.number == "plur":
@@ -408,6 +409,7 @@ def pm_gender(parse):
 
 
 def get_gender(obj, known_tags=None):
+    # type: (str, None | set[str]) -> None | str
     assert " " not in obj, "get_gender() is not suitable for word collocations"
 
     if "-" in obj:
@@ -436,6 +438,7 @@ def get_gender(obj, known_tags=None):
 
 
 def get_main_word_gender(text):
+    # type: (str) -> None | str
     if " " not in text:
         return get_gender(text, known_tags={"nomn"})
     else:
@@ -444,13 +447,15 @@ def get_main_word_gender(text):
                 return get_gender(word, known_tags={"NOUN", "nomn"})
 
 
-def parse_as_adjective(adjective: str) -> list:
+def parse_as_adjective(adjective):
+    # type: (str) -> list[Parse]
     parse = [p for p in custom_parse(adjective) if "ADJF" in p.tag or "PRTF" in p.tag]
     assert len(parse) > 0, "parse: {!r}".format(parse)
     return parse
 
 
-def inflect_adjective(adjective: str, gender: str, case="nomn", animated=None):
+def inflect_adjective(adjective, gender, case="nomn", animated=None):
+    # type: (str, str, str, None | bool) -> str
     assert gender is not None
     parse = parse_as_adjective(adjective)
     p = parse[0]
@@ -473,7 +478,8 @@ gent_case_except = {
 }
 
 
-def inflect_noun(word: str, case: str, orig_form=None):
+def inflect_noun(word, case, orig_form=None):
+    # type: (str, str, None | str | set[str]) -> None | str
     parse = list(filter(lambda x: x.tag.POS == "NOUN", custom_parse(word)))
 
     if orig_form:
@@ -488,14 +494,16 @@ def inflect_noun(word: str, case: str, orig_form=None):
     return new_form.word
 
 
-def to_genitive_case_single_noun(word: str):
+def to_genitive_case_single_noun(word):
+    # type: (str) -> None | str
     if word.lower() in gent_case_except:
         return gent_case_except[word.lower()]
     else:
         return inflect_noun(word, case="gent")
 
 
-def to_genitive_case_list(words: list):
+def to_genitive_case_list(words):
+    # type: (list[str]) -> Iterator[str]
     if len(words) == 1:
         gender = get_gender(words[0], {"nomn"})
     else:
@@ -515,11 +523,13 @@ def to_genitive_case_list(words: list):
         yield word
 
 
-def to_genitive_case(word: str) -> str:
+def to_genitive_case(word):
+    # type: (str) -> str
     return " ".join(to_genitive_case_list(word.split()))
 
 
 def inflect_as_adjective(adj, gender):
+    # type: (str, str) -> str
     if adj in make_adjective:
         new_adj = inflect_adjective(make_adjective[adj], gender)
     elif " " in adj:
@@ -535,6 +545,7 @@ def inflect_as_adjective(adj, gender):
 
 
 def filter_noun(parse):
+    # type: (list[Parse]) -> list[Parse]
     return list(filter(lambda x: x.tag.POS == "NOUN" and "Surn" not in x.tag, parse))
 
 
