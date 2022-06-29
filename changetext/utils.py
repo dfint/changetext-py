@@ -1,10 +1,11 @@
 import re
 import typing
+from typing import Tuple, cast
 
 import pymorphy2
 
 if typing.TYPE_CHECKING:
-    from typing import Iterable, Iterator, Tuple, cast
+    from typing import Iterable, Iterator
 
     from pymorphy2.analyzer import Parse
     from pymorphy2.tagset import OpencorporaTag
