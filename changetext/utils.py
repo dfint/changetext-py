@@ -1,5 +1,5 @@
 import re
-from typing import Iterator, Iterable
+from typing import cast, Iterable, Iterator, Tuple
 
 import pymorphy2
 import pymorphy2.tagset
@@ -95,7 +95,7 @@ def split_sentence(text):
     # type: (str) -> tuple[str, str]
     sentence = re_sentence.search(text)
     if sentence:
-        return sentence.groups()
+        return cast(Tuple[str, str], sentence.groups())
     else:
         return text, ""
 
