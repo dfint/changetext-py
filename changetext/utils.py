@@ -40,9 +40,10 @@ def is_adjective(word, parse=None):
     return any("ADJF" in p.tag or "PRTF" in p.tag for p in parse)
 
 
-def inflect_collocation(s, tags):
+def inflect_collocation(text, tags):
+    # type: (str, set[str]) -> str
     tags = tags - {"masc", "femn", "neut", "plur"}
-    words = [x for x in s.split(" ") if x]  # skip empty strings
+    words = [x for x in text.split(" ") if x]  # skip empty strings
     j = None
     main_word = None
     for i, word in enumerate(words):
@@ -74,13 +75,14 @@ def inflect_collocation(s, tags):
         assert p1 is not None, (p, tags)
         words[i] = p1.word
 
-    return " ".join(words) + (" " if s.endswith(" ") else "")
+    return " ".join(words) + (" " if text.endswith(" ") else "")
 
 
 re_number = re.compile(r"^(\d+)(.*)")
 
 
 def cut_number(text):
+    # type: (str) -> tuple[str, str]
     search_result = re_number.search(text)
     return search_result.group(1), search_result.group(2)
 
@@ -89,6 +91,7 @@ re_sentence = re.compile(r'^([^\.!"]*)([\.!"].*)$')
 
 
 def split_sentence(text):
+    # type: (str) -> tuple[str, str]
     sentence = re_sentence.search(text)
     if sentence:
         return sentence.groups()
@@ -97,14 +100,17 @@ def split_sentence(text):
 
 
 def is_enumeration_delimiter(text):
+    # type: (str) -> bool
     return text in {",", " и "}
 
 
 def any_cyr(text):
+    # type: (str) -> bool
     return any("а" <= x <= "я" or x == "ё" for x in text.lower())
 
 
 def add_spaces(text_parts):
+    # type: (Iterable[str]) -> Iterator[str]
     add_space = False
     for part in text_parts:
         part = part.strip()
@@ -118,6 +124,7 @@ def add_spaces(text_parts):
 
 
 def smart_join(text_parts):
+    # type: (Iterable[str]) -> str
     return "".join(add_spaces(text_parts))
 
 
@@ -125,6 +132,7 @@ re_split_enumeration = re.compile(r"(,| и )")
 
 
 def _inflect_enumeration(text, form):
+    # type: (str, set[str]) -> Iterator[str]
     do_not_inflect = False
     for part in re_split_enumeration.split(text):
         if is_enumeration_delimiter(part) or do_not_inflect:
@@ -138,16 +146,19 @@ def _inflect_enumeration(text, form):
 
 
 def inflect_enumeration(s, form):
+    # type: (str, set[str]) -> str
     return smart_join(_inflect_enumeration(s, form))
 
 
 def get_form(word):
+    # type: (str) -> set[str]
     common = common_tags(custom_parse(word))
     if "plur" in common:
         common -= {"masc", "femn", "neut"}
     if "masc" not in common:
         common -= {"anim", "inan"}
-    return {tag for tag in ["sing", "plur", "masc", "femn", "neut", "anim", "inan"] if tag in common}
+
+    return common & {"sing", "plur", "masc", "femn", "neut", "anim", "inan"}
 
 
 make_adjective = {
@@ -384,6 +395,7 @@ gender_exceptions = {
 
 
 def pm_gender(parse):
+    # type: (pymorphy2.analyzer.Parse) -> str
     tag = parse.tag
 
     if tag.number == "plur":
