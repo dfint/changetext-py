@@ -1,5 +1,5 @@
 import re
-from typing import cast, Iterable, Iterator, Tuple
+from typing import Iterable, Iterator, Tuple, cast
 
 import pymorphy2
 import pymorphy2.tagset

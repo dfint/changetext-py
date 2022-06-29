@@ -4,20 +4,20 @@ from changetext.corrector import CorrectorRegistry
 from changetext.open_brackets import open_brackets
 from changetext.replaced_parts import replaced_parts
 from changetext.utils import (
-    inflect_adjective,
+    any_in_tag,
+    custom_parse,
+    filter_noun,
     get_gender,
-    make_adjective,
+    get_main_word_gender,
+    inflect_adjective,
+    inflect_as_adjective,
+    inflect_collocation,
+    inflect_noun,
     is_adjective,
+    make_adjective,
     to_genitive_case,
     to_genitive_case_list,
     to_genitive_case_single_noun,
-    any_in_tag,
-    custom_parse,
-    inflect_noun,
-    filter_noun,
-    get_main_word_gender,
-    inflect_as_adjective,
-    inflect_collocation,
 )
 
 final_changes = CorrectorRegistry()
