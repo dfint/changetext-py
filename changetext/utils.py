@@ -1,34 +1,40 @@
 import re
 
 import pymorphy2
+import pymorphy2.tagset
 
 morph = pymorphy2.MorphAnalyzer()
 unwanted_tags = ("Name", "Surn", "Infr")
 
 
-def custom_parse(text):
-    if text.lower().startswith("адамантин"):
-        return morph.parse(text)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
+def custom_parse(word):
+    # type: (str) -> list[pymorphy2.analyzer.Parse]
+    if word.lower().startswith("адамантин"):
+        return morph.parse(word)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
     else:
-        return [p for p in morph.parse(text) if all(tag not in p.tag for tag in unwanted_tags)]
+        return [p for p in morph.parse(word) if all(tag not in p.tag for tag in unwanted_tags)]
 
 
 def tag_to_set(tag):
+    # type: (pymorphy2.tagset.OpencorporaTag) -> set[str]
     return set(sum((ss.split() for ss in str(tag).split(",")), list()))
 
 
 def common_tags(parse):
+    # type: (list[pymorphy2.analyzer.Parse]) -> set[str]
     common = tag_to_set(parse[0].tag)
     for p in parse[1:]:
         common &= tag_to_set(p.tag)
     return common
 
 
-def any_in_tag(gram, parse):  # type: (str | set[str], list) -> bool
+def any_in_tag(gram, parse):
+    # type: (str | set[str], list) -> bool
     return any(gram in p.tag for p in parse)
 
 
-def is_adjective(word: str, parse=None):
+def is_adjective(word, parse=None):
+    # type: (str, None | list[pymorphy2.analyzer.Parse]) -> bool
     if parse is None:
         parse = custom_parse(word)
     return any("ADJF" in p.tag or "PRTF" in p.tag for p in parse)
