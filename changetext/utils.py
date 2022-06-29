@@ -1,4 +1,5 @@
 import re
+from typing import Iterator, Iterable
 
 import pymorphy2
 import pymorphy2.tagset
