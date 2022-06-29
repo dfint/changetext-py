@@ -110,7 +110,7 @@ def any_cyr(text):
 
 
 def add_spaces(text_parts):
-    # #type: (Iterable[str]) -> Iterator[str]
+    # type: (Iterable[str]) -> Iterator[str]
     add_space = False
     for part in text_parts:
         part = part.strip()
@@ -124,7 +124,7 @@ def add_spaces(text_parts):
 
 
 def smart_join(text_parts):
-    # #type: (Iterable[str]) -> str
+    # type: (Iterable[str]) -> str
     return "".join(add_spaces(text_parts))
 
 
@@ -132,7 +132,7 @@ re_split_enumeration = re.compile(r"(,| и )")
 
 
 def _inflect_enumeration(text, form):
-    # #type: (str, set[str]) -> Iterator[str]
+    # type: (str, set[str]) -> Iterator[str]
     do_not_inflect = False
     for part in re_split_enumeration.split(text):
         if is_enumeration_delimiter(part) or do_not_inflect:
