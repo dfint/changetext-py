@@ -14,7 +14,7 @@ from changetext.utils import (
     any_in_tag,
     custom_parse,
     inflect_noun,
-    parse_as_noun,
+    filter_noun,
     get_main_word_gender,
     inflect_as_adjective,
     inflect_collocation,
@@ -340,46 +340,54 @@ def corr_forge(_, search_result):
     verb = search_result.group(1)
     words = search_result.group(2).split()
     assert len(words) >= 3
-    if any_in_tag({"ADJF", "gent"}, custom_parse(words[1])) and any_in_tag(  # The second word is an adj in gent
-        {"NOUN", "gent"}, custom_parse(words[2])
-    ):  # The third word is a noun in gent
+
+    assert words[0] == "из"
+    # Second word ia adjective in gent case
+    second_is_adjf_in_gent = any_in_tag({"ADJF", "gent"}, custom_parse(words[1]))
+    # Third word is noun in gent case
+    third_is_noun_in_gent = any_in_tag({"NOUN", "gent"}, custom_parse(words[2]))
+    if second_is_adjf_in_gent and third_is_noun_in_gent:
         of_material = words[:3]
         obj = words[3:]
     else:
+        # Second word is noun in gent case
         assert any_in_tag({"NOUN", "gent"}, custom_parse(words[1]))
         of_material = words[:2]
         obj = words[2:]
 
     of_material = " ".join(of_material)
-    item_index = None
+    noun_index = None
+    parse = None
+    gender = None
+
     if len(obj) == 1:
-        item_index = 0
-        parse = custom_parse(obj[item_index])
-        p = parse_as_noun(parse)
-        gender = get_gender(obj[item_index], known_tags={"nomn"})
-        if not any_in_tag({"accs"}, p):
-            obj[0] = p[0].inflect({"accs"}).word
+        noun_index = 0
+        parse = custom_parse(obj[noun_index])
+        noun = filter_noun(parse)
+        gender = get_gender(obj[noun_index], known_tags={"nomn"})
+        if not any_in_tag({"accs"}, noun):
+            obj[0] = noun[0].inflect({"accs"}).word
     else:
-        parse = None
-        gender = None
         for i, word in enumerate(obj):
             parse = custom_parse(word)
-            p = parse_as_noun(parse)
-            if p:
-                item_index = i
-                gender = get_gender(obj[item_index])
-                obj[i] = p[0].inflect({"accs"}).word
-                break  # Words after the 'item' must be leaved in genitive case
+            noun = filter_noun(parse)
+            if noun:
+                noun_index = i
+                gender = get_gender(obj[noun_index])
+                obj[i] = noun[0].inflect({"accs"}).word
+                break  # Words after the 'item' must be left in genitive case
             elif not any_in_tag("accs", parse):
                 obj[i] = parse[0].inflect({"accs"}).word
 
+    assert parse is not None
     if not any_in_tag("accs", parse):
-        obj[item_index] = parse[0].inflect({"accs"}).word
+        obj[noun_index] = parse[0].inflect({"accs"}).word
 
     if verb == "Кузница":
         verb = "Ковать"
 
     if of_material in make_adjective:
+        assert gender is not None
         material = inflect_adjective(make_adjective[of_material], gender, "accs", animated=False)
         text = verb + " " + material + " " + " ".join(obj)
     else:

@@ -24,7 +24,7 @@ def common_tags(parse):
     return common
 
 
-def any_in_tag(gram, parse):
+def any_in_tag(gram, parse):  # type: (str | set[str], list) -> bool
     return any(gram in p.tag for p in parse)
 
 
@@ -515,8 +515,8 @@ def inflect_as_adjective(adj, gender):
     return new_adj
 
 
-def parse_as_noun(parse):
-    return list(filter(lambda x: {"NOUN"} in x.tag and "Surn" not in x.tag, parse))
+def filter_noun(parse):
+    return list(filter(lambda x: x.tag.POS == "NOUN" and "Surn" not in x.tag, parse))
 
 
 def inflect_text(text: str, tags: set):
