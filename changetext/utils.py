@@ -91,6 +91,7 @@ re_number = re.compile(r"^(\d+)(.*)")
 def cut_number(text):
     # type: (str) -> Tuple[str, str]
     search_result = re_number.search(text)
+    assert search_result is not None
     return search_result.group(1), search_result.group(2)
 
 
@@ -418,11 +419,11 @@ def get_gender(obj, known_tags=None):
     assert " " not in obj, "get_gender() is not suitable for word collocations"
 
     if "-" in obj:
-        obj = obj.split("-")
-        if obj[0] in {"мини"}:
-            obj = obj[1]
+        parts = obj.partition("-")
+        if parts[0] in {"мини"}:
+            obj = parts[2]
         else:
-            obj = obj[0]
+            obj = parts[0]
 
     parse = custom_parse(obj)
     if known_tags is not None:
@@ -485,14 +486,13 @@ gent_case_except = {
 
 
 def inflect_noun(word, case, orig_form=None):
-    # type: (str, str, Union[None, str, Set[str]]) -> Optional[str]
+    # type: (str, str, Union[None, str, Set[str]]) -> str
     parse = list(filter(lambda x: x.tag.POS == "NOUN", custom_parse(word)))
 
     if orig_form:
         parse = [p for p in parse if orig_form in p.tag]
 
-    if len(parse) == 0:
-        return None
+    assert len(parse) > 0
 
     p = parse[0]
     new_form = p.inflect({case, p.tag.number})
@@ -522,10 +522,11 @@ def to_genitive_case_list(words):
 
     for word in words:
         if is_adjective(word):
+            assert gender is not None
             word = inflect_adjective(word, gender, "gent")
         else:
             word = to_genitive_case_single_noun(word)
-        assert word is not None
+
         yield word
 
 
