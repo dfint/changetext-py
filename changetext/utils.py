@@ -553,7 +553,7 @@ def inflect_as_adjective(adj, gender):
 
 def filter_noun(parse):
     # type: (List[Parse]) -> List[Parse]
-    return list(filter(lambda x: x.tag.POS == "NOUN" and "Surn" not in x.tag, parse))
+    return list(filter(lambda x: x.tag.POS == "NOUN", parse))
 
 
 def inflect_text(text, tags):
