@@ -1,54 +1,43 @@
 import re
-import typing
-from typing import Tuple, cast
+from typing import Iterable, Iterator, List, Optional, Set, Tuple, Union, cast
 
 import pymorphy2
-
-if typing.TYPE_CHECKING:
-    from typing import Iterable, Iterator, List, Optional, Set, Union
-
-    from pymorphy2.analyzer import Parse
-    from pymorphy2.tagset import OpencorporaTag
+from pymorphy2.analyzer import Parse
+from pymorphy2.tagset import OpencorporaTag
 
 morph = pymorphy2.MorphAnalyzer()
 unwanted_tags = ("Name", "Surn", "Infr")
 
 
-def custom_parse(word):
-    # type: (str) -> List[Parse]
+def custom_parse(word: str) -> List[Parse]:
     if word.lower().startswith("адамантин"):
         return morph.parse(word)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
     else:
         return [p for p in morph.parse(word) if all(tag not in p.tag for tag in unwanted_tags)]
 
 
-def tag_to_set(tag):
-    # type: (OpencorporaTag) -> Set[str]
+def tag_to_set(tag: OpencorporaTag) -> Set[str]:
     return set(sum((ss.split() for ss in str(tag).split(",")), list()))
 
 
-def common_tags(parse):
-    # type: (List[Parse]) -> Set[str]
+def common_tags(parse: List[Parse]) -> Set[str]:
     common = tag_to_set(parse[0].tag)
     for p in parse[1:]:
         common &= tag_to_set(p.tag)
     return common
 
 
-def any_in_tag(gram, parse):
-    # type: (Union[str, Set[str]], List[Parse]) -> bool
+def any_in_tag(gram: Union[str, Set[str]], parse: List[Parse]) -> bool:
     return any(gram in p.tag for p in parse)
 
 
-def is_adjective(word, parse=None):
-    # type: (str, Optional[List[Parse]]) -> bool
+def is_adjective(word: str, parse: Optional[List[Parse]] = None) -> bool:
     if parse is None:
         parse = custom_parse(word)
     return any("ADJF" in p.tag or "PRTF" in p.tag for p in parse)
 
 
-def inflect_collocation(text, tags):
-    # type: (str, Set[str]) -> str
+def inflect_collocation(text: str, tags: Set[str]) -> str:
     tags = tags - {"masc", "femn", "neut", "plur"}
     words = [x for x in text.split(" ") if x]  # skip empty strings
     j = None
@@ -88,8 +77,7 @@ def inflect_collocation(text, tags):
 re_number = re.compile(r"^(\d+)(.*)")
 
 
-def cut_number(text):
-    # type: (str) -> Tuple[str, str]
+def cut_number(text: str) -> Tuple[str, str]:
     search_result = re_number.search(text)
     assert search_result is not None
     return search_result.group(1), search_result.group(2)
@@ -98,8 +86,7 @@ def cut_number(text):
 re_sentence = re.compile(r'^([^\.!"]*)([\.!"].*)$')
 
 
-def split_sentence(text):
-    # type: (str) -> Optional[Tuple[str, str]]
+def split_sentence(text: str) -> Optional[Tuple[str, str]]:
     sentence = re_sentence.search(text)
     if sentence:
         return cast(Tuple[str, str], sentence.groups())
@@ -107,18 +94,15 @@ def split_sentence(text):
         return text, ""
 
 
-def is_enumeration_delimiter(text):
-    # type: (str) -> bool
+def is_enumeration_delimiter(text: str) -> bool:
     return text in {",", " и "}
 
 
-def any_cyr(text):
-    # type: (str) -> bool
+def any_cyr(text: str) -> bool:
     return any("а" <= x <= "я" or x == "ё" for x in text.lower())
 
 
-def add_spaces(text_parts):
-    # type: (Iterable[str]) -> Iterator[str]
+def add_spaces(text_parts: Iterable[str]) -> Iterator[str]:
     add_space = False
     for part in text_parts:
         part = part.strip()
@@ -131,16 +115,14 @@ def add_spaces(text_parts):
                 add_space = True
 
 
-def smart_join(text_parts):
-    # type: (Iterable[str]) -> str
+def smart_join(text_parts: Iterable[str]) -> str:
     return "".join(add_spaces(text_parts))
 
 
 re_split_enumeration = re.compile(r"(,| и )")
 
 
-def _inflect_enumeration(text, form):
-    # type: (str, Set[str]) -> Iterator[str]
+def _inflect_enumeration(text: str, form: Set[str]) -> Iterator[str]:
     do_not_inflect = False
     for part in re_split_enumeration.split(text):
         if is_enumeration_delimiter(part) or do_not_inflect:
@@ -153,13 +135,11 @@ def _inflect_enumeration(text, form):
             yield part
 
 
-def inflect_enumeration(s, form):
-    # type: (str, Set[str]) -> str
+def inflect_enumeration(s: str, form: Set[str]) -> str:
     return smart_join(_inflect_enumeration(s, form))
 
 
-def get_form(word):
-    # type: (str) -> Set[str]
+def get_form(word: str) -> Set[str]:
     common = common_tags(custom_parse(word))
     if "plur" in common:
         common -= {"masc", "femn", "neut"}
@@ -402,8 +382,7 @@ gender_exceptions = {
 }
 
 
-def pm_gender(parse):
-    # type: (Parse) -> str
+def pm_gender(parse: Parse) -> str:
     tag = parse.tag
 
     if tag.number == "plur":
@@ -414,8 +393,7 @@ def pm_gender(parse):
     return str(gender)  # explicitly convert to a string any internal types returned from pymorphy2
 
 
-def get_gender(obj, known_tags=None):
-    # type: (str, Union[None, str, Set[str]]) -> Optional[str]
+def get_gender(obj: str, known_tags: Union[None, str, Set[str]] = None) -> Optional[str]:
     assert " " not in obj, "get_gender() is not suitable for word collocations"
 
     if "-" in obj:
@@ -443,8 +421,7 @@ def get_gender(obj, known_tags=None):
         return pm_gender(parse[0])
 
 
-def get_main_word_gender(text):
-    # type: (str) -> Optional[str]
+def get_main_word_gender(text: str) -> Optional[str]:
     if " " not in text:
         return get_gender(text, known_tags={"nomn"})
     else:
@@ -454,15 +431,13 @@ def get_main_word_gender(text):
         return None
 
 
-def parse_as_adjective(adjective):
-    # type: (str) -> List[Parse]
+def parse_as_adjective(adjective: str) -> List[Parse]:
     parse = [p for p in custom_parse(adjective) if "ADJF" in p.tag or "PRTF" in p.tag]
     assert len(parse) > 0, "parse: {!r}".format(parse)
     return parse
 
 
-def inflect_adjective(adjective, gender, case="nomn", animated=None):
-    # type: (str, str, str, Optional[bool]) -> str
+def inflect_adjective(adjective: str, gender: str, case: str = "nomn", animated: Optional[bool] = None) -> str:
     assert gender is not None
     parse = parse_as_adjective(adjective)
     p = parse[0]
@@ -485,8 +460,7 @@ gent_case_except = {
 }
 
 
-def inflect_noun(word, case, orig_form=None):
-    # type: (str, str, Union[None, str, Set[str]]) -> str
+def inflect_noun(word: str, case: str, orig_form: Union[None, str, Set[str]] = None) -> str:
     parse = list(filter(lambda x: x.tag.POS == "NOUN", custom_parse(word)))
 
     if orig_form:
@@ -500,16 +474,14 @@ def inflect_noun(word, case, orig_form=None):
     return new_form.word
 
 
-def to_genitive_case_single_noun(word):
-    # type: (str) -> str
+def to_genitive_case_single_noun(word: str) -> str:
     if word.lower() in gent_case_except:
         return gent_case_except[word.lower()]
     else:
         return inflect_noun(word, case="gent")
 
 
-def to_genitive_case_list(words):
-    # type: (List[str]) -> Iterator[str]
+def to_genitive_case_list(words: List[str]) -> Iterator[str]:
     if len(words) == 1:
         gender = get_gender(words[0], {"nomn"})
     else:
@@ -530,13 +502,11 @@ def to_genitive_case_list(words):
         yield word
 
 
-def to_genitive_case(word):
-    # type: (str) -> str
+def to_genitive_case(word: str) -> str:
     return " ".join(to_genitive_case_list(word.split()))
 
 
-def inflect_as_adjective(adj, gender):
-    # type: (str, str) -> str
+def inflect_as_adjective(adj: str, gender: str) -> str:
     if adj in make_adjective:
         new_adj = inflect_adjective(make_adjective[adj], gender)
     elif " " in adj:
@@ -551,13 +521,11 @@ def inflect_as_adjective(adj, gender):
     return new_adj
 
 
-def filter_noun(parse):
-    # type: (List[Parse]) -> List[Parse]
+def filter_noun(parse: List[Parse]) -> List[Parse]:
     return list(filter(lambda x: x.tag.POS == "NOUN", parse))
 
 
-def inflect_text(text, tags):
-    # type: (str, Set[str]) -> str
+def inflect_text(text: str, tags: Set[str]) -> str:
     if " " in text:
         item = inflect_collocation(text, tags)
     else:
