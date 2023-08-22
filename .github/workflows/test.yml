@@ -15,7 +15,7 @@ jobs:
         python-version: ["3.7", "3.8", "3.9", "3.10"]  # Not 3.11 yet, because pymorphy2 is not updated to 3.11
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install Poetry
       run: pipx install poetry
