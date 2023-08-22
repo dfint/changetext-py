@@ -6,14 +6,15 @@ authors = ["insolor <insolor@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 pymorphy2 = "^0.9.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 flake8 = "^5.0.4"
 pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
 black = "^23.3.0"
+isort = "^5.12.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -21,3 +22,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
+
+[tool.isort]
+profile = "black"
