@@ -54,7 +54,7 @@ def corr_tags(text, state=None):
 
                 if "get-form" in tags:
                     if get_index is not None:
-                        raise ValueError("Duplicate <get-form> tag in {!r}".format(text))
+                        raise ValueError(f"Duplicate <get-form> tag in {text!r}")
                     get_index = len(text_parts)
                     tags.remove("get-form")
                 elif "set-form" in tags:

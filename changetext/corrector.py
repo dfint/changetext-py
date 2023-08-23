@@ -16,10 +16,12 @@ class CorrectorRegistry:
                 if isinstance(regex, str):
                     regex = re.compile(regex)
 
-                predicate = lambda text: regex.search(text)
+                def predicate(text):
+                    return regex.search(text)
 
             if predicate is None:
-                predicate = lambda _text: True
+                def predicate(_text):
+                    return True
 
             self.changes.append((predicate, func))
 
@@ -40,7 +42,7 @@ class CorrectorRegistry:
             if predicate_result:
                 result = func(text, predicate_result)
                 if result:
-                    get_logger().write("{}({!r}) -> {!r}".format(func.__name__, text, result))
+                    get_logger().write(f"{func.__name__}({text!r}) -> {result!r}")
                 text = result or text
 
         return text
@@ -51,7 +53,7 @@ class CorrectorRegistry:
             if predicate_result:
                 result = func(text, predicate_result)
                 if result:
-                    get_logger().write("{}({!r}) -> {!r}".format(func.__name__, text, result))
+                    get_logger().write(f"{func.__name__}({text!r}) -> {result!r}")
                 return result or text
 
         return text

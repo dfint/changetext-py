@@ -65,7 +65,7 @@ def inflect_collocation(text: str, tags: Set[str]) -> str:
     for i, word in enumerate(words[:j]):
         parse = custom_parse(word)
         if not is_adjective(word, parse):
-            raise ValueError("{} is not an adjective".format(word))
+            raise ValueError(f"{word} is not an adjective")
         p = next(p for p in parse if {"ADJF"} in p.tag)
         p1 = p.inflect(tags)
         assert p1 is not None, (p, tags)
@@ -433,7 +433,7 @@ def get_main_word_gender(text: str) -> Optional[str]:
 
 def parse_as_adjective(adjective: str) -> List[Parse]:
     parse = [p for p in custom_parse(adjective) if "ADJF" in p.tag or "PRTF" in p.tag]
-    assert len(parse) > 0, "parse: {!r}".format(parse)
+    assert len(parse) > 0, f"parse: {parse!r}"
     return parse
 
 
@@ -516,7 +516,7 @@ def inflect_as_adjective(adj: str, gender: str) -> str:
     elif is_adjective(adj):
         new_adj = inflect_adjective(adj, gender)
     else:
-        raise ValueError("Cannot inflect {} as adjective".format(adj))
+        raise ValueError(f"Cannot inflect {adj} as adjective")
 
     return new_adj
 

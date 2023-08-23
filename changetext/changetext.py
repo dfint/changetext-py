@@ -19,5 +19,5 @@ def change_text(text):
 @log_exceptions()
 def outer_change_text(text):
     result = change_text(text)
-    get_logger().write("{}({!r}) -> {!r}".format(outer_change_text.__name__, text, result))
+    get_logger().write(f"{outer_change_text.__name__}({text!r}) -> {result!r}")
     return result

@@ -13,7 +13,7 @@ def test_double_write():
     result = "result"
     file = io.StringIO()
 
-    text = "{!r} --> {!r}".format(text, result)
+    text = f"{text!r} --> {result!r}"
     get_logger(file).write(text)
     assert file.getvalue().strip() == text
 
@@ -33,4 +33,4 @@ def test_exception_logging():
     foo("text")
 
     stderr_text = file.getvalue().splitlines(keepends=False)
-    assert stderr_text[0] == "An exception occurred. Initial string: {!r}".format(arg)
+    assert stderr_text[0] == f"An exception occurred. Initial string: {arg!r}"
