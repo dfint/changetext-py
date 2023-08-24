@@ -236,8 +236,8 @@ def corr_animal_gender(text, search_result):
     animal = search_result.group(1)
     if animal not in animal_genders:
         return None
-    else:
-        return text.replace(search_result.group(0), animal_genders[animal][gender] + ", " + search_result.group(2))
+
+    return text.replace(search_result.group(0), animal_genders[animal][gender] + ", " + search_result.group(2))
 
 
 @preliminary_changes.register(regex=re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE))

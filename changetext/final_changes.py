@@ -1006,5 +1006,5 @@ def corr_become(_, search_result):
     words = inflect_collocation(words, {"ablt"})
     if subj.startswith("Животное"):
         return f"Животное выросло и стало {words}."
-    else:
-        return f"{subj} {verb} {words}."
+
+    return f"{subj} {verb} {words}."

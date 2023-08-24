@@ -6,7 +6,7 @@ from changetext.logging_tools import get_logger
 
 class CorrectorRegistry:
     def __init__(self):
-        self.changes = list()
+        self.changes = []
 
     def register(self, regex=None, predicate=None):
         def decorator(func):
