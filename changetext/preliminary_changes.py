@@ -91,7 +91,7 @@ def corr_ending_s(text):
         number = int(number)
         parse = [x for x in custom_parse(group2) if {"NOUN", "nomn", "sing"} in x.tag]
         assert len(parse) == 1
-        replacement_string = "{:d} {}".format(number, parse[0].make_agree_with_number(number).word)
+        replacement_string = f"{number:d} {parse[0].make_agree_with_number(number).word}"
     elif group2 in dict_ending_s:
         replacement_string = dict_ending_s[group2]
     elif " " not in group2:
@@ -236,8 +236,8 @@ def corr_animal_gender(text, search_result):
     animal = search_result.group(1)
     if animal not in animal_genders:
         return None
-    else:
-        return text.replace(search_result.group(0), animal_genders[animal][gender] + ", " + search_result.group(2))
+
+    return text.replace(search_result.group(0), animal_genders[animal][gender] + ", " + search_result.group(2))
 
 
 @preliminary_changes.register(regex=re.compile(r"(он|она|вы)\s+(не\s+)?(имеете?)", flags=re.IGNORECASE))
@@ -320,7 +320,7 @@ def corr_tags_outer(text, _):
     try:
         result = corr_tags(text)
     except (AssertionError, ValueError) as err:
-        print("corr_tags() raises exception {!r}:".format(err))
+        print(f"corr_tags() raises exception {err!r}:")
         print(traceback.format_exc())
         result = " ".join(
             part.strip(" ") if not part.startswith("<") else part.strip("<>").partition(":")[2]

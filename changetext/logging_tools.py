@@ -24,7 +24,7 @@ class LoggerWrapper:
             self.logged.add(text)
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def get_logger(stream=None):
     return LoggerWrapper(stream)
 
@@ -36,7 +36,7 @@ def log_exceptions(stream=None):
             try:
                 return func(text)
             except Exception:
-                get_logger(stream).logger.exception("An exception occurred. Initial string: {!r}".format(text))
+                get_logger(stream).logger.exception(f"An exception occurred. Initial string: {text!r}")
 
         return wrapper
 

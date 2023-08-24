@@ -16,6 +16,6 @@ def init():
     pass
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def get_state(object_id=None):
     return ChangeTextState(object_id)

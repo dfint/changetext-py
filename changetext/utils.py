@@ -12,12 +12,12 @@ unwanted_tags = ("Name", "Surn", "Infr")
 def custom_parse(word: str) -> List[Parse]:
     if word.lower().startswith("адамантин"):
         return morph.parse(word)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
-    else:
-        return [p for p in morph.parse(word) if all(tag not in p.tag for tag in unwanted_tags)]
+
+    return [p for p in morph.parse(word) if all(tag not in p.tag for tag in unwanted_tags)]
 
 
 def tag_to_set(tag: OpencorporaTag) -> Set[str]:
-    return set(sum((ss.split() for ss in str(tag).split(",")), list()))
+    return set(sum((ss.split() for ss in str(tag).split(",")), []))
 
 
 def common_tags(parse: List[Parse]) -> Set[str]:
@@ -65,7 +65,7 @@ def inflect_collocation(text: str, tags: Set[str]) -> str:
     for i, word in enumerate(words[:j]):
         parse = custom_parse(word)
         if not is_adjective(word, parse):
-            raise ValueError("{} is not an adjective".format(word))
+            raise ValueError(f"{word} is not an adjective")
         p = next(p for p in parse if {"ADJF"} in p.tag)
         p1 = p.inflect(tags)
         assert p1 is not None, (p, tags)
@@ -90,8 +90,8 @@ def split_sentence(text: str) -> Optional[Tuple[str, str]]:
     sentence = re_sentence.search(text)
     if sentence:
         return cast(Tuple[str, str], sentence.groups())
-    else:
-        return text, ""
+
+    return text, ""
 
 
 def is_enumeration_delimiter(text: str) -> bool:
@@ -410,7 +410,7 @@ def get_gender(obj: str, known_tags: Union[None, str, Set[str]] = None) -> Optio
     if obj.lower() in gender_exceptions:
         return gender_exceptions[obj.lower()]
     else:
-        if len(parse) > 0:
+        if parse:
             gender = pm_gender(parse[0])
             for p in parse:
                 if pm_gender(p) != gender:
@@ -433,7 +433,7 @@ def get_main_word_gender(text: str) -> Optional[str]:
 
 def parse_as_adjective(adjective: str) -> List[Parse]:
     parse = [p for p in custom_parse(adjective) if "ADJF" in p.tag or "PRTF" in p.tag]
-    assert len(parse) > 0, "parse: {!r}".format(parse)
+    assert parse, f"parse: {parse!r}"
     return parse
 
 
@@ -466,7 +466,7 @@ def inflect_noun(word: str, case: str, orig_form: Union[None, str, Set[str]] = N
     if orig_form:
         parse = [p for p in parse if orig_form in p.tag]
 
-    assert len(parse) > 0
+    assert parse
 
     p = parse[0]
     new_form = p.inflect({case, p.tag.number})
@@ -477,8 +477,8 @@ def inflect_noun(word: str, case: str, orig_form: Union[None, str, Set[str]] = N
 def to_genitive_case_single_noun(word: str) -> str:
     if word.lower() in gent_case_except:
         return gent_case_except[word.lower()]
-    else:
-        return inflect_noun(word, case="gent")
+
+    return inflect_noun(word, case="gent")
 
 
 def to_genitive_case_list(words: List[str]) -> Iterator[str]:
@@ -516,7 +516,7 @@ def inflect_as_adjective(adj: str, gender: str) -> str:
     elif is_adjective(adj):
         new_adj = inflect_adjective(adj, gender)
     else:
-        raise ValueError("Cannot inflect {} as adjective".format(adj))
+        raise ValueError(f"Cannot inflect {adj} as adjective")
 
     return new_adj
 
