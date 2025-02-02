@@ -6,8 +6,8 @@ authors = ["insolor <insolor@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pymorphy2 = "^0.9.1"
+python = "^3.9"
+pymorphy3 = "^2.0.2"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^5.0.4"

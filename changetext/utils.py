@@ -1,17 +1,17 @@
 import re
 from typing import Iterable, Iterator, List, Optional, Set, Tuple, Union, cast
 
-import pymorphy2
-from pymorphy2.analyzer import Parse
-from pymorphy2.tagset import OpencorporaTag
+import pymorphy3
+from pymorphy3.analyzer import Parse
+from pymorphy3.tagset import OpencorporaTag
 
-morph = pymorphy2.MorphAnalyzer()
+morph = pymorphy3.MorphAnalyzer()
 unwanted_tags = ("Name", "Surn", "Infr")
 
 
 def custom_parse(word: str) -> List[Parse]:
     if word.lower().startswith("адамантин"):
-        return morph.parse(word)  # Pymorphy2 thinks that adamantine is a surname and treats it properly
+        return morph.parse(word)  # Pymorphy thinks that adamantine is a surname and treats it properly
 
     return [p for p in morph.parse(word) if all(tag not in p.tag for tag in unwanted_tags)]
 
@@ -390,7 +390,7 @@ def pm_gender(parse: Parse) -> str:
     else:
         gender = tag.gender
 
-    return str(gender)  # explicitly convert to a string any internal types returned from pymorphy2
+    return str(gender)  # explicitly convert to a string any internal types returned from pymorphy
 
 
 def get_gender(obj: str, known_tags: Union[None, str, Set[str]] = None) -> Optional[str]:
