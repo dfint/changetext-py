@@ -89,15 +89,18 @@ tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.1
 toml = ["tomli"]
 
 [[package]]
-name = "dawg-python"
-version = "0.7.2"
+name = "dawg2-python"
+version = "0.9.0"
 description = "Pure-python reader for DAWGs (DAFSAs) created by dawgdic C++ library or DAWG Python extension."
 optional = false
-python-versions = "*"
+python-versions = "<4.0,>=3.8"
 files = [
-    {file = "DAWG-Python-0.7.2.tar.gz", hash = "sha256:4a5e3286e6261cca02f205cfd5516a7ab10190fa30c51c28d345808f595e3421"},
-    {file = "DAWG_Python-0.7.2-py2.py3-none-any.whl", hash = "sha256:4941d5df081b8d6fcb4597e073a9f60d5c1ccc9d17cd733e8744d7ecfec94ef3"},
+    {file = "dawg2_python-0.9.0-py3-none-any.whl", hash = "sha256:4fab6fc097bd176cd783cd8421b757348ea5a460789e53b0f6bb64831380bab5"},
+    {file = "dawg2_python-0.9.0.tar.gz", hash = "sha256:adea0312acd1a958659e8448ce6899046c0858d0b6c8949a51eebdeb5a113e4a"},
 ]
+
+[package.dependencies]
+typing-extensions = {version = ">=4.0", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "exceptiongroup"
@@ -201,23 +204,23 @@ files = [
 
 [[package]]
 name = "pymorphy3"
-version = "2.0.2"
+version = "2.0.3"
 description = "Morphological analyzer (POS tagger + inflection engine) for Russian language."
 optional = false
 python-versions = "*"
 files = [
-    {file = "pymorphy3-2.0.2-py3-none-any.whl", hash = "sha256:5c4534e09e424c765a69601b5cc3735080dfafed15105961b3c16616793891d0"},
-    {file = "pymorphy3-2.0.2.tar.gz", hash = "sha256:5192660028a0bfdf33ff19e827b73d6467dea32be87ad0faae9f2425e40d701c"},
+    {file = "pymorphy3-2.0.3-py3-none-any.whl", hash = "sha256:431d3b30449d282b84272a41419ffec54039065bcd08d54c1b0cf26ef61fa38b"},
+    {file = "pymorphy3-2.0.3.tar.gz", hash = "sha256:d9579920de3d9e7de3e0ea914fbfc32e8b38cd3e4a6837f675a516d6f577dd56"},
 ]
 
 [package.dependencies]
-dawg-python = ">=0.7.1"
+dawg2-python = ">=0.8.0"
 pymorphy3-dicts-ru = "*"
 setuptools = {version = ">=68.2.2", markers = "python_version >= \"3.12\""}
 
 [package.extras]
 cli = ["click"]
-fast = ["DAWG (>=0.8)"]
+fast = ["DAWG2 (>=0.9.0,<1.0.0)"]
 
 [[package]]
 name = "pymorphy3-dicts-ru"
@@ -328,7 +331,18 @@ files = [
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
 
+[[package]]
+name = "typing-extensions"
+version = "4.12.2"
+description = "Backported and Experimental Type Hints for Python 3.8+"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "typing_extensions-4.12.2-py3-none-any.whl", hash = "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d"},
+    {file = "typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"},
+]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "abe95f350db27eac9fd75bb5ef05e984d58b8daada4f3e5659bc4c85bb81696b"
+content-hash = "1b0698c2a75e642ca61021f8fa30fc5a2db5208114a8693c755072dba9552502"

@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pymorphy3 = "^2.0.2"
+pymorphy3 = "^2.0.3"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.1.2"
