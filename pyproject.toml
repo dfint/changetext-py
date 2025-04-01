@@ -10,10 +10,10 @@ python = "^3.9"
 pymorphy3 = "^2.0.3"
 
 [tool.poetry.group.dev.dependencies]
-flake8 = "^7.1.2"
-pytest = "^8.3.4"
+flake8 = "^7.2.0"
+pytest = "^8.3.5"
 pytest-cov = "^6.0.0"
-ruff = "^0.9.9"
+ruff = "^0.11.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
