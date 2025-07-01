@@ -217,14 +217,14 @@ files = [
 
 [[package]]
 name = "pymorphy3"
-version = "2.0.3"
+version = "2.0.4"
 description = "Morphological analyzer (POS tagger + inflection engine) for Russian language."
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "pymorphy3-2.0.3-py3-none-any.whl", hash = "sha256:431d3b30449d282b84272a41419ffec54039065bcd08d54c1b0cf26ef61fa38b"},
-    {file = "pymorphy3-2.0.3.tar.gz", hash = "sha256:d9579920de3d9e7de3e0ea914fbfc32e8b38cd3e4a6837f675a516d6f577dd56"},
+    {file = "pymorphy3-2.0.4-py3-none-any.whl", hash = "sha256:bcda81d242b1217d625357724f144836f4da8fbcde8c760a170854463c1925ee"},
+    {file = "pymorphy3-2.0.4.tar.gz", hash = "sha256:31d7d6949d59424767caf82729cd8f231fbe9df2465c66465191b9c48deca790"},
 ]
 
 [package.dependencies]
@@ -369,4 +369,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "17c2a0cc256636fd6cf12f1bb9290e7242656b6549f3c4f3ea6ffd35d5c83184"
+content-hash = "86e6ce20de811b538cf60e0b792307d0c1c90a54d2c3b81bf8d8264cc8adb151"
