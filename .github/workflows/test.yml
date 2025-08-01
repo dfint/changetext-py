@@ -17,38 +17,25 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Poetry
-      run: pipx install poetry
-    
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-        cache: "poetry"
-        cache-dependency-path: poetry.lock
 
-    - name: Install library and dependencies
-      run: poetry install --no-interaction
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: latest
 
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Install dependencies
+      run: uv sync
 
     - name: Test with pytest
       run: |
-        poetry run pytest --doctest-modules changetext ./tests --cov=.
+        uv run pytest --doctest-modules changetext ./tests --cov=.
 
     - name: Upload coverage data to coveralls.io
       run: |
-        pip install coveralls==3.3.1
-        coveralls --service=github | true
+        uvx coveralls --service=github | true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#    - name: Test & publish code coverage
-#      uses: paambaati/codeclimate-action@v3.0.0
-#      with:
-#        coverageCommand: poetry run pytest --doctest-modules changetext ./tests --cov=.
-#        debug: true

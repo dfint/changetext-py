@@ -1,23 +1,22 @@
-[tool.poetry]
+[project]
 name = "changetext"
 version = "0.1.0"
 description = ""
-authors = ["insolor <insolor@gmail.com>"]
+authors = [{ name = "insolor", email = "insolor@gmail.com" }]
+requires-python = ">=3.9"
 license = "MIT"
+dependencies = ["pymorphy3>=2.0.4,<3"]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-pymorphy3 = "^2.0.4"
-
-[tool.poetry.group.dev.dependencies]
-flake8 = "^7.3.0"
-pytest = "^8.4.1"
-pytest-cov = "^6.2.1"
-ruff = "^0.12.7"
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1,<9",
+    "pytest-cov>=6.2.1,<7",
+    "ruff>=0.12.7,<0.13",
+]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff]
 line-length = 120
