@@ -173,16 +173,16 @@ wheels = [
 
 [[package]]
 name = "pymorphy3"
-version = "2.0.4"
+version = "2.0.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dawg2-python" },
     { name = "pymorphy3-dicts-ru" },
     { name = "setuptools", marker = "python_full_version >= '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/98/fe/46459a671e5c11ea513528387954b7044795da1c2bba2ee359be38bddca3/pymorphy3-2.0.4.tar.gz", hash = "sha256:31d7d6949d59424767caf82729cd8f231fbe9df2465c66465191b9c48deca790", size = 97749, upload-time = "2025-06-06T09:06:10.814Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/17/63/3a1eabd3a7e6e060b69a87fe9c28fe89f75f4d49e55f0caf2e29c943c003/pymorphy3-2.0.6.tar.gz", hash = "sha256:1603df3bc9e116967c990607f5b97d42fb1c572d6839b851af3501e51d7f5493", size = 97681, upload-time = "2025-10-09T16:06:18.718Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/0c/8759d1d5f2d0ad59e4de1ba492a585a548304ed30a180e3fba025dc489e1/pymorphy3-2.0.4-py3-none-any.whl", hash = "sha256:bcda81d242b1217d625357724f144836f4da8fbcde8c760a170854463c1925ee", size = 54064, upload-time = "2025-06-06T09:06:09.848Z" },
+    { url = "https://files.pythonhosted.org/packages/18/4b/59bac03278033e293d1405ed42fb6c6252c25f40c50f509c615caeaa3b71/pymorphy3-2.0.6-py3-none-any.whl", hash = "sha256:0254317c02ce3ea17e080b7fc9d675e44662b3a5296bae68605b7a41d25b36c3", size = 53900, upload-time = "2025-10-09T16:06:17.721Z" },
 ]
 
 [[package]]
