@@ -3,13 +3,13 @@ name = "changetext"
 version = "0.1.0"
 description = ""
 authors = [{ name = "insolor", email = "insolor@gmail.com" }]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 license = "MIT"
 dependencies = ["pymorphy3>=2.0.4,<3"]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.4.1,<9",
+    "pytest>=9.0.3,<10",
     "pytest-cov>=6.2.1,<8",
     "ruff>=0.12.7,<0.16",
 ]
